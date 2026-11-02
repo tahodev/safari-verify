@@ -161,7 +161,10 @@ def flow_dogam(cdp, cal, app, expect_nodes):
     tap_el(cdp, cal, "document.getElementById('name')", "name")
     type_text("QA")
     tap_el(cdp, cal, "document.querySelector('#start-actions button')", "begin")
-    stage = wait_js(cdp, "window.__dogam&&['start','language'].indexOf(window.__dogam.stage())<0", 30000)
+    city = wait_js(cdp, "window.__dogam&&window.__dogam.stage()==='city'", 20000)
+    if city:
+        tap_el(cdp, cal, "document.querySelector('#city-action button')", "begin-city")
+    stage = wait_js(cdp, "window.__dogam&&window.__dogam.stage()==='game'", 30000)
     rec(A, "entry via real taps reaches world", stage, stage and cdp.js("window.__dogam&&window.__dogam.stage()"))
     n = cdp.js("window.GAME_DATA?window.GAME_DATA.nodes.length:0")
     rec(A, "node count", n == expect_nodes, f"nodes={n}")

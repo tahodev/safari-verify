@@ -83,6 +83,7 @@ async function checkGGP(sid) {
   rec(A, 'entry: real button clicks spawn avatar (WebSocket join)', !!me);
   if (me) {
     const seat = await exe(sid, `(()=>{const s=window.__ggp.seats[4];return s?{x:s.x,y:s.y}:null})()`).catch(()=>null);
+    if (!seat) rec(A, 'canvas tap claims seat (hit-testing + WS round-trip)', false, 'no seats[4] coords from __ggp');
     if (seat) {
       const cv = await el(sid, 'css selector', '#cv');
       if (cv) {
@@ -90,7 +91,7 @@ async function checkGGP(sid) {
         await sleep(3000);
         const claimed = await exe(sid, `(()=>{const s=window.__ggp.seats[4];return !!(s&&s.by===window.__ggp.me)})()`).catch(()=>null);
         rec(A, 'canvas tap claims seat (hit-testing + WS round-trip)', !!claimed);
-      }
+      } else rec(A, 'canvas tap claims seat (hit-testing + WS round-trip)', false, 'no #cv canvas element');
     }
   }
   await shot(sid, 'desktop-golden-gate-picnic');
@@ -123,7 +124,7 @@ async function checkCoworking(sid) {
   if (inp) { await click(sid, inp); await type(sid, inp, 'QA'); }
   const b = await el(sid, 'css selector', '#enter');
   if (b) await click(sid, b);
-  const me = await waitFor(sid, `(()=>{try{return !!(window.__me && window.__me())}catch(e){return false}})()`, 45000);
+  const me = await waitFor(sid, `!!(window.__me && window.__me.group)`, 60000);
   rec(A, 'entry: avatar joins world (WebSocket presence)', !!me);
   await shot(sid, 'desktop-coworking-world');
 }
@@ -135,13 +136,14 @@ async function checkDalbit(sid) {
   if (!boot) return;
   const fx = await waitFor(sid, `!!document.querySelector('.seasonfx')`, 15000);
   rec(A, 'extras22.js executes (lookbehind fix, seasonfx element created)', !!fx);
-  const rod = await el(sid, 'css selector', 'button.rod');
-  if (rod) {
-    await click(sid, rod);
-    await sleep(1200);
-    const exp = await exe(sid, `(document.querySelector('button.rod')||{}).getAttribute ? document.querySelector('button.rod').getAttribute('aria-expanded') : null`).catch(()=>null);
-    rec(A, 'accordion button click works', exp === 'true', 'aria-expanded=' + exp);
-  } else rec(A, 'accordion button click works', false, 'no button.rod found');
+  const sceneBtn = await el(sid, 'css selector', '#sceneBtn');
+  if (sceneBtn) {
+    await click(sid, sceneBtn);
+    const inMaru = await waitFor(sid, `document.getElementById('stg') ? document.getElementById('stg').classList.contains('scene-maru') : document.querySelector('.scene-maru') !== null`, 20000);
+    rec(A, 'gate->maru entry via real button click (scene switches)', !!inMaru);
+    const ph = await exe(sid, `(document.getElementById('sayInput')||{}).placeholder || ''`).catch(()=>null);
+    rec(A, 'chat placeholder switches to 마루 in maru scene', !!(ph && ph.indexOf('마루') >= 0), String(ph));
+  } else rec(A, 'gate->maru entry via real button click (scene switches)', false, 'no #sceneBtn found');
   await shot(sid, 'desktop-' + A);
 }
 
@@ -159,7 +161,12 @@ function checkDogam(appName, expectNodes) {
     if (name) { await click(sid, name); await type(sid, name, 'QA'); }
     const begin = await el(sid, 'xpath', `//*[@id='start-actions']//button[1]`);
     if (begin) await click(sid, begin);
-    const entered = await waitFor(sid, `window.__dogam && ['start','language'].indexOf(window.__dogam.stage())<0 ? window.__dogam.stage() : null`, 30000);
+    const atCity = await waitFor(sid, `window.__dogam && window.__dogam.stage()==='city' ? 'city' : null`, 20000);
+    if (atCity) {
+      const begin2 = await el(sid, 'xpath', `//*[@id='city-action']//button[1]`);
+      if (begin2) await click(sid, begin2);
+    }
+    const entered = await waitFor(sid, `window.__dogam && window.__dogam.stage()==='game' ? 'game' : null`, 30000);
     rec(A, 'entry: language -> traveler -> begin via real clicks', !!entered, entered ? 'stage=' + entered : '');
     const nodes = await exe(sid, `window.GAME_DATA ? window.GAME_DATA.nodes.length : 0`).catch(()=>0);
     rec(A, 'data integrity: expected node count', nodes === expectNodes, 'nodes=' + nodes);
