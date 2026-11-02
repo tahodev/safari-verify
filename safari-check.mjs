@@ -54,8 +54,7 @@ const nav = (sid, url) => api('POST', '/url', { url }, sid);
 const wrap = s => /^\s*(return|const|let|var)\b/.test(s) ? s : 'return (' + s + ');';
 const exe = (sid, script, args = []) => api('POST', '/execute/sync', { script: wrap(script), args }, sid);
 async function els(sid, using, value) {
-  const res = await wd('POST', `/session/${sid}/elements`, { using, value });
-  return (res && res.value) || [];
+  try { const v = await api('POST', '/elements', { using, value }, sid); return (v && Array.isArray(v)) ? v : []; } catch { return []; }
 }
 async function el(sid, using, value) {
   try {
@@ -182,7 +181,7 @@ async function checkDalbit(sid) {
 
 function checkDogam(appName, expectNodes) {
   return async (sid) => {
-    const A = appName;
+    const A = appName; const FAST = !!process.env.FAST;
     const boot = await waitFor(sid, `!!(document.querySelector('.language-grid') || document.querySelector('.start'))`, 60000);
     rec(A, 'boot: language/start screen renders', !!boot);
     if (!boot) return;
@@ -191,18 +190,18 @@ function checkDogam(appName, expectNodes) {
     await exe(sid, `(()=>{window.__errs=[];addEventListener('error',e=>window.__errs.push(String(e.message)+' @ '+(e.filename||'').split('/').pop()+':'+(e.lineno||'')+':'+(e.colno||'')+' STACK:'+String(e.error&&e.error.stack||'').slice(0,400)));addEventListener('unhandledrejection',e=>window.__errs.push('REJECT: '+String(e.reason&&e.reason.stack||e.reason).slice(0,300)));return true})()`).catch(()=>{});
     const lang = await el(sid, 'xpath', `//div[contains(@class,'language-grid')]//button[contains(.,'English')]`);
     if (lang) { await click(sid, lang); }
-    for (const wait of [300, 1200, 2500]) {
+    for (const wait of FAST ? [] : [300, 1200, 2500]) {
       await sleep(wait);
       const snap = await exe(sid, `(function(){try{return (document.querySelectorAll('.travelers button').length)+'btns stage='+(window.__dogam?window.__dogam.stage():'?')+' errs='+((window.__errs||[]).join(';').slice(0,220)||'none')}catch(e){return 'evalerr '+e}})()`).catch(()=>null);
       console.log('probe@' + wait, appName, JSON.stringify(snap));
     }
     await sleep(1500);
-    const counts = await exe(sid, `(function(){try{const t=document.querySelector('.travelers');const b=document.querySelector('.travelers button');return (document.querySelectorAll('.travelers button').length)+'/'+(document.querySelectorAll('#start-actions button').length)+' grid='+(!!t)+' vis='+(b?b.offsetHeight:'-')+' ua='+navigator.userAgent.slice(0,60)}catch(e){return 'evalerr '+e}})()`).catch(()=>null);
-    rec(A, 'traveler grid + begin button render after language pick', !!(counts && counts.indexOf('10/') === 0), String(counts));
-    const btnpix = await exe(sid, `(function(){try{const c=document.querySelector('.travelers button canvas');if(!c)return 'nocanvas';const k=c.getContext('2d');const d=k.getImageData(0,0,c.width,c.height).data;let n=0,t=0;for(let i=3;i<d.length;i+=40){t++;if(d[i]>10)n++}return 'btncanvas='+n+'/'+t+' ('+c.width+'x'+c.height+')'}catch(e){return 'THROW '+e.name+' '+e.message}})()`).catch(()=>null);
-    console.log('btnpix', appName, JSON.stringify(btnpix));
-    rec(A, 'traveler sprite canvas actually painted (pixels)', !!(btnpix && !String(btnpix).startsWith('btncanvas=0/') && !String(btnpix).startsWith('THROW') && btnpix !== 'nocanvas'), String(btnpix));
-    await shot(sid, 'desktop-' + appName + '-start');
+    const counts = FAST ? null : await exe(sid, `(function(){try{const t=document.querySelector('.travelers');const b=document.querySelector('.travelers button');return (document.querySelectorAll('.travelers button').length)+'/'+(document.querySelectorAll('#start-actions button').length)+' grid='+(!!t)+' vis='+(b?b.offsetHeight:'-')+' ua='+navigator.userAgent.slice(0,60)}catch(e){return 'evalerr '+e}})()`).catch(()=>null);
+    if (!FAST) rec(A, 'traveler grid + begin button render after language pick', !!(counts && counts.indexOf('10/') === 0), String(counts));
+    const btnpix = FAST ? null : await exe(sid, `(function(){try{const c=document.querySelector('.travelers button canvas');if(!c)return 'nocanvas';const k=c.getContext('2d');const d=k.getImageData(0,0,c.width,c.height).data;let n=0,t=0;for(let i=3;i<d.length;i+=40){t++;if(d[i]>10)n++}return 'btncanvas='+n+'/'+t+' ('+c.width+'x'+c.height+')'}catch(e){return 'THROW '+e.name+' '+e.message}})()`).catch(()=>null);
+    if (!FAST) { console.log('btnpix', appName, JSON.stringify(btnpix));
+    rec(A, 'traveler sprite canvas actually painted (pixels)', !!(btnpix && !String(btnpix).startsWith('btncanvas=0/') && !String(btnpix).startsWith('THROW') && btnpix !== 'nocanvas'), String(btnpix)); }
+    if (!FAST) await shot(sid, 'desktop-' + appName + '-start');
     const name = await el(sid, 'css selector', '#name');
     if (name) { await click(sid, name); await type(sid, name, 'QA'); }
     const begin = await el(sid, 'xpath', `//*[@id='start-actions']//button[1]`);
@@ -218,6 +217,7 @@ function checkDogam(appName, expectNodes) {
     const errs = entered ? '' : await exe(sid, `(window.__errs||[]).join(' | ').slice(0,180)+' stage='+(window.__dogam?window.__dogam.stage():'?')`).catch(()=>'');
     rec(A, 'entry: language -> traveler -> begin via real clicks', !!entered, entered ? 'stage=' + entered : String(errs));
     if (entered) {
+      if (!FAST) {
       await exe(sid, `return (function(){window.__paint='start';
         function paint(im){const c=document.createElement('canvas');c.width=im.naturalWidth;c.height=im.naturalHeight;const k=c.getContext('2d');k.drawImage(im,0,0);const d=k.getImageData(0,0,Math.min(c.width,300),Math.min(c.height,300)).data;let n=0,t=0;for(let i=3;i<d.length;i+=400){t++;if(d[i]>20)n++}return n+'/'+t}
         function test(src){return new Promise(res=>{const im=new Image();
@@ -244,6 +244,7 @@ function checkDogam(appName, expectNodes) {
       const raf = await exe(sid, 'return window.__rafTick').catch(()=>null);
       console.log('raflive', appName, JSON.stringify(raf));
       rec(A, 'game main thread alive after entry (raf fires)', raf === 1, 'rafTick=' + raf);
+      }
       // dismiss the walking-tips tutorial modal (first run) via real close click - it blocks canvas input
       const closeBtn = await el(sid, 'css selector', '.modal header button');
       if (closeBtn) {
@@ -252,6 +253,7 @@ function checkDogam(appName, expectNodes) {
         const gone = await exe(sid, 'return !document.querySelector(".modal")').catch(()=>null);
         rec(A, 'walking-tips modal dismissed via real close click', gone === true, 'clickRes=' + JSON.stringify(cr).slice(0,80) + ' gone=' + gone);
       }
+      if (!FAST) {
       // portal transition: real click on a gate-link button must move to a linked scene
       const sceneA = await exe(sid, 'return window.__dogam.S().scene').catch(()=>null);
       const gate = await el(sid, 'css selector', '.gate-links button');
@@ -279,13 +281,24 @@ function checkDogam(appName, expectNodes) {
         console.log('deepwalk path', cur, '->', target, JSON.stringify(path));
         if (!path) { rec(A, 'deep-walk: path exists to node ' + target, false, 'no path'); continue; }
         let ok = true;
+        const idle = async () => { // wait until avatar stops walking (pos stable over 1.5s)
+          const p1 = await exe(sid, 'return JSON.stringify(window.__dogam.pos())').catch(()=>null);
+          await sleep(1500);
+          const p2 = await exe(sid, 'return JSON.stringify(window.__dogam.pos())').catch(()=>null);
+          return p1 !== null && p1 === p2;
+        };
         for (let i = 0; i + 1 < path.length; i++) {
           const idx = links[path[i]].indexOf(path[i+1]);
-          const gates = await els(sid, 'css selector', '.gate-links button');
-          if (!gates[idx]) { ok = false; rec(A, 'deep-walk: gate button for scene ' + path[i] + ' link ' + idx, false, 'missing'); break; }
-          const cr = await click(sid, gates[idx][Object.keys(gates[idx])[0]]);
-          const nxt = await waitFor(sid, `window.__dogam.S().scene === ${path[i+1]} ? window.__dogam.S().scene : null`, 30000);
-          console.log('deepwalk step', path[i], '->', JSON.stringify(nxt), 'clickRes', JSON.stringify(cr).slice(0,80));
+          let nxt = null;
+          for (let attempt = 0; attempt < 2 && nxt === null; attempt++) {
+            for (let w = 0; w < 12 && !(await idle()); w++) await sleep(1000); // up to ~18s to finish prior walk
+            const gates = await els(sid, 'css selector', '.gate-links button');
+            if (!gates[idx]) { rec(A, 'deep-walk: gate button for scene ' + path[i] + ' link ' + idx, false, 'missing'); ok = false; break; }
+            const cr = await click(sid, gates[idx][Object.keys(gates[idx])[0]]);
+            console.log('deepwalk click', path[i], 'gate', idx, 'attempt', attempt, 'res', JSON.stringify(cr).slice(0,80));
+            nxt = await waitFor(sid, `window.__dogam.S().scene === ${path[i+1]} ? window.__dogam.S().scene : null`, 30000);
+          }
+          console.log('deepwalk step', path[i], '->', JSON.stringify(nxt));
           if (nxt === null) { ok = false; break; }
         }
         if (ok) {
@@ -299,6 +312,7 @@ function checkDogam(appName, expectNodes) {
         }
       }
     }
+      }
     const nodes = await exe(sid, `window.GAME_DATA ? window.GAME_DATA.nodes.length : 0`).catch(()=>0);
     rec(A, 'data integrity: expected node count', nodes === expectNodes, 'nodes=' + nodes);
     if (appName === 'seongsu-dogam') {

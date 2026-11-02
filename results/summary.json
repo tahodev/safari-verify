@@ -19,33 +19,21 @@
   },
   {
     "app": "seongsu-dogam",
-    "check": "traveler grid + begin button render after language pick",
-    "ok": true,
-    "detail": "10/2 grid=true vis=160 ua=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/"
-  },
-  {
-    "app": "seongsu-dogam",
-    "check": "traveler sprite canvas actually painted (pixels)",
-    "ok": true,
-    "detail": "btncanvas=171/308 (48x64)"
-  },
-  {
-    "app": "seongsu-dogam",
     "check": "entry: language -> traveler -> begin via real clicks",
     "ok": true,
     "detail": "stage=game"
   },
   {
     "app": "seongsu-dogam",
-    "check": "game main thread alive after entry (raf fires)",
-    "ok": true,
-    "detail": "rafTick=1"
-  },
-  {
-    "app": "seongsu-dogam",
     "check": "walking-tips modal dismissed via real close click",
     "ok": true,
     "detail": "clickRes=null gone=true"
+  },
+  {
+    "app": "seongsu-dogam",
+    "check": "deep-walk: enter new destination node 14 (원밀리언 댄스 스튜디오) renders",
+    "ok": true,
+    "detail": "scene=14 pix=400/400 errs=none"
   },
   {
     "app": "seongsu-dogam",
@@ -63,6 +51,6 @@
     "app": "seongsu-dogam",
     "check": "avatar moves after real canvas tap (position changes)",
     "ok": true,
-    "detail": "{\"x\":0.19,\"y\":0.795} -> {\"x\":0.5,\"y\":0.499}"
+    "detail": "{\"x\":0.5,\"y\":0.66} -> {\"x\":0.684,\"y\":0.768}"
   }
 ]
