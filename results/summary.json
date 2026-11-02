@@ -1,32 +1,32 @@
 [
   {
-    "app": "coworking-world",
+    "app": "sweet-factory-escape-3d",
     "check": "serves 200 with real title",
     "ok": true,
-    "detail": "KINZIE 코워킹 - 온라인 집중 공간"
+    "detail": "달콤 공장 탈출 3D"
   },
   {
-    "app": "coworking-world",
-    "check": "boot: entry panel present",
+    "app": "sweet-factory-escape-3d",
+    "check": "boot: intro screen with start button",
     "ok": true,
     "detail": ""
   },
   {
-    "app": "coworking-world",
-    "check": "entry: avatar joins world (WebSocket presence)",
+    "app": "sweet-factory-escape-3d",
+    "check": "entry: start button click boots 3D game (__qa handle)",
     "ok": true,
     "detail": ""
   },
   {
-    "app": "coworking-world",
-    "check": "timer: 25-minute focus timer starts via real menu clicks",
+    "app": "sweet-factory-escape-3d",
+    "check": "game state readable",
     "ok": true,
-    "detail": "{\"vis\":true,\"txt\":\"25분 집중 24:58\"}"
+    "detail": "pitch,pos,yaw,room,solved,prompt,doors,fin,targets,screenOf"
   },
   {
-    "app": "coworking-world",
-    "check": "chat: typed message + Enter lands in chat log",
+    "app": "sweet-factory-escape-3d",
+    "check": "playthrough: full escape - ending screen reached",
     "ok": false,
-    "detail": ""
+    "detail": "fin=false"
   }
 ]

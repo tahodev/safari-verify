@@ -158,6 +158,114 @@ async function checkSweet(sid) {
     const keys = await exe(sid, `Object.keys(window.__qa).join(',')`).catch(()=>null);
     rec(A, 'game state readable', !!keys, String(keys).slice(0, 120));
   }
+  if (run && process.env.DRAGPROBE) {
+    await exe(sid, `return (function(){const c=document.querySelector('canvas');if(c) c.requestPointerLock=function(){};try{document.exitPointerLock()}catch(e){}return true})()`).catch(()=>{});
+    await sleep(1500);
+    const before = await exe(sid, 'window.__qa.yaw()').catch(()=>null);
+    const hit = await exe(sid, `(function(){const e=document.elementFromPoint(innerWidth/2, innerHeight/2);return e?e.id||e.tagName:null})()`).catch(()=>null);
+    const cv = await el(sid, 'css selector', 'canvas');
+    const dragSlow = async (dx) => { await api('POST', '/actions', { actions: [{ type: 'pointer', id: 'p1', parameters: { pointerType: 'mouse' }, actions: [
+      { type: 'pointerMove', duration: 0, origin: { 'element-6066-11e4-a52e-4f735466cecf': cv }, x: 0, y: 0 },
+      { type: 'pointerDown', button: 0 },
+      { type: 'pointerMove', duration: 120, origin: 'pointer', x: Math.round(dx/3), y: 0 },
+      { type: 'pointerMove', duration: 120, origin: 'pointer', x: Math.round(dx/3), y: 0 },
+      { type: 'pointerMove', duration: 120, origin: 'pointer', x: Math.round(dx/3), y: 0 },
+      { type: 'pointerUp', button: 0 }] }] }, sid).then(() => api('DELETE', '/actions', null, sid)).catch(() => {}); };
+    await dragSlow(300);
+    await sleep(500);
+    const mid = await exe(sid, 'window.__qa.yaw()').catch(()=>null);
+    await dragSlow(300);
+    await sleep(500);
+    const after = await exe(sid, 'window.__qa.yaw()').catch(()=>null);
+    const lock = await exe(sid, '!!document.pointerLockElement').catch(()=>null);
+    rec(A, 'dragprobe: drag-look rotates yaw without pointer lock', mid !== before || after !== mid, JSON.stringify({before, mid, after, hit, lock}));
+  }
+  if (run && process.env.PLAYTHROUGH) {
+    // simulates a browser that DENIES pointer lock (real supported mode, verified working in DRAGPROBE): coordinate taps + slow drags
+    await exe(sid, `return (function(){const c=document.querySelector('canvas');if(c) c.requestPointerLock=function(){};try{document.exitPointerLock()}catch(e){}return true})()`).catch(()=>{});
+
+    const ANSWERS = [['in1', '3168'], ['inQ/inR', '12/1'], ['in1', '7/9'], ['in1', '60'], ['in1', '64']];
+    const drag = async (dx) => { // real pointer drag on canvas to rotate view
+      const cv = await el(sid, 'css selector', 'canvas');
+      if (!cv) return;
+      await api('POST', '/actions', { actions: [{ type: 'pointer', id: 'p1', parameters: { pointerType: 'mouse' }, actions: [
+        { type: 'pointerMove', duration: 0, origin: { 'element-6066-11e4-a52e-4f735466cecf': cv }, x: 0, y: 0 },
+        { type: 'pointerDown', button: 0 },
+        { type: 'pointerMove', duration: 120, origin: 'pointer', x: Math.round(dx/3), y: 0 },
+        { type: 'pointerMove', duration: 120, origin: 'pointer', x: Math.round(dx/3), y: 0 },
+        { type: 'pointerMove', duration: 120, origin: 'pointer', x: Math.round(dx/3), y: 0 },
+        { type: 'pointerUp', button: 0 }] }] }, sid).then(() => api('DELETE', '/actions', null, sid)).catch(() => {});
+    };
+    const tapAt = async (x, y) => { // x,y = viewport coords; W3C element origin is the element CENTER
+      const cv = await el(sid, 'css selector', 'canvas');
+      if (!cv) return;
+      const r = await exe(sid, `(function(){const c=document.querySelector('canvas');const b=c.getBoundingClientRect();return JSON.stringify({cx:b.x+b.width/2, cy:b.y+b.height/2})})()`).then(v=>v&&JSON.parse(v)).catch(()=>null);
+      if (!r) return;
+      await api('POST', '/actions', { actions: [{ type: 'pointer', id: 'p1', parameters: { pointerType: 'mouse' }, actions: [
+        { type: 'pointerMove', duration: 0, origin: { 'element-6066-11e4-a52e-4f735466cecf': cv }, x: Math.round(x - r.cx), y: Math.round(y - r.cy) },
+        { type: 'pointerDown', button: 0 }, { type: 'pause', duration: 60 }, { type: 'pointerUp', button: 0 }] }] }, sid).then(() => api('DELETE', '/actions', null, sid)).catch(() => {});
+    };
+    let allOk = true;
+    for (let room = 0; room < 5 && allOk; room++) {
+      let solvedThis = false;
+      for (let iter = 0; iter < 18 && !solvedThis; iter++) {
+        const st = await exe(sid, `JSON.stringify({pos:window.__qa.pos(),prompt:window.__qa.prompt(),room:window.__qa.room(),solved:window.__qa.solved(),fin:window.__qa.fin()})`).then(r=>r&&JSON.parse(r)).catch(()=>null);
+        if (!st) break;
+        if (st.fin) { solvedThis = true; break; }
+        const pd = await exe(sid, `(function(){const t=window.__qa.targets().find(t=>t.room===${room});const p=window.__qa.pos();return Math.hypot(t.x-p[0],t.z-p[1])})()`).catch(()=>99);
+        if (st.prompt && typeof pd === 'number' && pd < 2.6) {
+          // stop any in-flight tap movement before opening the quiz
+          await waitFor(sid, `(function(){const p=window.__qa.pos();window.__qp=p;return true})()`, 2000).catch(()=>{});
+          const pressE = async () => { await api('POST', '/actions', { actions: [{ type: 'key', id: 'k1', actions: [
+            { type: 'keyDown', value: 'e' }, { type: 'pause', duration: 80 }, { type: 'keyUp', value: 'e' }] }] }, sid).then(() => api('DELETE', '/actions', null, sid)).catch(() => {}); };
+          await pressE();
+          if (!(await waitFor(sid, `!document.getElementById('mathModal').hidden`, 2500).catch(()=>false))) {
+            // maybe a decorative look panel opened instead: close it like a real user and keep navigating
+            const lookOpen = await exe(sid, `(function(){const l=document.getElementById('lookPanel');return l&&!l.hidden})()`).catch(()=>false);
+            if (lookOpen) { const cl = await el(sid, 'css selector', '#closeLook'); if (cl) await click(sid, cl); await sleep(300); continue; }
+            const pr = await el(sid, 'css selector', '#prompt');
+            if (pr) await click(sid, pr);
+          }
+          const open = await waitFor(sid, `!document.getElementById('mathModal').hidden && (function(){const i=document.getElementById('in1');const r=i&&i.getBoundingClientRect();return r&&r.width>0&&getComputedStyle(i).display!=='none'})()`, 10000);
+          if (open) { await sleep(400);
+            const [kind, ans] = ANSWERS[room];
+            if (kind === 'in1') { const i1 = await el(sid, 'css selector', '#in1'); if (i1) { await click(sid, i1); await type(sid, i1, ans); } }
+            else { const [q, r] = ans.split('/'); const iq = await el(sid, 'css selector', '#inQ'); if (iq) { await click(sid, iq); await type(sid, iq, q); } const ir = await el(sid, 'css selector', '#inR'); if (ir) { await click(sid, ir); await type(sid, ir, r); } }
+            const ok = await el(sid, 'css selector', '#okBtn');
+            if (ok) await click(sid, ok);
+            solvedThis = await waitFor(sid, `window.__qa.solved()[${room}] === true ? true : null`, 8000) === true;
+            await shot(sid, 'play-sweet-room' + room + '-solved');
+            console.log('play room', room, 'solved=', solvedThis);
+          }
+          if (!solvedThis) {
+            const diag = await exe(sid, `JSON.stringify((function(){const m=document.getElementById('mathModal');const i=document.getElementById('in1');const q=document.getElementById('inQ');const r=document.getElementById('inR');const rr=function(e){return e?e.getBoundingClientRect():null};return {modalHidden:m?m.hidden:'nomodal',in1:rr(i),inQ:rr(q),inR:rr(r),in1display:i?getComputedStyle(i).display:null,modalDisplay:m?getComputedStyle(m).display:null,pos:window.__qa.pos(),prompt:window.__qa.prompt()}})())`).catch(()=>null);
+            console.log('quiz diag room' + room, diag);
+            await shot(sid, 'play-sweet-room' + room + '-diag');
+            allOk = false; rec(A, 'playthrough: room ' + (room+1) + ' puzzle solved via real input', false, 'quiz open/answer failed');
+          }
+          break;
+        }
+        // navigate toward this room's puzzle target via real taps
+        const nav = await exe(sid, `JSON.stringify((function(){const t=window.__qa.targets().find(t=>t.room===${room});const sp=window.__qa.screenOf(t.x,t.z);return {sp, t}})())`).then(r=>r&&JSON.parse(r)).catch(()=>null);
+        if (!nav) break;
+        const sp = nav.sp;
+        const p0 = st.pos;
+        if (sp.behind) { await drag(420); await sleep(350); }
+        else if (typeof pd === 'number' && pd < 3.2 && Math.abs(sp.x - 640) > 150) { await drag(sp.x > 640 ? 260 : -260); await sleep(350); }
+        else if (typeof pd === 'number' && pd < 3.2) { await sleep(300); }
+        else { await tapAt(Math.max(60, Math.min(1220, sp.x)), Math.max(140, Math.min(760, sp.y + 30))); await sleep(450); }
+        const p1 = await exe(sid, 'JSON.stringify(window.__qa.pos())').catch(()=>null);
+        console.log('nav room' + room, 'iter' + iter, 'pos', JSON.stringify(p0), '->', p1, 'sp', JSON.stringify(sp), 'lock', await exe(sid, '!!document.pointerLockElement').catch(()=>null));
+      }
+      if (solvedThis) rec(A, 'playthrough: room ' + (room+1) + ' puzzle solved via real input', true);
+      else allOk = false;
+    }
+    // escape: walk forward through the golden exit until fin()
+    let fin = await exe(sid, 'window.__qa.fin()').catch(()=>false);
+    for (let i = 0; i < 20 && !fin; i++) { await tapAt(640, 300); await sleep(500); fin = await exe(sid, 'window.__qa.fin()').catch(()=>false); }
+    rec(A, 'playthrough: full escape - ending screen reached', fin === true, 'fin=' + fin);
+    if (fin) await shot(sid, 'play-sweet-ending');
+  }
   await shot(sid, 'desktop-sweet-factory-escape-3d');
 }
 
