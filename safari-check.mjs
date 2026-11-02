@@ -82,14 +82,14 @@ async function checkGGP(sid) {
   const me = await waitFor(sid, `!!(window.__ggp && window.__ggp.chars && window.__ggp.chars.get(window.__ggp.me))`, 45000);
   rec(A, 'entry: real button clicks spawn avatar (WebSocket join)', !!me);
   if (me) {
-    const seat = await exe(sid, `(()=>{const s=window.__ggp.seats[4];return s?{x:s.x,y:s.y}:null})()`).catch(()=>null);
-    if (!seat) rec(A, 'canvas tap claims seat (hit-testing + WS round-trip)', false, 'no seats[4] coords from __ggp');
-    if (seat) {
+    const seatF = await exe(sid, `(()=>{const s=window.__ggp.seats[4];const c=document.getElementById('cv');return s&&c&&c.width?{fx:s.x/c.width,fy:s.y/c.height}:null})()`).catch(()=>null);
+    if (!seatF) rec(A, 'canvas tap claims seat (hit-testing + WS round-trip)', false, 'no seats[4] coords from __ggp');
+    if (seatF) {
       const cv = await el(sid, 'css selector', '#cv');
       if (cv) {
-        await tapFraction(sid, cv, seat.x, seat.y);
+        await tapFraction(sid, cv, seatF.fx, seatF.fy);
         await sleep(3000);
-        const claimed = await exe(sid, `(()=>{const s=window.__ggp.seats[4];return !!(s&&s.by===window.__ggp.me)})()`).catch(()=>null);
+        const claimed = await exe(sid, `(()=>{const c=window.__ggp.chars.get(window.__ggp.me);return !!(c&&c.seat!=null)})()`).catch(()=>null);
         rec(A, 'canvas tap claims seat (hit-testing + WS round-trip)', !!claimed);
       } else rec(A, 'canvas tap claims seat (hit-testing + WS round-trip)', false, 'no #cv canvas element');
     }
@@ -136,10 +136,12 @@ async function checkDalbit(sid) {
   if (!boot) return;
   const fx = await waitFor(sid, `!!document.querySelector('.seasonfx')`, 15000);
   rec(A, 'extras22.js executes (lookbehind fix, seasonfx element created)', !!fx);
+  const guideClose = await el(sid, 'xpath', `//div[contains(@class,'sheet') or contains(@class,'modal') or @role='dialog']//button[contains(.,'닫기')]`);
+  if (guideClose) { await click(sid, guideClose); await sleep(800); rec(A, 'first-visit guide sheet dismissed', true); }
   const sceneBtn = await el(sid, 'css selector', '#sceneBtn');
   if (sceneBtn) {
     await click(sid, sceneBtn);
-    const inMaru = await waitFor(sid, `document.getElementById('stg') ? document.getElementById('stg').classList.contains('scene-maru') : document.querySelector('.scene-maru') !== null`, 20000);
+    const inMaru = await waitFor(sid, `document.getElementById('stage').classList.contains('scene-maru')`, 25000);
     rec(A, 'gate->maru entry via real button click (scene switches)', !!inMaru);
     const ph = await exe(sid, `(document.getElementById('sayInput')||{}).placeholder || ''`).catch(()=>null);
     rec(A, 'chat placeholder switches to 마루 in maru scene', !!(ph && ph.indexOf('마루') >= 0), String(ph));
@@ -155,19 +157,26 @@ function checkDogam(appName, expectNodes) {
     if (!boot) return;
     const handle = await exe(sid, `typeof window.__dogam === 'object'`).catch(()=>null);
     rec(A, 'QA debug handle deployed', !!handle);
+    await exe(sid, `window.__errs=[];addEventListener('error',e=>window.__errs.push(String(e.message)));true`).catch(()=>{});
     const lang = await el(sid, 'xpath', `//div[contains(@class,'language-grid')]//button[contains(.,'English')]`);
-    if (lang) { await click(sid, lang); await sleep(900); }
+    if (lang) { await click(sid, lang); await sleep(1500); }
+    const counts = await exe(sid, `(function(){try{return (document.querySelectorAll('.travelers button').length)+'/'+(document.querySelectorAll('#start-actions button').length)+' lang='+(window.__dogam&&window.__dogam.S?window.__dogam.S().lang:'?')}catch(e){return 'evalerr '+e}})()`).catch(()=>null);
+    rec(A, 'traveler grid + begin button render after language pick', !!(counts && counts.indexOf('10/') === 0), String(counts));
+    await shot(sid, 'desktop-' + appName + '-start');
     const name = await el(sid, 'css selector', '#name');
     if (name) { await click(sid, name); await type(sid, name, 'QA'); }
     const begin = await el(sid, 'xpath', `//*[@id='start-actions']//button[1]`);
     if (begin) await click(sid, begin);
+    await sleep(1500);
+    await shot(sid, 'desktop-' + appName + '-afterbegin');
     const atCity = await waitFor(sid, `window.__dogam && window.__dogam.stage()==='city' ? 'city' : null`, 20000);
     if (atCity) {
       const begin2 = await el(sid, 'xpath', `//*[@id='city-action']//button[1]`);
       if (begin2) await click(sid, begin2);
     }
     const entered = await waitFor(sid, `window.__dogam && window.__dogam.stage()==='game' ? 'game' : null`, 30000);
-    rec(A, 'entry: language -> traveler -> begin via real clicks', !!entered, entered ? 'stage=' + entered : '');
+    const errs = entered ? '' : await exe(sid, `(window.__errs||[]).join(' | ').slice(0,180)+' stage='+(window.__dogam?window.__dogam.stage():'?')`).catch(()=>'');
+    rec(A, 'entry: language -> traveler -> begin via real clicks', !!entered, entered ? 'stage=' + entered : String(errs));
     const nodes = await exe(sid, `window.GAME_DATA ? window.GAME_DATA.nodes.length : 0`).catch(()=>0);
     rec(A, 'data integrity: expected node count', nodes === expectNodes, 'nodes=' + nodes);
     if (appName === 'seongsu-dogam') {
