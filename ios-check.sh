@@ -30,13 +30,16 @@ sleep 5
 
 INTERACT_OK=0
 echo "== installing interaction tooling (idb + ios-webkit-debug-proxy) =="
-if run_to 600 brew install ios-webkit-debug-proxy >/tmp/ios-brew.log 2>&1 && run_to 600 brew install --cask companion >>/tmp/ios-brew.log 2>&1 || { command -v idb_companion >/dev/null && command -v ios_webkit_debug_proxy >/dev/null; }; then
+if run_to 600 brew install ios-webkit-debug-proxy >/tmp/ios-brew.log 2>&1 && { run_to 300 brew tap facebook/fb >>/tmp/ios-brew.log 2>&1; run_to 900 brew install idb-companion >>/tmp/ios-brew.log 2>&1; } || { command -v idb_companion >/dev/null && command -v ios_webkit_debug_proxy >/dev/null; }; then
   # fb-idb breaks on the runner's newest default python (3.15 traceback in idb/cli/main.py); use 3.12
   PYI=python3
   if run_to 600 brew install python@3.12 >>/tmp/ios-brew.log 2>&1; then PYI="$(brew --prefix python@3.12)/bin/python3.12"; fi
   echo "idb venv python: $($PYI --version 2>&1)"
   if $PYI -m venv /tmp/idbenv && /tmp/idbenv/bin/pip install --quiet fb-idb websocket-client pillow >>/tmp/ios-pip.log 2>&1; then
     export PATH="/tmp/idbenv/bin:$PATH"
+    # idb looks for the companion at /usr/local/bin (Intel path); brew on arm64 installs under /opt/homebrew
+    IDBC="$(command -v idb_companion || true)"; echo "idb_companion at: ${IDBC:-MISSING}"
+    if [ -n "$IDBC" ] && [ ! -e /usr/local/bin/idb_companion ]; then sudo mkdir -p /usr/local/bin && sudo ln -sf "$IDBC" /usr/local/bin/idb_companion; fi
     echo "idb paths: $(command -v idb) / $(command -v idb_companion)"
     run_to 25 idb list-targets 2>&1 | head -5; LT_RC=$?
     [ "${LT_RC:-0}" = "124" ] && echo "idb list-targets TIMED OUT (companion connect hang)"
@@ -67,9 +70,9 @@ else
   echo "== LOAD-ONLY fallback (interaction tooling unavailable) =="
   for app in golden-gate-picnic sweet-factory-escape-3d coworking-world sajumadang seongsu-dogam kurashi-otaru; do
     echo "== ios load: $app =="
-    xcrun simctl openurl "$DEV" "https://$app.onrender.com/"
+    run_to 60 xcrun simctl openurl "$DEV" "https://$app.onrender.com/" || echo "openurl timeout/fail rc=$?"
     sleep 35
-    xcrun simctl io "$DEV" screenshot "results/ios-$app.png" && echo "screenshot saved: ios-$app.png"
+    run_to 60 xcrun simctl io "$DEV" screenshot "results/ios-$app.png" && echo "screenshot saved: ios-$app.png" || echo "screenshot timeout/fail"
   done
   echo "LOAD-ONLY is incomplete iOS verification; failing step honestly"
   exit 1
