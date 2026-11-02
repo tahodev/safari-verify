@@ -211,7 +211,7 @@ async function sweetPlay(sid, A) {
       { type: 'pointerUp', button: 0 }] }] }, sid).then(() => api('DELETE', '/actions', null, sid)).catch(() => {});
   };
   const answerQuiz = async (room) => { // returns 'solved' | 'lookpanel' | 'failed'
-    const open = await waitFor(sid, `!document.getElementById('mathModal').hidden && (function(){const i=document.getElementById('in1');const r=i&&i.getBoundingClientRect();return r&&r.width>0&&getComputedStyle(i).display!=='none'})()`, 9000);
+    const open = await waitFor(sid, `!document.getElementById('mathModal').hidden && (function(){const v=function(id){const i=document.getElementById(id);const r=i&&i.getBoundingClientRect();return !!(r&&r.width>0&&getComputedStyle(i).display!=='none')};return v('in1')||v('inQ')})()`, 9000);
     if (!open) return 'failed';
     await sleep(400);
     const [kind, ans] = ANSWERS[room];
@@ -236,14 +236,13 @@ async function sweetPlay(sid, A) {
     const sv = await exe(sid, 'JSON.stringify(window.__qa.solved())').then(r=>r&&JSON.parse(r)).catch(()=>null);
     if (sv && sv[room]) { rec(A, 'playthrough: room ' + (room+1) + ' puzzle solved via real input', true, 'already solved earlier in this session'); continue; }
     let solvedThis = false;
-    for (let iter = 0; iter < 26 && !solvedThis; iter++) {
+    for (let iter = 0; iter < 40 && !solvedThis; iter++) {
       const st = await exe(sid, `JSON.stringify({pos:window.__qa.pos(),prompt:window.__qa.prompt(),room:window.__qa.room(),solved:window.__qa.solved(),fin:window.__qa.fin()})`).then(r=>r&&JSON.parse(r)).catch(()=>null);
       if (!st) break;
       if (st.fin) { solvedThis = true; break; }
       const pd = await exe(sid, `(function(){const t=window.__qa.targets().find(t=>t.room===${room});const p=window.__qa.pos();return Math.hypot(t.x-p[0],t.z-p[1])})()`).catch(()=>99);
       if (st.prompt && typeof pd === 'number' && pd < 2.6) {
-        await key('w', 120); await sleep(250); // halt any in-flight movement like a real user
-        await key('e', 80);
+        await key('e', 80); // keyboard nav leaves no residual tapTarget; interact immediately while in range
         if (!(await waitFor(sid, `!document.getElementById('mathModal').hidden`, 2500).catch(()=>false))) {
           const lookOpen = await exe(sid, `(function(){const l=document.getElementById('lookPanel');return l&&!l.hidden})()`).catch(()=>false);
           if (lookOpen) { const cl = await el(sid, 'css selector', '#closeLook'); if (cl) await click(sid, cl); await sleep(300); continue; }
@@ -261,7 +260,7 @@ async function sweetPlay(sid, A) {
       const p0 = st.pos;
       if (sp.behind) { await drag(420); await sleep(320); }
       else if (Math.abs(sp.x - 640) > 110) { await drag(Math.max(-380, Math.min(380, Math.round((sp.x - 640) * 0.55)))); await sleep(320); }
-      else if (staticCount >= 2) { await key(sp.x > 640 ? 'd' : 'a', 320); await sleep(300); }
+      else if (staticCount >= 1 && Math.abs(p0[0]) > 0.7) { await key(p0[0] < 0 ? 'd' : 'a', 520); await sleep(260); } // pinned on a boundary wall: strafe to the centered doorway
       else { await key('w', 380); await sleep(340); }
       const p1 = await exe(sid, 'JSON.stringify(window.__qa.pos())').catch(()=>null);
       try { const a = JSON.parse(p1); staticCount = (Math.hypot(a[0]-p0[0], a[1]-p0[1]) < 0.05) ? staticCount + 1 : 0; } catch(e) {}
@@ -270,9 +269,21 @@ async function sweetPlay(sid, A) {
     if (solvedThis) rec(A, 'playthrough: room ' + (room+1) + ' puzzle solved via real input', true);
     else allOk = false;
   }
-  // escape: walk forward through the golden exit until fin()
+  // escape: steer to the centered exit (x=0, past the last wall) until fin()
   let fin = await exe(sid, 'window.__qa.fin()').catch(()=>false);
-  for (let i = 0; i < 22 && !fin; i++) { await key('w', 550); await sleep(480); fin = await exe(sid, 'window.__qa.fin()').catch(()=>false); }
+  let escStatic = 0;
+  for (let i = 0; i < 34 && !fin; i++) {
+    const ex = await exe(sid, `JSON.stringify((function(){const p=window.__qa.pos();const sp=window.__qa.screenOf(0,-98);return {p, sp}})())`).then(r=>r&&JSON.parse(r)).catch(()=>null);
+    if (!ex) break;
+    const sp = ex.sp;
+    if (sp.behind) { await drag(300); await sleep(300); }
+    else if (Math.abs(sp.x - 640) > 60) { await drag(Math.max(-120, Math.min(120, Math.round((sp.x - 640) * 0.35)))); await sleep(280); }
+    else { await key('w', 700); await sleep(500); }
+    const p2 = await exe(sid, 'JSON.stringify(window.__qa.pos())').then(r=>r&&JSON.parse(r)).catch(()=>null);
+    try { escStatic = (Math.hypot(p2[0]-ex.p[0], p2[1]-ex.p[1]) < 0.05) ? escStatic + 1 : 0; } catch(e) {}
+    console.log('escape iter' + i, 'pos', JSON.stringify(ex.p), 'sp', JSON.stringify(sp));
+    fin = await exe(sid, 'window.__qa.fin()').catch(()=>false);
+  }
   rec(A, 'playthrough: full escape - ending screen reached', fin === true, 'fin=' + fin);
   if (fin) await shot(sid, 'play-sweet-ending');
 }

@@ -1,38 +1,20 @@
 [
   {
     "app": "sweet-factory-escape-3d",
-    "check": "serves 200 with real title",
+    "check": "resume: reattached to live BS session",
     "ok": true,
-    "detail": "달콤 공장 탈출 3D"
+    "detail": "[object Object]"
   },
   {
     "app": "sweet-factory-escape-3d",
-    "check": "boot: intro screen with start button",
-    "ok": true,
-    "detail": ""
-  },
-  {
-    "app": "sweet-factory-escape-3d",
-    "check": "entry: start button click boots 3D game (__qa handle)",
+    "check": "resume: game state still live",
     "ok": true,
     "detail": ""
   },
   {
     "app": "sweet-factory-escape-3d",
-    "check": "game state readable",
-    "ok": true,
-    "detail": "pitch,pos,yaw,room,solved,prompt,doors,fin,targets,screenOf"
-  },
-  {
-    "app": "sweet-factory-escape-3d",
-    "check": "playthrough: room 1 puzzle solved via real input",
-    "ok": true,
-    "detail": ""
-  },
-  {
-    "app": "sweet-factory-escape-3d",
-    "check": "playthrough: full escape - ending screen reached",
+    "check": "session",
     "ok": false,
-    "detail": "fin=false"
+    "detail": "undefined is not iterable (cannot read property Symbol(Symbol.iterator))"
   }
 ]
