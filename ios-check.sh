@@ -31,7 +31,11 @@ sleep 5
 INTERACT_OK=0
 echo "== installing interaction tooling (idb + ios-webkit-debug-proxy) =="
 if run_to 600 brew install ios-webkit-debug-proxy >/tmp/ios-brew.log 2>&1 && run_to 600 brew install --cask companion >>/tmp/ios-brew.log 2>&1 || { command -v idb_companion >/dev/null && command -v ios_webkit_debug_proxy >/dev/null; }; then
-  if python3 -m venv /tmp/idbenv && /tmp/idbenv/bin/pip install --quiet fb-idb websocket-client pillow >>/tmp/ios-pip.log 2>&1; then
+  # fb-idb breaks on the runner's newest default python (3.15 traceback in idb/cli/main.py); use 3.12
+  PYI=python3
+  if run_to 600 brew install python@3.12 >>/tmp/ios-brew.log 2>&1; then PYI="$(brew --prefix python@3.12)/bin/python3.12"; fi
+  echo "idb venv python: $($PYI --version 2>&1)"
+  if $PYI -m venv /tmp/idbenv && /tmp/idbenv/bin/pip install --quiet fb-idb websocket-client pillow >>/tmp/ios-pip.log 2>&1; then
     export PATH="/tmp/idbenv/bin:$PATH"
     echo "idb paths: $(command -v idb) / $(command -v idb_companion)"
     run_to 25 idb list-targets 2>&1 | head -5; LT_RC=$?
@@ -43,6 +47,7 @@ if run_to 600 brew install ios-webkit-debug-proxy >/tmp/ios-brew.log 2>&1 && run
       INTERACT_OK=1
     else
       echo "idb not functional; falling back to load+screenshot only"
+      run_to 25 idb list-targets 2>&1 | tail -15
     fi
   else
     echo "pip tooling failed; falling back to load+screenshot only"
