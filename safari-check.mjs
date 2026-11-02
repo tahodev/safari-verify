@@ -261,6 +261,12 @@ function checkDogam(appName, expectNodes) {
       const raf = await exe(sid, 'return window.__rafTick').catch(()=>null);
       console.log('raflive', appName, JSON.stringify(raf));
       rec(A, 'game main thread alive after entry (raf fires)', raf === 1, 'rafTick=' + raf);
+      // iOS-class keyboard fuzz: events without a key field must not throw (regression guard)
+      const fuzz = await exe(sid, `return (function(){const before=(window.__errs||[]).length;
+        try{dispatchEvent(new KeyboardEvent('keydown',{}));dispatchEvent(new KeyboardEvent('keyup',{}));dispatchEvent(new CompositionEvent('compositionstart'));dispatchEvent(new CompositionEvent('compositionend'))}catch(e){return 'SYNC-THROW '+e.name}
+        return 'errs:'+before+'->'+((window.__errs||[]).length)})()`).catch(()=>null);
+      const m = /^errs:(\d+)->(\d+)$/.exec(fuzz || '');
+      rec(A, 'keyboard events without key field do not throw (iOS class)', !!(m && m[1] === m[2]), String(fuzz));
       }
       // dismiss the walking-tips tutorial modal (first run) via real close click - it blocks canvas input
       const closeBtn = await el(sid, 'css selector', '.modal header button');
