@@ -2,6 +2,11 @@
 # iOS Simulator Mobile Safari verification: booted simulator + real Safari app,
 # real taps via idb, element positions via Web Inspector (IWDP) + pixel calibration.
 set -u
+# watchdog: run command with hard timeout (idb/brew can block indefinitely)
+run_to() { local secs=$1; shift; "$@" & local pid=$!; local i=0
+  while kill -0 $pid 2>/dev/null; do sleep 2; i=$((i+2))
+    if [ $i -ge $secs ]; then kill -9 $pid 2>/dev/null; wait $pid 2>/dev/null; return 124; fi
+  done; wait $pid; }
 mkdir -p results
 echo "== simulator inventory =="
 xcrun simctl list devices available | grep -E 'iPhone' | head -8
@@ -19,18 +24,19 @@ if best: print(best)
 if [ -z "${DEV:-}" ]; then echo "FAIL: no available iPhone simulator"; exit 1; fi
 echo "Using simulator UDID: $DEV"
 xcrun simctl boot "$DEV" 2>/dev/null || true
-xcrun simctl bootstatus "$DEV" -b
+run_to 300 xcrun simctl bootstatus "$DEV" -b || echo "bootstatus timeout/fail rc=$?"
 open -a Simulator --args -CurrentDeviceUDID "$DEV" 2>/dev/null || true
 sleep 5
 
 INTERACT_OK=0
 echo "== installing interaction tooling (idb + ios-webkit-debug-proxy) =="
-if (brew install ios-webkit-debug-proxy && brew install --cask companion) >/tmp/ios-brew.log 2>&1 || { command -v idb_companion >/dev/null && command -v ios_webkit_debug_proxy >/dev/null; }; then
+if run_to 600 brew install ios-webkit-debug-proxy >/tmp/ios-brew.log 2>&1 && run_to 600 brew install --cask companion >>/tmp/ios-brew.log 2>&1 || { command -v idb_companion >/dev/null && command -v ios_webkit_debug_proxy >/dev/null; }; then
   if python3 -m venv /tmp/idbenv && /tmp/idbenv/bin/pip install --quiet fb-idb websocket-client pillow >>/tmp/ios-pip.log 2>&1; then
     export PATH="/tmp/idbenv/bin:$PATH"
     echo "idb paths: $(command -v idb) / $(command -v idb_companion)"
-    idb list-targets 2>&1 | head -5
-    if command -v idb >/dev/null && idb list-targets 2>/dev/null | grep -qi "$DEV"; then
+    run_to 25 idb list-targets 2>&1 | head -5; LT_RC=$?
+    [ "${LT_RC:-0}" = "124" ] && echo "idb list-targets TIMED OUT (companion connect hang)"
+    if command -v idb >/dev/null && run_to 25 idb list-targets 2>/dev/null | grep -qi "$DEV"; then
       ios_webkit_debug_proxy -c "$DEV:9221" >/tmp/iwdp.log 2>&1 &
       IWDP_PID=$!
       sleep 4

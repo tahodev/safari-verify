@@ -2,6 +2,16 @@ name: safari-verify
 on:
   push:
   workflow_dispatch:
+    inputs:
+      only:
+        description: 'comma-separated app name filter (e.g. seongsu-dogam)'
+        required: false
+        default: ''
+      skip_ios:
+        description: 'skip the iOS Simulator leg'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   verify:
@@ -21,9 +31,9 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p results
-          node safari-check.mjs 2>&1 | tee results/desktop.log
+          ONLY="${{ inputs.only }}" node safari-check.mjs 2>&1 | tee results/desktop.log
       - name: iOS Simulator Mobile Safari verification
-        if: always()
+        if: always() && !inputs.skip_ios
         run: |
           set -o pipefail
           mkdir -p results

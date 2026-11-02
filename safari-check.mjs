@@ -167,9 +167,15 @@ function checkDogam(appName, expectNodes) {
     if (!boot) return;
     const handle = await exe(sid, `typeof window.__dogam === 'object'`).catch(()=>null);
     rec(A, 'QA debug handle deployed', !!handle);
-    await exe(sid, `(()=>{window.__errs=[];addEventListener('error',e=>window.__errs.push(String(e.message)));return true})()`).catch(()=>{});
+    await exe(sid, `(()=>{window.__errs=[];addEventListener('error',e=>window.__errs.push(String(e.message)));addEventListener('unhandledrejection',e=>window.__errs.push('REJECT: '+String(e.reason&&e.reason.stack||e.reason).slice(0,300)));return true})()`).catch(()=>{});
     const lang = await el(sid, 'xpath', `//div[contains(@class,'language-grid')]//button[contains(.,'English')]`);
-    if (lang) { await click(sid, lang); await sleep(1500); }
+    if (lang) { await click(sid, lang); }
+    for (const wait of [300, 1200, 2500]) {
+      await sleep(wait);
+      const snap = await exe(sid, `(function(){try{return (document.querySelectorAll('.travelers button').length)+'btns stage='+(window.__dogam?window.__dogam.stage():'?')+' errs='+((window.__errs||[]).join(';').slice(0,150)||'none')}catch(e){return 'evalerr '+e}})()`).catch(()=>null);
+      console.log('probe@' + wait, appName, JSON.stringify(snap));
+    }
+    await sleep(1500);
     const counts = await exe(sid, `(function(){try{const t=document.querySelector('.travelers');const b=document.querySelector('.travelers button');return (document.querySelectorAll('.travelers button').length)+'/'+(document.querySelectorAll('#start-actions button').length)+' grid='+(!!t)+' vis='+(b?b.offsetHeight:'-')+' ua='+navigator.userAgent.slice(0,60)}catch(e){return 'evalerr '+e}})()`).catch(()=>null);
     rec(A, 'traveler grid + begin button render after language pick', !!(counts && counts.indexOf('10/') === 0), String(counts));
     await shot(sid, 'desktop-' + appName + '-start');
@@ -209,10 +215,12 @@ const APPS = [
   ['https://kurashi-otaru.onrender.com/', checkDogam('kurashi-otaru', 27)],
 ];
 
+const ONLY = process.env.ONLY ? process.env.ONLY.split(',') : null;
+const APPS_RUN = ONLY ? APPS.filter(([u]) => ONLY.some(o => u.includes(o))) : APPS;
 const driver = spawn('/usr/bin/safaridriver', ['-p', '4444'], { stdio: 'ignore' });
 await sleep(2500);
 try {
-  for (const [url, fn] of APPS) {
+  for (const [url, fn] of APPS_RUN) {
     const app = url.split('//')[1].split('.')[0];
     let sid = null;
     try {
