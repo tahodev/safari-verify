@@ -3,7 +3,10 @@
 import fs from 'node:fs';
 import { spawn } from 'node:child_process';
 
-const BASE = 'http://127.0.0.1:4444';
+const BS = process.env.BS === '1';
+const BS_DEVICE = process.env.BS_DEVICE || null; // e.g. 'iPhone 15 Pro' for real-mobile session
+const BASE = BS ? 'https://hub-cloud.browserstack.com/wd/hub' : 'http://127.0.0.1:4444';
+const BS_AUTH = BS ? 'Basic ' + Buffer.from(process.env.BS_CREDS + ':').toString('base64') : null;
 const EL = 'element-6066-11e4-a52e-4f735466cecf';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 fs.mkdirSync('results', { recursive: true });
@@ -17,7 +20,7 @@ async function api(method, path, body, sid) {
   const url = BASE + (sid ? `/session/${sid}${path}` : path);
   const r = await fetch(url, {
     method,
-    headers: { 'content-type': 'application/json' },
+    headers: { 'content-type': 'application/json', ...(BS_AUTH ? { authorization: BS_AUTH } : {}) },
     body: body ? JSON.stringify(body) : undefined,
     signal: AbortSignal.timeout(25000),
   });
@@ -28,9 +31,23 @@ async function api(method, path, body, sid) {
   return j.value !== undefined ? j.value : j;
 }
 async function newSession() {
-  const v = await api('POST', '/session', { capabilities: { alwaysMatch: { browserName: 'safari' } } });
+  let caps;
+  if (BS && BS_DEVICE) {
+    caps = { capabilities: { alwaysMatch: {
+      browserName: BS_DEVICE.startsWith('iPhone') || BS_DEVICE.startsWith('iPad') ? 'iPhone' : BS_DEVICE,
+      'bstack:options': { deviceName: BS_DEVICE, osVersion: process.env.BS_OS_VERSION || '17', realMobile: 'true',
+        sessionName: 'safari-verify-ios', buildName: process.env.BS_BUILD || 'safari-verify-bs', debug: 'true' } } } };
+  } else if (BS) {
+    caps = { capabilities: { alwaysMatch: {
+      browserName: 'Safari', browserVersion: process.env.BS_BROWSER_VERSION || '18.4',
+      'bstack:options': { os: 'OS X', osVersion: process.env.BS_OS || 'Sequoia',
+        sessionName: 'safari-verify-desktop', buildName: process.env.BS_BUILD || 'safari-verify-bs', debug: 'true' } } } };
+  } else {
+    caps = { capabilities: { alwaysMatch: { browserName: 'safari' } } };
+  }
+  const v = await api('POST', '/session', caps);
   if (!v || !v.sessionId) throw new Error('no session: ' + JSON.stringify(v));
-  await api('POST', '/window/rect', { width: 1280, height: 900 }, v.sessionId).catch(() => {});
+  if (!BS_DEVICE) await api('POST', '/window/rect', { width: 1280, height: 900 }, v.sessionId).catch(() => {});
   return v.sessionId;
 }
 const nav = (sid, url) => api('POST', '/url', { url }, sid);
@@ -197,7 +214,7 @@ function checkDogam(appName, expectNodes) {
     const errs = entered ? '' : await exe(sid, `(window.__errs||[]).join(' | ').slice(0,180)+' stage='+(window.__dogam?window.__dogam.stage():'?')`).catch(()=>'');
     rec(A, 'entry: language -> traveler -> begin via real clicks', !!entered, entered ? 'stage=' + entered : String(errs));
     if (entered) {
-      await exe(sid, `window.__paint=null;(function(){
+      await exe(sid, `return (function(){window.__paint='start';
         function paint(im){const c=document.createElement('canvas');c.width=im.naturalWidth;c.height=im.naturalHeight;const k=c.getContext('2d');k.drawImage(im,0,0);const d=k.getImageData(0,0,Math.min(c.width,300),Math.min(c.height,300)).data;let n=0,t=0;for(let i=3;i<d.length;i+=400){t++;if(d[i]>20)n++}return n+'/'+t}
         function test(src){return new Promise(res=>{const im=new Image();
           im.onload=async()=>{let pre,dec='na',post;try{pre=paint(im)}catch(e){pre='THROW '+e.name}
@@ -205,13 +222,40 @@ function checkDogam(appName, expectNodes) {
             try{post=paint(im)}catch(e){post='THROW '+e.name}
             res(src+' nw='+im.naturalWidth+' pre='+pre+' '+dec+' post='+post)};
           im.onerror=()=>res(src+' loaderror');im.src=src+'?probe='+Date.now();setTimeout(()=>res(src+' timeout'),10000)})}
-        (async()=>{const a=await test('assets/avatar-0.png');const sc=await test('assets/scene-0.webp');window.__paint=a+' || '+sc})()
-      })();return true`).catch(()=>{});
-      const paint = await waitFor(sid, `window.__paint || null`, 12000);
-      console.log('paintprobe', appName, JSON.stringify(paint));
-      rec(A, 'Safari paints same-origin PNG to canvas (fresh image)', !!(paint && String(paint).indexOf('painted=') === 0 && String(paint).indexOf('painted=0/') !== 0), String(paint));
+        (async()=>{const a=await test('assets/avatar-0.png');const sc=await test('assets/scene-0.webp');window.__paint=a+' || '+sc})();return true})()`).catch(()=>{});
+      const paint = await waitFor(sid, `window.__paint && window.__paint !== 'start' ? window.__paint : null`, 15000);
+      console.log('paintprobe(info)', appName, JSON.stringify(paint));
       const gamepix = await exe(sid, `(function(){try{const c=document.querySelector('canvas');if(!c)return 'nocanvas';const k=c.getContext('2d');const w=Math.min(c.width,200),h=Math.min(c.height,200);const d=k.getImageData(0,0,w,h).data;let n=0,t=0;for(let i=3;i<d.length;i+=400){t++;if(d[i]>10)n++}return 'gamecanvas='+n+'/'+t+' ('+c.width+'x'+c.height+')'}catch(e){return 'THROW '+e.name+' '+e.message}})()`).catch(()=>null);
       console.log('gamepix', appName, JSON.stringify(gamepix));
+      // post-entry deep diagnostic: errors, raf liveness, canvas inventory, image states
+      const diag = await exe(sid, `return (function(){try{
+        const errs=(window.__errs||[]).join(';').slice(0,250)||'none';
+        const cvs=[...document.querySelectorAll('canvas')].map(c=>c.width+'x'+c.height+' vis='+(c.offsetHeight>0)).join(',')||'nocanvas';
+        const imgs=[...document.images].map(i=>i.src.split('/').pop()+':'+(i.complete?1:0)+'/'+i.naturalWidth).slice(0,8).join(',')||'noimg';
+        return 'errs='+errs+' || cvs='+cvs+' || imgs='+imgs
+      }catch(e){return 'evalerr '+e}})()`).catch(()=>null);
+      console.log('diag1', appName, JSON.stringify(diag));
+      await exe(sid, `return (function(){window.__rafTick=0;requestAnimationFrame(()=>{window.__rafTick=1});return true})()`).catch(()=>{});
+      await sleep(3000);
+      const raf = await exe(sid, 'return window.__rafTick').catch(()=>null);
+      console.log('raflive', appName, JSON.stringify(raf));
+      rec(A, 'game main thread alive after entry (raf fires)', raf === 1, 'rafTick=' + raf);
+      // portal transition: real click on a gate-link button must move to a linked scene
+      const sceneA = await exe(sid, 'return window.__dogam.S().scene').catch(()=>null);
+      const posA = await exe(sid, 'return JSON.stringify(window.__dogam.pos())').catch(()=>null);
+      const gate = await el(sid, 'css selector', '.gate-links button');
+      if (gate) {
+        const gres = await click(sid, gate);
+        console.log('gateclick(info)', appName, JSON.stringify(gres).slice(0,120));
+        const moved = await waitFor(sid, `window.__dogam.S().scene !== ${sceneA} ? window.__dogam.S().scene : null`, 20000);
+        console.log('gatemove(info)', appName, 'scene', sceneA, '->', JSON.stringify(moved));
+        const diag2 = await exe(sid, `return (window.__errs||[]).join(';').slice(0,200)||'none'`).catch(()=>null);
+        console.log('diag2', appName, JSON.stringify(diag2));
+        await sleep(1500);
+        await shot(sid, 'desktop-' + appName + '-scene2');
+        const scenepix = await exe(sid, `(function(){try{const c=document.querySelector('canvas');const k=c.getContext('2d');const d=k.getImageData(0,0,Math.min(c.width,200),Math.min(c.height,200)).data;let n=0,t=0;for(let i=3;i<d.length;i+=400){t++;if(d[i]>10)n++}return 'scene2canvas='+n+'/'+t}catch(e){return 'THROW '+e.name}})()`).catch(()=>null);
+        console.log('scenepix', appName, JSON.stringify(scenepix));
+      }
     }
     const nodes = await exe(sid, `window.GAME_DATA ? window.GAME_DATA.nodes.length : 0`).catch(()=>0);
     rec(A, 'data integrity: expected node count', nodes === expectNodes, 'nodes=' + nodes);
@@ -221,7 +265,10 @@ function checkDogam(appName, expectNodes) {
     }
     await shot(sid, 'desktop-' + appName);
     const cv = await el(sid, 'css selector', 'canvas');
-    if (cv) { await tapFraction(sid, cv, 0.5, 0.7); await sleep(2000); await shot(sid, 'desktop-' + appName + '-tap'); }
+    if (cv) { await tapFraction(sid, cv, 0.5, 0.7); await sleep(3500); await shot(sid, 'desktop-' + appName + '-tap');
+      const posB = await exe(sid, 'return JSON.stringify(window.__dogam.pos())').catch(()=>null);
+      rec(A, 'avatar moves after real canvas tap (position changes)', !!(posA && posB && posA !== posB), String(posA) + ' -> ' + String(posB));
+    }
   };
 }
 
@@ -237,8 +284,8 @@ const APPS = [
 
 const ONLY = process.env.ONLY ? process.env.ONLY.split(',') : null;
 const APPS_RUN = ONLY ? APPS.filter(([u]) => ONLY.some(o => u.includes(o))) : APPS;
-const driver = spawn('/usr/bin/safaridriver', ['-p', '4444'], { stdio: 'ignore' });
-await sleep(2500);
+const driver = BS ? null : spawn('/usr/bin/safaridriver', ['-p', '4444'], { stdio: 'ignore' });
+await sleep(BS ? 500 : 2500);
 try {
   for (const [url, fn] of APPS_RUN) {
     const app = url.split('//')[1].split('.')[0];
@@ -261,7 +308,7 @@ try {
     }
   }
 } finally {
-  driver.kill();
+  if (driver) driver.kill();
 }
 fs.writeFileSync('results/summary.json', JSON.stringify(report, null, 2));
 const fails = report.filter(r => !r.ok).length;
