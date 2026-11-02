@@ -111,6 +111,12 @@ async function checkGGP(sid) {
       const cv = await el(sid, 'css selector', '#cv');
       if (cv) {
         if (BS_DEVICE) {
+          // iOS touch-walk: native XCTest tap on open ground must move the avatar (original mobile movement complaint)
+          const pos0 = await exe(sid, `(()=>{const c=window.__ggp.chars.get(window.__ggp.me);return c?JSON.stringify({x:c.px,y:c.py}):null})()`).catch(()=>null);
+          const wrect = await exe(sid, `(function(){const c=document.getElementById('cv');const r=c.getBoundingClientRect();return JSON.stringify({x:Math.round(r.x+r.width*0.3),y:Math.round(r.y+r.height*0.62)})})()`).catch(()=>null);
+          await api('POST', '/execute/sync', { script: 'mobile: tap', args: [wrect ? JSON.parse(wrect) : {x:120,y:400}] }, sid).catch(()=>{});
+          const walked = await waitFor(sid, `(()=>{const c=window.__ggp.chars.get(window.__ggp.me);return c&&(JSON.stringify({x:c.px,y:c.py})!==${pos0})?true:null})()`, 8000);
+          rec(A, 'iPhone touch-walk: native tap on ground moves avatar', walked === true, 'pos ' + pos0 + ' changed=' + (walked === true));
           // iOS: real element taps through the UI flow - open Actions panel, tap Sit (nearestSeat + WS claim)
           const bar = await el(sid, 'css selector', '#bar [data-p="act"]');
           if (bar) { await click(sid, bar); await sleep(700); }
@@ -119,6 +125,10 @@ async function checkGGP(sid) {
           console.log('seatsit-ui(info)', 'bar=' + !!bar, 'sitBtn=' + !!sitBtn);
           const claimed = await waitFor(sid, `(()=>{const c=window.__ggp.chars.get(window.__ggp.me);return c&&c.seat!=null?c.seat:null})()`, 15000);
           rec(A, 'Actions panel Sit tap claims seat (real UI flow + WS round-trip)', claimed !== null && claimed !== false, 'claimed=' + JSON.stringify(claimed));
+          if (claimed !== null && claimed !== false) { await sleep(4000); await shot(sid, 'ios-ggp-seated');
+            const seated = await exe(sid, `(()=>{const c=window.__ggp.chars.get(window.__ggp.me);return c?JSON.stringify({seat:c.seat,act:c.act,moving:!!c.moving}):null})()`).catch(()=>null);
+            rec(A, 'final seated state after arrival (iPhone)', !!(seated && JSON.parse(seated).seat != null && !JSON.parse(seated).moving), String(seated));
+          }
         } else {
           const tapres = await tapFraction(sid, cv, seatF.fx, seatF.fy);
           console.log('seattap(info)', String(JSON.stringify(tapres)).slice(0,100), 'seat', JSON.stringify(seatF));
@@ -162,6 +172,21 @@ async function checkCoworking(sid) {
   if (b) await click(sid, b);
   const me = await waitFor(sid, `!!(window.__me && window.__me.group)`, 60000);
   rec(A, 'entry: avatar joins world (WebSocket presence)', !!me);
+  if (me) {
+    // timer: open 타이머 menu, pick 25분 집중 -> HUD shows a running focus timer
+    const tbtn = await el(sid, 'css selector', 'button[data-menu="timerMenu"]');
+    if (tbtn) { await click(sid, tbtn); await sleep(600); }
+    const t25 = await el(sid, 'css selector', '[data-timer="25"]');
+    if (t25) { await click(sid, t25); await sleep(1200); }
+    const thud = await exe(sid, `(function(){const h=document.getElementById('timerhud');return h?JSON.stringify({vis:h.style.display!=='none'&&h.offsetHeight>0,txt:h.textContent.slice(0,40)}):null})()`).catch(()=>null);
+    rec(A, 'timer: 25-minute focus timer starts via real menu clicks', !!(thud && JSON.parse(thud).vis && /25분 집중|집중/.test(JSON.parse(thud).txt)), String(thud));
+    // chat: type into #chatin + Enter -> message lands in #chatlog
+    const ci = await el(sid, 'css selector', '#chatin');
+    if (ci) { await click(sid, ci); await type(sid, ci, 'QA chat probe\uE007'); await sleep(1200); }
+    const log = await exe(sid, `(document.getElementById('chatlog')||{}).textContent||''`).catch(()=>null);
+    rec(A, 'chat: typed message + Enter lands in chat log', !!(log && log.indexOf('QA chat probe') >= 0), String(log).slice(0, 80));
+    await shot(sid, 'desktop-coworking-world-timerchat');
+  }
   await shot(sid, 'desktop-coworking-world');
 }
 

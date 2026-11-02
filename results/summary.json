@@ -1,26 +1,32 @@
 [
   {
-    "app": "golden-gate-picnic",
+    "app": "coworking-world",
     "check": "serves 200 with real title",
     "ok": true,
-    "detail": "Golden Gate Picnic - a night picnic by the bridge"
+    "detail": "KINZIE 코워킹 - 온라인 집중 공간"
   },
   {
-    "app": "golden-gate-picnic",
-    "check": "boot: page loads, __ggp handle + entry gate present",
+    "app": "coworking-world",
+    "check": "boot: entry panel present",
     "ok": true,
     "detail": ""
   },
   {
-    "app": "golden-gate-picnic",
-    "check": "entry: real button clicks spawn avatar (WebSocket join)",
+    "app": "coworking-world",
+    "check": "entry: avatar joins world (WebSocket presence)",
     "ok": true,
     "detail": ""
   },
   {
-    "app": "golden-gate-picnic",
-    "check": "Actions panel Sit tap claims seat (real UI flow + WS round-trip)",
+    "app": "coworking-world",
+    "check": "timer: 25-minute focus timer starts via real menu clicks",
     "ok": true,
-    "detail": "claimed=1"
+    "detail": "{\"vis\":true,\"txt\":\"25분 집중 24:58\"}"
+  },
+  {
+    "app": "coworking-world",
+    "check": "chat: typed message + Enter lands in chat log",
+    "ok": true,
+    "detail": "나: QA chat probeQA: QA chat probe"
   }
 ]
