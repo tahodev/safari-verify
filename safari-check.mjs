@@ -53,6 +53,10 @@ async function newSession() {
 const nav = (sid, url) => api('POST', '/url', { url }, sid);
 const wrap = s => /^\s*(return|const|let|var)\b/.test(s) ? s : 'return (' + s + ');';
 const exe = (sid, script, args = []) => api('POST', '/execute/sync', { script: wrap(script), args }, sid);
+async function els(sid, using, value) {
+  const res = await wd('POST', `/session/${sid}/elements`, { using, value });
+  return (res && res.value) || [];
+}
 async function el(sid, using, value) {
   try {
     const v = await api('POST', '/element', { using, value }, sid);
@@ -262,6 +266,37 @@ function checkDogam(appName, expectNodes) {
         await shot(sid, 'desktop-' + appName + '-scene2');
         const scenepix = await exe(sid, `(function(){try{const c=document.querySelector('canvas');const k=c.getContext('2d');const d=k.getImageData(0,0,Math.min(c.width,200),Math.min(c.height,200)).data;let n=0,t=0;for(let i=3;i<d.length;i+=400){t++;if(d[i]>10)n++}return 'scene2canvas='+n+'/'+t}catch(e){return 'THROW '+e.name}})()`).catch(()=>null);
         console.log('scenepix', appName, JSON.stringify(scenepix));
+      }
+    }
+    if (process.env.DEEPWALK) {
+      const targets = process.env.DEEPWALK.split(',').map(Number);
+      const links = await exe(sid, `return JSON.stringify(Object.fromEntries(window.GAME_DATA.nodes.map(n=>[n.id,n.links])))`).then(JSON.parse).catch(()=>null);
+      const names = await exe(sid, `return JSON.stringify(Object.fromEntries(window.GAME_DATA.nodes.map(n=>[n.id,n.name[0]])))`).then(JSON.parse).catch(()=>null);
+      const bfs = (from, to) => { const q=[[from]]; while(q.length){const p=q.shift(); if(p[p.length-1]===to) return p; for(const l of (links[p[p.length-1]]||[])) if(!p.includes(l)) q.push([...p,l]);} return null; };
+      let cur = await exe(sid, 'return window.__dogam.S().scene');
+      for (const target of targets) {
+        const path = bfs(cur, target);
+        console.log('deepwalk path', cur, '->', target, JSON.stringify(path));
+        if (!path) { rec(A, 'deep-walk: path exists to node ' + target, false, 'no path'); continue; }
+        let ok = true;
+        for (let i = 0; i + 1 < path.length; i++) {
+          const idx = links[path[i]].indexOf(path[i+1]);
+          const gates = await els(sid, 'css selector', '.gate-links button');
+          if (!gates[idx]) { ok = false; rec(A, 'deep-walk: gate button for scene ' + path[i] + ' link ' + idx, false, 'missing'); break; }
+          const cr = await click(sid, gates[idx][Object.keys(gates[idx])[0]]);
+          const nxt = await waitFor(sid, `window.__dogam.S().scene === ${path[i+1]} ? window.__dogam.S().scene : null`, 30000);
+          console.log('deepwalk step', path[i], '->', JSON.stringify(nxt), 'clickRes', JSON.stringify(cr).slice(0,80));
+          if (nxt === null) { ok = false; break; }
+        }
+        if (ok) {
+          await sleep(1200);
+          const st = await exe(sid, 'return window.__dogam.S().scene').catch(()=>null);
+          const pix = await exe(sid, `(function(){try{const c=document.querySelector('canvas');const k=c.getContext('2d');const d=k.getImageData(0,0,Math.min(c.width,200),Math.min(c.height,200)).data;let n=0,t=0;for(let i=3;i<d.length;i+=400){t++;if(d[i]>10)n++}return n+'/'+t}catch(e){return 'THROW '+e.name}})()`).catch(()=>null);
+          const errs = await exe(sid, `return (window.__errs||[]).join(';').slice(0,150)||'none'`).catch(()=>null);
+          await shot(sid, 'deepwalk-' + appName + '-node' + target);
+          rec(A, 'deep-walk: enter new destination node ' + target + ' (' + (names[target]||'?') + ') renders', st === target && !!pix && String(pix).indexOf('THROW') !== 0 && !String(pix).startsWith('0/') && errs === 'none', 'scene=' + st + ' pix=' + pix + ' errs=' + errs);
+          cur = target;
+        }
       }
     }
     const nodes = await exe(sid, `window.GAME_DATA ? window.GAME_DATA.nodes.length : 0`).catch(()=>0);
