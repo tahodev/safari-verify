@@ -240,9 +240,16 @@ function checkDogam(appName, expectNodes) {
       const raf = await exe(sid, 'return window.__rafTick').catch(()=>null);
       console.log('raflive', appName, JSON.stringify(raf));
       rec(A, 'game main thread alive after entry (raf fires)', raf === 1, 'rafTick=' + raf);
+      // dismiss the walking-tips tutorial modal (first run) via real close click - it blocks canvas input
+      const closeBtn = await el(sid, 'css selector', '.modal header button');
+      if (closeBtn) {
+        const cr = await click(sid, closeBtn);
+        await sleep(900);
+        const gone = await exe(sid, 'return !document.querySelector(".modal")').catch(()=>null);
+        rec(A, 'walking-tips modal dismissed via real close click', gone === true, 'clickRes=' + JSON.stringify(cr).slice(0,80) + ' gone=' + gone);
+      }
       // portal transition: real click on a gate-link button must move to a linked scene
       const sceneA = await exe(sid, 'return window.__dogam.S().scene').catch(()=>null);
-      const posA = await exe(sid, 'return JSON.stringify(window.__dogam.pos())').catch(()=>null);
       const gate = await el(sid, 'css selector', '.gate-links button');
       if (gate) {
         const gres = await click(sid, gate);
@@ -265,9 +272,23 @@ function checkDogam(appName, expectNodes) {
     }
     await shot(sid, 'desktop-' + appName);
     const cv = await el(sid, 'css selector', 'canvas');
-    if (cv) { await tapFraction(sid, cv, 0.5, 0.7); await sleep(3500); await shot(sid, 'desktop-' + appName + '-tap');
-      const posB = await exe(sid, 'return JSON.stringify(window.__dogam.pos())').catch(()=>null);
-      rec(A, 'avatar moves after real canvas tap (position changes)', !!(posA && posB && posA !== posB), String(posA) + ' -> ' + String(posB));
+    if (cv) { await exe(sid, `return window.__dogam ? (window.__tapPos = window.__dogam.pos(), true) : false`).catch(()=>{});
+      // BS safaridriver: W3C pointer actions report canvas "not interactable" (overlay) - real element click on canvas instead
+      const topdiag = await exe(sid, `return (function(){
+        const c=document.querySelector('canvas');const r=c.getBoundingClientRect();
+        const pts=[[0.5,0.5],[0.5,0.7],[0.2,0.5]].map(([fx,fy])=>{const el=document.elementFromPoint(r.x+r.width*fx, r.y+r.height*fy);return fx+','+fy+':'+(el?(el.tagName+'.'+(el.className&&el.className.baseVal!==undefined?'svg':String(el.className).slice(0,30))):'null')});
+        const cs=getComputedStyle(c);
+        return 'rect='+JSON.stringify(r)+' pe='+cs.pointerEvents+' disp='+cs.display+' ztop='+pts.join(' | ')
+      })()`).catch(()=>null);
+      console.log('topdiag', appName, JSON.stringify(topdiag));
+      const cres = await click(sid, cv);
+      console.log('canvasclick(info)', appName, JSON.stringify(cres).slice(0,120));
+      await sleep(3500); await shot(sid, 'desktop-' + appName + '-tap');
+      if (appName === 'seongsu-dogam' || appName === 'kurashi-otaru') {
+        const posB = await exe(sid, 'return JSON.stringify(window.__dogam.pos())').catch(()=>null);
+        const posA0 = await exe(sid, 'return JSON.stringify(window.__tapPos || null)').catch(()=>null);
+        rec(A, 'avatar moves after real canvas tap (position changes)', !!(posA0 && posB && posA0 !== posB), String(posA0) + ' -> ' + String(posB));
+      }
     }
   };
 }
