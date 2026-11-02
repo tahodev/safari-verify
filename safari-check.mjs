@@ -191,7 +191,9 @@ async function checkSweet(sid) {
 
   if (run && BS_DEVICE && process.env.SWEET_TOUCH) {
     // real iPhone touch controls: joystick drag, touch look, actBtn quiz - native XCTest taps + W3C touch actions
-    const tapXY = async (x, y) => { await api('POST', '/execute/sync', { script: 'mobile: tap', args: [{ x: Math.round(x), y: Math.round(y) }] }, sid).catch(()=>{}); };
+    const tapXY = async (x, y) => { await api('POST', '/actions', { actions: [{ type: 'pointer', id: 't1', parameters: { pointerType: 'touch' }, actions: [
+      { type: 'pointerMove', duration: 0, origin: 'viewport', x: Math.round(x), y: Math.round(y) },
+      { type: 'pointerDown', button: 0 }, { type: 'pause', duration: 70 }, { type: 'pointerUp', button: 0 }] }] }, sid).then(() => api('DELETE', '/actions', null, sid)).catch(() => {}); };
     const touchDrag = async (x0, y0, dx, dy, holdMs) => { await api('POST', '/actions', { actions: [{ type: 'pointer', id: 't1', parameters: { pointerType: 'touch' }, actions: [
       { type: 'pointerMove', duration: 0, origin: 'viewport', x: Math.round(x0), y: Math.round(y0) },
       { type: 'pointerDown', button: 0 },
@@ -221,14 +223,17 @@ async function checkSweet(sid) {
         const pd = await exe(sid, `(function(){const t=window.__qa.targets().find(t=>t.room===0);const p=window.__qa.pos();return Math.hypot(t.x-p[0],t.z-p[1])})()`).catch(()=>99);
         const sp = await exe(sid, `(function(){const t=window.__qa.targets().find(t=>t.room===0);return JSON.stringify(window.__qa.screenOf(t.x,t.z))})()`).then(r=>r&&JSON.parse(r)).catch(()=>null);
         if (st.prompt && typeof pd === 'number' && pd < 2.6) {
-          const ab = await exe(sid, `(function(){const b=document.getElementById('actBtn');if(!b||b.hidden)return null;const r=b.getBoundingClientRect();return JSON.stringify({x:r.x+r.width/2,y:r.y+r.height/2})})()`).then(v=>v&&JSON.parse(v)).catch(()=>null);
-          if (ab) await tapXY(ab.x, ab.y);
+          const abEl = await el(sid, 'css selector', '#actBtn');
+          if (abEl) await click(sid, abEl); // DOM button: element click fires the real click handler (tryInteract)
+          else console.log('touchquiz actBtn element not found');
+          await sleep(700);
+          console.log('touchquiz after-tap', await exe(sid, `JSON.stringify({mm:!document.getElementById('mathModal').hidden,lp:!document.getElementById('lookPanel').hidden,actHidden:document.getElementById('actBtn').hidden})`).catch(()=>null));
           const open = await waitFor(sid, `!document.getElementById('mathModal').hidden`, 6000).catch(()=>false);
           if (open) {
             const i1 = await el(sid, 'css selector', '#in1');
             if (i1) { await click(sid, i1); await type(sid, i1, '3168'); }
             const ok = await el(sid, 'css selector', '#okBtn');
-            if (ok) { const or2 = await exe(sid, `(function(){const b=document.getElementById('okBtn');const r=b.getBoundingClientRect();return JSON.stringify({x:r.x+r.width/2,y:r.y+r.height/2})})()`).then(v=>v&&JSON.parse(v)).catch(()=>null); if (or2) await tapXY(or2.x, or2.y); else await click(sid, ok); }
+            if (ok) await click(sid, ok);
             solved0 = await waitFor(sid, `window.__qa.solved()[0] === true ? true : null`, 8000) === true;
           }
           console.log('touchquiz iter' + iter, 'prompt', st.prompt, 'pd', pd, 'open-solved', solved0);
