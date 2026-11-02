@@ -25,6 +25,12 @@
   },
   {
     "app": "sweet-factory-escape-3d",
+    "check": "playthrough: room 1 puzzle solved via real input",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "app": "sweet-factory-escape-3d",
     "check": "playthrough: full escape - ending screen reached",
     "ok": false,
     "detail": "fin=false"
