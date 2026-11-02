@@ -197,7 +197,16 @@ function checkDogam(appName, expectNodes) {
     const errs = entered ? '' : await exe(sid, `(window.__errs||[]).join(' | ').slice(0,180)+' stage='+(window.__dogam?window.__dogam.stage():'?')`).catch(()=>'');
     rec(A, 'entry: language -> traveler -> begin via real clicks', !!entered, entered ? 'stage=' + entered : String(errs));
     if (entered) {
-      await exe(sid, `window.__paint=null;(function(){const im=new Image();im.onload=()=>{try{const c=document.createElement('canvas');c.width=im.naturalWidth;c.height=im.naturalHeight;const k=c.getContext('2d');k.drawImage(im,0,0);const d=k.getImageData(0,0,c.width,c.height).data;let n=0,t=0;for(let i=3;i<d.length;i+=400){t++;if(d[i]>20)n++}window.__paint='freshimg painted='+n+'/'+t+' '+im.naturalWidth+'x'+im.naturalHeight}catch(e){window.__paint='THROW '+e.name+' '+e.message}};im.onerror=()=>{window.__paint='loaderror'};im.src='assets/avatar-0.png?probe='+Date.now()})();return true`).catch(()=>{});
+      await exe(sid, `window.__paint=null;(function(){
+        function paint(im){const c=document.createElement('canvas');c.width=im.naturalWidth;c.height=im.naturalHeight;const k=c.getContext('2d');k.drawImage(im,0,0);const d=k.getImageData(0,0,Math.min(c.width,300),Math.min(c.height,300)).data;let n=0,t=0;for(let i=3;i<d.length;i+=400){t++;if(d[i]>20)n++}return n+'/'+t}
+        function test(src){return new Promise(res=>{const im=new Image();
+          im.onload=async()=>{let pre,dec='na',post;try{pre=paint(im)}catch(e){pre='THROW '+e.name}
+            try{await im.decode();dec='decode-ok'}catch(e){dec='decode-fail '+e.name}
+            try{post=paint(im)}catch(e){post='THROW '+e.name}
+            res(src+' nw='+im.naturalWidth+' pre='+pre+' '+dec+' post='+post)};
+          im.onerror=()=>res(src+' loaderror');im.src=src+'?probe='+Date.now();setTimeout(()=>res(src+' timeout'),10000)})}
+        (async()=>{const a=await test('assets/avatar-0.png');const sc=await test('assets/scene-0.webp');window.__paint=a+' || '+sc})()
+      })();return true`).catch(()=>{});
       const paint = await waitFor(sid, `window.__paint || null`, 12000);
       console.log('paintprobe', appName, JSON.stringify(paint));
       rec(A, 'Safari paints same-origin PNG to canvas (fresh image)', !!(paint && String(paint).indexOf('painted=') === 0 && String(paint).indexOf('painted=0/') !== 0), String(paint));
