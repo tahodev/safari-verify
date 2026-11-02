@@ -149,9 +149,21 @@ def flow_dalbit(cdp, cal):
     A = "sajumadang"
     rec(A, "boot: title + UI", wait_js(cdp, "document.title&&document.title.indexOf('사주마당')>=0&&!!document.querySelector('button')", 60000))
     rec(A, "extras22.js executes (seasonfx)", wait_js(cdp, "!!document.querySelector('.seasonfx')", 15000))
-    tap_el(cdp, cal, "document.querySelector('button.rod')", "accordion")
+    tap_el(cdp, cal, "[...document.querySelectorAll('button')].find(b=>b.textContent.includes('닫기'))", "dismiss guide")
     time.sleep(1)
-    rec(A, "accordion tap expands", cdp.js("(document.querySelector('button.rod')||{getAttribute:()=>null}).getAttribute('aria-expanded')") == "true")
+    tap_el(cdp, cal, "[...document.querySelectorAll('button')].find(b=>b.textContent.includes('이름 짓고 들어가기'))", "open nick sheet")
+    time.sleep(1)
+    tap_el(cdp, cal, "document.getElementById('fNick')", "nick field")
+    type_text("QA")
+    tap_el(cdp, cal, "[...document.querySelectorAll('button')].find(b=>b.textContent.includes('이 모습으로 들어가기'))", "submit nick")
+    time.sleep(2)
+    rec(A, "first-visit nickname flow via taps", cdp.js("!!document.getElementById('sayInput')"))
+    tap_el(cdp, cal, "document.getElementById('sceneBtn')", "gate->maru")
+    in_maru = wait_js(cdp, "document.getElementById('stage').classList.contains('scene-maru')", 25000)
+    rec(A, "gate->maru entry via real tap", in_maru)
+    if in_maru:
+        ph = cdp.js("(document.getElementById('sayInput')||{}).placeholder||''")
+        rec(A, "placeholder switches to 마루", bool(ph and "마루" in ph), ph)
     shot("ios-" + A)
 
 def flow_dogam(cdp, cal, app, expect_nodes):

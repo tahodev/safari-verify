@@ -28,6 +28,8 @@ echo "== installing interaction tooling (idb + ios-webkit-debug-proxy) =="
 if (brew install ios-webkit-debug-proxy && brew install --cask companion) >/tmp/ios-brew.log 2>&1 || { command -v idb_companion >/dev/null && command -v ios_webkit_debug_proxy >/dev/null; }; then
   if python3 -m venv /tmp/idbenv && /tmp/idbenv/bin/pip install --quiet fb-idb websocket-client pillow >>/tmp/ios-pip.log 2>&1; then
     export PATH="/tmp/idbenv/bin:$PATH"
+    echo "idb paths: $(command -v idb) / $(command -v idb_companion)"
+    idb list-targets 2>&1 | head -5
     if command -v idb >/dev/null && idb list-targets 2>/dev/null | grep -qi "$DEV"; then
       ios_webkit_debug_proxy -c "$DEV:9221" >/tmp/iwdp.log 2>&1 &
       IWDP_PID=$!

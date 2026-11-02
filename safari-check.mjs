@@ -34,7 +34,7 @@ async function newSession() {
   return v.sessionId;
 }
 const nav = (sid, url) => api('POST', '/url', { url }, sid);
-const wrap = s => /\breturn\b/.test(s) ? s : 'return (' + s + ');';
+const wrap = s => /^\s*(return|const|let|var)\b/.test(s) ? s : 'return (' + s + ');';
 const exe = (sid, script, args = []) => api('POST', '/execute/sync', { script: wrap(script), args }, sid);
 async function el(sid, using, value) {
   try {
@@ -136,8 +136,18 @@ async function checkDalbit(sid) {
   if (!boot) return;
   const fx = await waitFor(sid, `!!document.querySelector('.seasonfx')`, 15000);
   rec(A, 'extras22.js executes (lookbehind fix, seasonfx element created)', !!fx);
-  const guideClose = await el(sid, 'xpath', `//div[contains(@class,'sheet') or contains(@class,'modal') or @role='dialog']//button[contains(.,'닫기')]`);
+  const guideClose = await el(sid, 'xpath', `//button[contains(.,'닫기')]`);
   if (guideClose) { await click(sid, guideClose); await sleep(800); rec(A, 'first-visit guide sheet dismissed', true); }
+  const nameGo = await el(sid, 'xpath', `//button[contains(.,'이름 짓고 들어가기')]`);
+  if (nameGo) {
+    await click(sid, nameGo); await sleep(800);
+    const nickIn = await el(sid, 'css selector', '#fNick');
+    if (nickIn) { await click(sid, nickIn); await type(sid, nickIn, 'QA마당'); }
+    const nickGo = await el(sid, 'xpath', `//button[contains(.,'이 모습으로 들어가기')]`);
+    if (nickGo) { await click(sid, nickGo); await sleep(2000); }
+    const named = await exe(sid, `!!document.getElementById('sayInput')`).catch(()=>null);
+    rec(A, 'first-visit nickname flow via sheet (required before entry)', !!named);
+  }
   const sceneBtn = await el(sid, 'css selector', '#sceneBtn');
   if (sceneBtn) {
     await click(sid, sceneBtn);
@@ -157,10 +167,10 @@ function checkDogam(appName, expectNodes) {
     if (!boot) return;
     const handle = await exe(sid, `typeof window.__dogam === 'object'`).catch(()=>null);
     rec(A, 'QA debug handle deployed', !!handle);
-    await exe(sid, `window.__errs=[];addEventListener('error',e=>window.__errs.push(String(e.message)));true`).catch(()=>{});
+    await exe(sid, `(()=>{window.__errs=[];addEventListener('error',e=>window.__errs.push(String(e.message)));return true})()`).catch(()=>{});
     const lang = await el(sid, 'xpath', `//div[contains(@class,'language-grid')]//button[contains(.,'English')]`);
     if (lang) { await click(sid, lang); await sleep(1500); }
-    const counts = await exe(sid, `(function(){try{return (document.querySelectorAll('.travelers button').length)+'/'+(document.querySelectorAll('#start-actions button').length)+' lang='+(window.__dogam&&window.__dogam.S?window.__dogam.S().lang:'?')}catch(e){return 'evalerr '+e}})()`).catch(()=>null);
+    const counts = await exe(sid, `(function(){try{const t=document.querySelector('.travelers');const b=document.querySelector('.travelers button');return (document.querySelectorAll('.travelers button').length)+'/'+(document.querySelectorAll('#start-actions button').length)+' grid='+(!!t)+' vis='+(b?b.offsetHeight:'-')+' ua='+navigator.userAgent.slice(0,60)}catch(e){return 'evalerr '+e}})()`).catch(()=>null);
     rec(A, 'traveler grid + begin button render after language pick', !!(counts && counts.indexOf('10/') === 0), String(counts));
     await shot(sid, 'desktop-' + appName + '-start');
     const name = await el(sid, 'css selector', '#name');
