@@ -102,15 +102,31 @@ async function checkGGP(sid) {
   const me = await waitFor(sid, `!!(window.__ggp && window.__ggp.chars && window.__ggp.chars.get(window.__ggp.me))`, 45000);
   rec(A, 'entry: real button clicks spawn avatar (WebSocket join)', !!me);
   if (me) {
-    const seatF = await exe(sid, `(()=>{const s=window.__ggp.seats[4];const c=document.getElementById('cv');return s&&c&&c.width?{fx:s.x/c.width,fy:s.y/c.height}:null})()`).catch(()=>null);
-    if (!seatF) rec(A, 'canvas tap claims seat (hit-testing + WS round-trip)', false, 'no seats[4] coords from __ggp');
+    const seatF = await exe(sid, `(()=>{const c=document.getElementById('cv');const m=window.__ggp.chars.get(window.__ggp.me);
+      const cw=c.clientWidth, ch=c.clientHeight; let best=null, bd=1e9;
+      window.__ggp.seats.forEach((s,i)=>{const fx=s.x/cw, fy=s.y/ch; if(fx>0.04&&fx<0.96&&fy>0.04&&fy<0.96){const d=m?Math.abs(s.x-m.x):i; if(d<bd){bd=d;best={i,fx,fy,dist:Math.round(bd)}}}});
+      return best})()`).catch(()=>null);
+    if (!seatF) rec(A, 'canvas tap claims seat (hit-testing + WS round-trip)', false, 'no visible seat found (viewport fractions)');
     if (seatF) {
       const cv = await el(sid, 'css selector', '#cv');
       if (cv) {
-        await tapFraction(sid, cv, seatF.fx, seatF.fy);
-        await sleep(3000);
-        const claimed = await exe(sid, `(()=>{const c=window.__ggp.chars.get(window.__ggp.me);return !!(c&&c.seat!=null)})()`).catch(()=>null);
-        rec(A, 'canvas tap claims seat (hit-testing + WS round-trip)', !!claimed);
+        if (BS_DEVICE) {
+          // iOS: real element taps through the UI flow - open Actions panel, tap Sit (nearestSeat + WS claim)
+          const bar = await el(sid, 'css selector', '#bar [data-p="act"]');
+          if (bar) { await click(sid, bar); await sleep(700); }
+          const sitBtn = await el(sid, 'css selector', '#actp button[data-a="sit"]');
+          if (sitBtn) { await click(sid, sitBtn); }
+          console.log('seatsit-ui(info)', 'bar=' + !!bar, 'sitBtn=' + !!sitBtn);
+          const claimed = await waitFor(sid, `(()=>{const c=window.__ggp.chars.get(window.__ggp.me);return c&&c.seat!=null?c.seat:null})()`, 15000);
+          rec(A, 'Actions panel Sit tap claims seat (real UI flow + WS round-trip)', claimed !== null && claimed !== false, 'claimed=' + JSON.stringify(claimed));
+        } else {
+          const tapres = await tapFraction(sid, cv, seatF.fx, seatF.fy);
+          console.log('seattap(info)', String(JSON.stringify(tapres)).slice(0,100), 'seat', JSON.stringify(seatF));
+          const claimed = await waitFor(sid, `(()=>{const c=window.__ggp.chars.get(window.__ggp.me);return c&&c.seat!=null?c.seat:null})()`, 15000);
+          const dest = await exe(sid, `JSON.stringify(window.__ggp.dest||null)`).catch(()=>null);
+          console.log('seatclaim(info)', 'claimed=' + String(JSON.stringify(claimed)), 'dest=' + String(dest));
+          rec(A, 'canvas tap claims seat (hit-testing + WS round-trip)', claimed !== null && claimed !== false, 'tap seat#' + seatF.i + ' dist=' + seatF.dist + ' claimed=' + JSON.stringify(claimed));
+        }
       } else rec(A, 'canvas tap claims seat (hit-testing + WS round-trip)', false, 'no #cv canvas element');
     }
   }
@@ -174,7 +190,8 @@ async function checkDalbit(sid) {
     const inMaru = await waitFor(sid, `document.getElementById('stage').classList.contains('scene-maru')`, 25000);
     rec(A, 'gate->maru entry via real button click (scene switches)', !!inMaru);
     const ph = await exe(sid, `(document.getElementById('sayInput')||{}).placeholder || ''`).catch(()=>null);
-    rec(A, 'chat placeholder switches to 마루 in maru scene', !!(ph && ph.indexOf('마루') >= 0), String(ph));
+    const narrow = await exe(sid, 'return matchMedia("(max-width:620px)").matches').catch(()=>false);
+    rec(A, 'chat placeholder switches in maru scene (desktop: 마루 address / mobile: compact)', !!(ph && (narrow ? ph === '한마디 하기' : ph.indexOf('마루') >= 0)), String(ph) + (narrow ? ' [mobile compact variant - by design, extras6.js]' : ''));
   } else rec(A, 'gate->maru entry via real button click (scene switches)', false, 'no #sceneBtn found');
   await shot(sid, 'desktop-' + A);
 }
@@ -322,16 +339,17 @@ function checkDogam(appName, expectNodes) {
     await shot(sid, 'desktop-' + appName);
     const cv = await el(sid, 'css selector', 'canvas');
     if (cv) { await exe(sid, `return window.__dogam ? (window.__tapPos = window.__dogam.pos(), true) : false`).catch(()=>{});
-      // BS safaridriver: W3C pointer actions report canvas "not interactable" (overlay) - real element click on canvas instead
-      const topdiag = await exe(sid, `return (function(){
-        const c=document.querySelector('canvas');const r=c.getBoundingClientRect();
-        const pts=[[0.5,0.5],[0.5,0.7],[0.2,0.5]].map(([fx,fy])=>{const el=document.elementFromPoint(r.x+r.width*fx, r.y+r.height*fy);return fx+','+fy+':'+(el?(el.tagName+'.'+(el.className&&el.className.baseVal!==undefined?'svg':String(el.className).slice(0,30))):'null')});
-        const cs=getComputedStyle(c);
-        return 'rect='+JSON.stringify(r)+' pe='+cs.pointerEvents+' disp='+cs.display+' ztop='+pts.join(' | ')
-      })()`).catch(()=>null);
-      console.log('topdiag', appName, JSON.stringify(topdiag));
-      const cres = await click(sid, cv);
-      console.log('canvasclick(info)', appName, JSON.stringify(cres).slice(0,120));
+      // input method by platform: desktop safaridriver element click = real synthesized input (pointerdown fires);
+      // Appium iOS web element click is a JS atom (no pointerdown) - use W3C touch actions (native tap) instead
+      if (BS_DEVICE) {
+        // Appium extension: mobile: tap = native XCTest touch at viewport coords (real touch input)
+        const rect = await exe(sid, `(function(){const c=document.querySelector('canvas');const r=c.getBoundingClientRect();return JSON.stringify({x:Math.round(r.x+r.width*0.5),y:Math.round(r.y+r.height*0.7)})})()`).catch(()=>null);
+        const tres = await api('POST', '/execute/sync', { script: 'mobile: tap', args: [rect ? JSON.parse(rect) : {x:180,y:400}] }, sid).catch(e=>('ERR '+String(e).slice(0,120)));
+        console.log('canvastap-native(info)', appName, String(JSON.stringify(tres)).slice(0,140), 'at', rect);
+      } else {
+        const cres = await click(sid, cv);
+        console.log('canvasclick(info)', appName, String(JSON.stringify(cres)).slice(0,120));
+      }
       await sleep(3500); await shot(sid, 'desktop-' + appName + '-tap');
       if (appName === 'seongsu-dogam' || appName === 'kurashi-otaru') {
         const posB = await exe(sid, 'return JSON.stringify(window.__dogam.pos())').catch(()=>null);
