@@ -19,9 +19,12 @@ async function api(method, path, body, sid) {
     method,
     headers: { 'content-type': 'application/json' },
     body: body ? JSON.stringify(body) : undefined,
+    signal: AbortSignal.timeout(25000),
   });
+  const t = await r.text();
   let j = {};
-  try { j = await r.json(); } catch {}
+  try { j = JSON.parse(t); } catch { console.log('WD non-JSON', method, path, r.status, t.slice(0, 200)); }
+  if (j && j.value && j.value.error) console.log('WD error', method, path, JSON.stringify(j.value).slice(0, 300));
   return j.value !== undefined ? j.value : j;
 }
 async function newSession() {
@@ -43,10 +46,12 @@ const type = async (sid, id, text) => { await api('POST', `/element/${id}/clear`
 const shot = async (sid, name) => { const v = await api('GET', '/screenshot', null, sid).catch(() => null); if (v) fs.writeFileSync(`results/${name}.png`, Buffer.from(v, 'base64')); };
 async function waitFor(sid, script, ms = 60000) {
   const t0 = Date.now();
+  let lastErr = null;
   while (Date.now() - t0 < ms) {
-    try { const v = await exe(sid, script); if (v) return v; } catch {}
+    try { const v = await exe(sid, script); if (v) return v; } catch (e) { lastErr = String(e); }
     await sleep(800);
   }
+  if (lastErr) console.log('waitFor lastErr:', lastErr.slice(0, 200));
   return null;
 }
 async function tapFraction(sid, elId, fx, fy) {
@@ -64,7 +69,7 @@ async function ready(sid, ms = 90000) {
 // ---- per-app checks ----
 async function checkGGP(sid) {
   const A = 'golden-gate-picnic';
-  const boot = await waitFor(sid, `!!(window.__ggp && document.getElementById('go'))`, 90000);
+  const boot = await waitFor(sid, `!!(window.__ggp && document.getElementById('go'))`, 60000);
   rec(A, 'boot: page loads, __ggp handle + entry gate present', !!boot);
   if (!boot) return;
   const lang = await el(sid, 'xpath', `//*[@id='langRow']//button[@data-l='en']`);
@@ -92,7 +97,7 @@ async function checkGGP(sid) {
 
 async function checkSweet(sid) {
   const A = 'sweet-factory-escape-3d';
-  const boot = await waitFor(sid, `!!document.getElementById('startBtn')`, 90000);
+  const boot = await waitFor(sid, `!!document.getElementById('startBtn')`, 60000);
   rec(A, 'boot: intro screen with start button', !!boot);
   if (!boot) return;
   const inp = await el(sid, 'css selector', '#in1');
@@ -110,7 +115,7 @@ async function checkSweet(sid) {
 
 async function checkCoworking(sid) {
   const A = 'coworking-world';
-  const boot = await waitFor(sid, `!!document.getElementById('enter')`, 90000);
+  const boot = await waitFor(sid, `!!document.getElementById('enter')`, 60000);
   rec(A, 'boot: entry panel present', !!boot);
   if (!boot) return;
   const inp = await el(sid, 'css selector', '#nick');
@@ -124,7 +129,7 @@ async function checkCoworking(sid) {
 
 async function checkDalbit(sid) {
   const A = 'dalbit-saju-clone';
-  const boot = await waitFor(sid, `document.title && document.title.indexOf('달빛사주') >= 0 && !!document.querySelector('button')`, 90000);
+  const boot = await waitFor(sid, `document.title && document.title.indexOf('달빛사주') >= 0 && !!document.querySelector('button')`, 60000);
   rec(A, 'boot: title + UI renders', !!boot);
   if (!boot) return;
   const fx = await waitFor(sid, `!!document.querySelector('.seasonfx')`, 15000);
@@ -142,7 +147,7 @@ async function checkDalbit(sid) {
 function checkDogam(appName, expectNodes) {
   return async (sid) => {
     const A = appName;
-    const boot = await waitFor(sid, `!!(document.querySelector('.language-grid') || document.querySelector('.start'))`, 90000);
+    const boot = await waitFor(sid, `!!(document.querySelector('.language-grid') || document.querySelector('.start'))`, 60000);
     rec(A, 'boot: language/start screen renders', !!boot);
     if (!boot) return;
     const handle = await exe(sid, `typeof window.__dogam === 'object'`).catch(()=>null);
@@ -185,8 +190,12 @@ try {
     let sid = null;
     try {
       sid = await newSession();
-      await nav(sid, url);
-      const title = await ready(sid);
+      const navResp = await nav(sid, url);
+      console.log('nav', app, JSON.stringify(navResp).slice(0, 200));
+      await sleep(4000);
+      const probe = await exe(sid, 'return document.readyState+"|"+document.title+"|"+location.href').catch(e => 'execfail ' + e);
+      console.log('probe', app, JSON.stringify(probe).slice(0, 200));
+      const title = await ready(sid, 45000);
       rec(app, 'serves 200 with real title', !!title, String(title).slice(0, 80));
       if (title) await fn(sid);
     } catch (e) {
