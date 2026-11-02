@@ -178,6 +178,9 @@ function checkDogam(appName, expectNodes) {
     await sleep(1500);
     const counts = await exe(sid, `(function(){try{const t=document.querySelector('.travelers');const b=document.querySelector('.travelers button');return (document.querySelectorAll('.travelers button').length)+'/'+(document.querySelectorAll('#start-actions button').length)+' grid='+(!!t)+' vis='+(b?b.offsetHeight:'-')+' ua='+navigator.userAgent.slice(0,60)}catch(e){return 'evalerr '+e}})()`).catch(()=>null);
     rec(A, 'traveler grid + begin button render after language pick', !!(counts && counts.indexOf('10/') === 0), String(counts));
+    const btnpix = await exe(sid, `(function(){try{const c=document.querySelector('.travelers button canvas');if(!c)return 'nocanvas';const k=c.getContext('2d');const d=k.getImageData(0,0,c.width,c.height).data;let n=0,t=0;for(let i=3;i<d.length;i+=40){t++;if(d[i]>10)n++}return 'btncanvas='+n+'/'+t+' ('+c.width+'x'+c.height+')'}catch(e){return 'THROW '+e.name+' '+e.message}})()`).catch(()=>null);
+    console.log('btnpix', appName, JSON.stringify(btnpix));
+    rec(A, 'traveler sprite canvas actually painted (pixels)', !!(btnpix && !String(btnpix).startsWith('btncanvas=0/') && !String(btnpix).startsWith('THROW') && btnpix !== 'nocanvas'), String(btnpix));
     await shot(sid, 'desktop-' + appName + '-start');
     const name = await el(sid, 'css selector', '#name');
     if (name) { await click(sid, name); await type(sid, name, 'QA'); }
@@ -193,6 +196,14 @@ function checkDogam(appName, expectNodes) {
     const entered = await waitFor(sid, `window.__dogam && window.__dogam.stage()==='game' ? 'game' : null`, 30000);
     const errs = entered ? '' : await exe(sid, `(window.__errs||[]).join(' | ').slice(0,180)+' stage='+(window.__dogam?window.__dogam.stage():'?')`).catch(()=>'');
     rec(A, 'entry: language -> traveler -> begin via real clicks', !!entered, entered ? 'stage=' + entered : String(errs));
+    if (entered) {
+      await exe(sid, `window.__paint=null;(function(){const im=new Image();im.onload=()=>{try{const c=document.createElement('canvas');c.width=im.naturalWidth;c.height=im.naturalHeight;const k=c.getContext('2d');k.drawImage(im,0,0);const d=k.getImageData(0,0,c.width,c.height).data;let n=0,t=0;for(let i=3;i<d.length;i+=400){t++;if(d[i]>20)n++}window.__paint='freshimg painted='+n+'/'+t+' '+im.naturalWidth+'x'+im.naturalHeight}catch(e){window.__paint='THROW '+e.name+' '+e.message}};im.onerror=()=>{window.__paint='loaderror'};im.src='assets/avatar-0.png?probe='+Date.now()})();return true`).catch(()=>{});
+      const paint = await waitFor(sid, `window.__paint || null`, 12000);
+      console.log('paintprobe', appName, JSON.stringify(paint));
+      rec(A, 'Safari paints same-origin PNG to canvas (fresh image)', !!(paint && String(paint).indexOf('painted=') === 0 && String(paint).indexOf('painted=0/') !== 0), String(paint));
+      const gamepix = await exe(sid, `(function(){try{const c=document.querySelector('canvas');if(!c)return 'nocanvas';const k=c.getContext('2d');const w=Math.min(c.width,200),h=Math.min(c.height,200);const d=k.getImageData(0,0,w,h).data;let n=0,t=0;for(let i=3;i<d.length;i+=400){t++;if(d[i]>10)n++}return 'gamecanvas='+n+'/'+t+' ('+c.width+'x'+c.height+')'}catch(e){return 'THROW '+e.name+' '+e.message}})()`).catch(()=>null);
+      console.log('gamepix', appName, JSON.stringify(gamepix));
+    }
     const nodes = await exe(sid, `window.GAME_DATA ? window.GAME_DATA.nodes.length : 0`).catch(()=>0);
     rec(A, 'data integrity: expected node count', nodes === expectNodes, 'nodes=' + nodes);
     if (appName === 'seongsu-dogam') {
