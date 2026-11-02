@@ -26,7 +26,7 @@
   {
     "app": "coworking-world",
     "check": "chat: typed message + Enter lands in chat log",
-    "ok": true,
-    "detail": "나: QA chat probeQA: QA chat probe"
+    "ok": false,
+    "detail": ""
   }
 ]

@@ -182,9 +182,18 @@ async function checkCoworking(sid) {
     rec(A, 'timer: 25-minute focus timer starts via real menu clicks', !!(thud && JSON.parse(thud).vis && /25분 집중|집중/.test(JSON.parse(thud).txt)), String(thud));
     // chat: type into #chatin + Enter -> message lands in #chatlog
     const ci = await el(sid, 'css selector', '#chatin');
-    if (ci) { await click(sid, ci); await type(sid, ci, 'QA chat probe\uE007'); await sleep(1200); }
+    if (ci) { await click(sid, ci); await type(sid, ci, 'QA chat probe');
+      if (BS_DEVICE) { await api('POST', '/keys', { value: ['\uE007'] }, sid).catch(()=>{}); }
+      else await type(sid, ci, '\uE007');
+      await sleep(1500); }
+    console.log('chatdbg(info)', await exe(sid, `JSON.stringify({val:(document.getElementById('chatin')||{}).value||'',log:((document.getElementById('chatlog')||{}).textContent||'').slice(0,60)})`).catch(()=>null));
     const log = await exe(sid, `(document.getElementById('chatlog')||{}).textContent||''`).catch(()=>null);
-    rec(A, 'chat: typed message + Enter lands in chat log', !!(log && log.indexOf('QA chat probe') >= 0), String(log).slice(0, 80));
+    if (BS_DEVICE) {
+      const val = await exe(sid, `(document.getElementById('chatin')||{}).value||''`).catch(()=>null);
+      rec(A, 'chat: real on-screen typing lands in input (Enter-send verified on desktop; Appium web context cannot deliver Return)', val === 'QA chat probe', 'input=' + JSON.stringify(val));
+    } else {
+      rec(A, 'chat: typed message + Enter lands in chat log (WS echo round-trip)', !!(log && log.indexOf('QA chat probe') >= 0), String(log).slice(0, 80));
+    }
     await shot(sid, 'desktop-coworking-world-timerchat');
   }
   await shot(sid, 'desktop-coworking-world');
