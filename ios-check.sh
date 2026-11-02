@@ -30,7 +30,7 @@ sleep 5
 
 INTERACT_OK=0
 echo "== installing interaction tooling (idb + ios-webkit-debug-proxy) =="
-if run_to 600 brew install ios-webkit-debug-proxy >/tmp/ios-brew.log 2>&1 && { run_to 300 brew tap facebook/fb >>/tmp/ios-brew.log 2>&1; run_to 900 brew install idb-companion >>/tmp/ios-brew.log 2>&1; } || { command -v idb_companion >/dev/null && command -v ios_webkit_debug_proxy >/dev/null; }; then
+if run_to 600 brew install ios-webkit-debug-proxy >/tmp/ios-brew.log 2>&1 && { run_to 300 brew tap facebook/fb >>/tmp/ios-brew.log 2>&1; run_to 60 brew trust facebook/fb >>/tmp/ios-brew.log 2>&1; run_to 900 brew install idb-companion >>/tmp/ios-brew.log 2>&1; } || { command -v idb_companion >/dev/null && command -v ios_webkit_debug_proxy >/dev/null; }; then
   # fb-idb breaks on the runner's newest default python (3.15 traceback in idb/cli/main.py); use 3.12
   PYI=python3
   if run_to 600 brew install python@3.12 >>/tmp/ios-brew.log 2>&1; then PYI="$(brew --prefix python@3.12)/bin/python3.12"; fi
@@ -68,6 +68,7 @@ if [ "$INTERACT_OK" = "1" ]; then
   [ "${IOS_RC:-1}" = "0" ] || exit 1
 else
   echo "== LOAD-ONLY fallback (interaction tooling unavailable) =="
+  run_to 30 xcrun simctl list devices booted 2>&1 | head -5
   for app in golden-gate-picnic sweet-factory-escape-3d coworking-world sajumadang seongsu-dogam kurashi-otaru; do
     echo "== ios load: $app =="
     run_to 60 xcrun simctl openurl "$DEV" "https://$app.onrender.com/" || echo "openurl timeout/fail rc=$?"
