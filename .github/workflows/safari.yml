@@ -1,0 +1,30 @@
+name: safari-verify
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wake Render free-tier services
+        run: |
+          for u in golden-gate-picnic sweet-factory-escape-3d coworking-world seongsu-dogam dalbit-saju-clone kurashi-otaru; do
+            curl -s -o /dev/null -w "$u %{http_code}\n" "https://$u.onrender.com/" &
+          done
+          wait
+      - name: Enable safaridriver
+        run: sudo safaridriver --enable
+      - name: Desktop Safari verification
+        run: node safari-check.mjs 2>&1 | tee results/desktop.log
+      - name: iOS Simulator Mobile Safari verification
+        run: bash ios-check.sh 2>&1 | tee results/ios.log
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: safari-results
+          path: results/
+          retention-days: 7
