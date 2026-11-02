@@ -1,0 +1,30 @@
+<!doctype html><meta charset="utf-8"><title>canvas-probe</title>
+<body><div id="out">running</div><div id="cv"></div>
+<script>
+const R=[];
+function pix(c){try{const k=c.getContext('2d');const d=k.getImageData(0,0,Math.min(c.width,80),Math.min(c.height,80)).data;let n=0,t=0;for(let i=3;i<d.length;i+=40){t++;if(d[i]>10)n++}return n+'/'+t}catch(e){return 'THROW '+e.name}}
+function show(c,label){c.style.cssText='width:120px;height:120px;border:2px solid #333;margin:4px';const w=document.createElement('div');w.textContent=label;const box=document.createElement('div');box.append(w,c);document.getElementById('cv').append(box)}
+async function main(){
+ // 1. pure procedural 2d
+ try{const c=document.createElement('canvas');c.width=c.height=80;const k=c.getContext('2d');k.fillStyle='#c33';k.fillRect(0,0,80,80);R.push('procedural='+pix(c));show(c,'proc '+pix(c))}catch(e){R.push('procedural=THROW '+e.name)}
+ // 2. procedural with willReadFrequently
+ try{const c=document.createElement('canvas');c.width=c.height=80;const k=c.getContext('2d',{willReadFrequently:true});k.fillStyle='#3c3';k.fillRect(0,0,80,80);R.push('wrf='+pix(c));show(c,'wrf '+pix(c))}catch(e){R.push('wrf=THROW '+e.name)}
+ // 3. webgl available
+ try{R.push('webgl='+!!document.createElement('canvas').getContext('webgl'))}catch(e){R.push('webgl=THROW '+e.name)}
+ // 4. toDataURL on procedural
+ try{const c=document.createElement('canvas');c.width=c.height=8;c.getContext('2d').fillRect(0,0,8,8);R.push('toDataURL='+c.toDataURL().slice(0,30))}catch(e){R.push('toDataURL=THROW '+e.name)}
+ // 5. image draw after onload, no decode
+ const im=await new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src='avatar-0.png?x='+Date.now()});
+ if(!im){R.push('img=loaderror')}else{
+  try{const c=document.createElement('canvas');c.width=c.height=80;const k=c.getContext('2d');k.drawImage(im,0,0);R.push('img-onload='+pix(c)+' nw='+im.naturalWidth);show(c,'img-onload '+pix(c))}catch(e){R.push('img-onload=THROW '+e.name)}
+  // 6. after decode()
+  try{await im.decode();R.push('decode=ok')}catch(e){R.push('decode=THROW '+e.name)}
+  try{const c=document.createElement('canvas');c.width=c.height=80;const k=c.getContext('2d');k.drawImage(im,0,0);R.push('img-decoded='+pix(c));show(c,'img-decoded '+pix(c))}catch(e){R.push('img-decoded=THROW '+e.name)}
+  // 7. via createImageBitmap
+  try{const b=await createImageBitmap(im);const c=document.createElement('canvas');c.width=c.height=80;const k=c.getContext('2d');k.drawImage(b,0,0);R.push('bitmap='+pix(c));show(c,'bitmap '+pix(c))}catch(e){R.push('bitmap=THROW '+e.name)}
+ }
+ document.getElementById('out').textContent=R.join(' | ');
+ document.title='DONE';
+}
+main().catch(e=>{R.push('main=THROW '+e.name+' '+e.message);document.getElementById('out').textContent=R.join(' | ');document.title='DONE'});
+</script>
