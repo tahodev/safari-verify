@@ -188,6 +188,62 @@ async function checkSweet(sid) {
     rec(A, 'dragprobe: drag-look rotates yaw without pointer lock', mid !== before || after !== mid, JSON.stringify({before, mid, after, hit, lock}));
   }
   if (run && process.env.PLAYTHROUGH) { await sweetPlay(sid, A); }
+
+  if (run && BS_DEVICE && process.env.SWEET_TOUCH) {
+    // real iPhone touch controls: joystick drag, touch look, actBtn quiz - native XCTest taps + W3C touch actions
+    const tapXY = async (x, y) => { await api('POST', '/execute/sync', { script: 'mobile: tap', args: [{ x: Math.round(x), y: Math.round(y) }] }, sid).catch(()=>{}); };
+    const touchDrag = async (x0, y0, dx, dy, holdMs) => { await api('POST', '/actions', { actions: [{ type: 'pointer', id: 't1', parameters: { pointerType: 'touch' }, actions: [
+      { type: 'pointerMove', duration: 0, origin: 'viewport', x: Math.round(x0), y: Math.round(y0) },
+      { type: 'pointerDown', button: 0 },
+      { type: 'pointerMove', duration: 250, origin: 'pointer', x: Math.round(dx), y: Math.round(dy) },
+      { type: 'pause', duration: holdMs },
+      { type: 'pointerUp', button: 0 }] }] }, sid).then(() => api('DELETE', '/actions', null, sid)).catch(() => {}); };
+    const joyRect = await exe(sid, `(function(){const j=document.getElementById('joy');const b=j.getBoundingClientRect();return JSON.stringify({x:b.x+b.width/2,y:b.y+b.height/2,vis:b.width>0})})()`).then(v=>v&&JSON.parse(v)).catch(()=>null);
+    rec(A, 'mobile controls: virtual joystick present on iPhone', !!(joyRect && joyRect.vis), JSON.stringify(joyRect));
+    if (joyRect && joyRect.vis) {
+      const p0 = await exe(sid, 'JSON.stringify(window.__qa.pos())').then(v=>v&&JSON.parse(v)).catch(()=>null);
+      await touchDrag(joyRect.x, joyRect.y, 0, -55, 700);
+      await sleep(300);
+      const p1 = await exe(sid, 'JSON.stringify(window.__qa.pos())').then(v=>v&&JSON.parse(v)).catch(()=>null);
+      const moved = p0 && p1 && Math.hypot(p1[0]-p0[0], p1[1]-p0[1]) > 0.3;
+      rec(A, 'mobile controls: joystick drag moves avatar', !!moved, JSON.stringify({p0, p1}));
+      const y0 = await exe(sid, 'window.__qa.yaw()').catch(()=>null);
+      const vw = await exe(sid, 'innerWidth').catch(()=>390);
+      await touchDrag(vw * 0.7, 300, 110, 0, 60);
+      await sleep(300);
+      const y1 = await exe(sid, 'window.__qa.yaw()').catch(()=>null);
+      rec(A, 'mobile controls: touch look-drag rotates camera', y0 !== null && y1 !== null && y0 !== y1, JSON.stringify({y0, y1}));
+      // room 1 quiz via actBtn
+      let solved0 = false;
+      for (let iter = 0; iter < 16 && !solved0; iter++) {
+        const st = await exe(sid, `JSON.stringify({pos:window.__qa.pos(),prompt:window.__qa.prompt(),solved:window.__qa.solved()})`).then(r=>r&&JSON.parse(r)).catch(()=>null);
+        if (!st) break;
+        const pd = await exe(sid, `(function(){const t=window.__qa.targets().find(t=>t.room===0);const p=window.__qa.pos();return Math.hypot(t.x-p[0],t.z-p[1])})()`).catch(()=>99);
+        const sp = await exe(sid, `(function(){const t=window.__qa.targets().find(t=>t.room===0);return JSON.stringify(window.__qa.screenOf(t.x,t.z))})()`).then(r=>r&&JSON.parse(r)).catch(()=>null);
+        if (st.prompt && typeof pd === 'number' && pd < 2.6) {
+          const ab = await exe(sid, `(function(){const b=document.getElementById('actBtn');if(!b||b.hidden)return null;const r=b.getBoundingClientRect();return JSON.stringify({x:r.x+r.width/2,y:r.y+r.height/2})})()`).then(v=>v&&JSON.parse(v)).catch(()=>null);
+          if (ab) await tapXY(ab.x, ab.y);
+          const open = await waitFor(sid, `!document.getElementById('mathModal').hidden`, 6000).catch(()=>false);
+          if (open) {
+            const i1 = await el(sid, 'css selector', '#in1');
+            if (i1) { await click(sid, i1); await type(sid, i1, '3168'); }
+            const ok = await el(sid, 'css selector', '#okBtn');
+            if (ok) { const or2 = await exe(sid, `(function(){const b=document.getElementById('okBtn');const r=b.getBoundingClientRect();return JSON.stringify({x:r.x+r.width/2,y:r.y+r.height/2})})()`).then(v=>v&&JSON.parse(v)).catch(()=>null); if (or2) await tapXY(or2.x, or2.y); else await click(sid, ok); }
+            solved0 = await waitFor(sid, `window.__qa.solved()[0] === true ? true : null`, 8000) === true;
+          }
+          console.log('touchquiz iter' + iter, 'prompt', st.prompt, 'pd', pd, 'open-solved', solved0);
+          break;
+        }
+        if (sp && sp.behind) await touchDrag(vw * 0.7, 300, 200, 0, 60);
+        else if (sp && Math.abs(sp.x - vw/2) > 60) await touchDrag(vw * 0.7, 300, Math.max(-160, Math.min(160, Math.round((sp.x - vw/2) * 0.5))), 0, 60);
+        else if (joyRect) await touchDrag(joyRect.x, joyRect.y, 0, -55, 500);
+        await sleep(350);
+        console.log('touchnav iter' + iter, 'pos', JSON.stringify(st.pos), 'pd', pd, 'sp', JSON.stringify(sp));
+      }
+      rec(A, 'mobile controls: room 1 quiz solved on iPhone (actBtn tap + typing + okBtn tap)', solved0 === true);
+      await shot(sid, 'ios-sweet-touch');
+    }
+  }
   await shot(sid, 'desktop-sweet-factory-escape-3d');
 }
 
@@ -316,8 +372,37 @@ async function checkCoworking(sid) {
     console.log('chatdbg(info)', await exe(sid, `JSON.stringify({val:(document.getElementById('chatin')||{}).value||'',log:((document.getElementById('chatlog')||{}).textContent||'').slice(0,60)})`).catch(()=>null));
     const log = await exe(sid, `(document.getElementById('chatlog')||{}).textContent||''`).catch(()=>null);
     if (BS_DEVICE) {
-      const val = await exe(sid, `(document.getElementById('chatin')||{}).value||''`).catch(()=>null);
-      rec(A, 'chat: real on-screen typing lands in input (Enter-send verified on desktop; Appium web context cannot deliver Return)', val === 'QA chat probe', 'input=' + JSON.stringify(val));
+      // native route: switch to NATIVE_APP context and tap the on-screen keyboard's Return key (real XCTest tap)
+      const ctxs = await api('GET', '/contexts', null, sid).catch(e => null);
+      console.log('chatdbg(contexts)', JSON.stringify(ctxs).slice(0, 200));
+      let nativeResult = 'no-attempt';
+      if (ctxs && Array.isArray(ctxs) && ctxs.includes('NATIVE_APP')) {
+        await api('POST', '/context', { name: 'NATIVE_APP' }, sid).catch(()=>{});
+        // summon the keyboard with a REAL native tap on the input (web sendKeys never shows it)
+        const tf = await api('POST', '/element', { using: 'xpath', value: "//XCUIElementTypeTextField | //XCUIElementTypeSearchField | //XCUIElementTypeOther[contains(@label,'\uBA54\uC2DC\uC9C0')]" }, sid).catch(()=>null);
+        const tfRef = tf && tf[Object.keys(tf).find(k => String(k).toLowerCase().includes('element')) || 'ELEMENT'];
+        if (tfRef) { await api('POST', `/element/${tfRef}/click`, {}, sid).catch(()=>{}); await sleep(1200); }
+        const src2 = await api('GET', '/source', null, sid).catch(()=>null);
+        console.log('chatdbg(kb-visible)', !!(src2 && src2.indexOf('XCUIElementTypeKeyboard') >= 0));
+        if (process.env.NATIVEKEYPROBE) {
+          const src = await api('GET', '/source', null, sid).catch(()=>null);
+          const kb = src && src.indexOf('XCUIElementTypeKeyboard') >= 0;
+          const labels = src ? (src.match(/XCUIElementType(?:Key|Button)[^>]*?label="[^"]{1,24}"/g) || []).map(v => v.replace(/XCUIElementType/, '')).filter((v,i,a)=>a.indexOf(v)===i) : [];
+          console.log('keyprobe keyboard=', kb, 'labels=', JSON.stringify(labels));
+        }
+        const rk = await api('POST', '/element', { using: 'xpath', value: "//*[(@type='XCUIElementTypeKey' or @type='XCUIElementTypeButton') and (@label='return' or @name='Return' or contains(@label,'eturn') or @label='\uB9AC\uD134' or @label='\uC785\uB825')]" }, sid).catch(()=>null);
+        const rkRef = rk && rk[Object.keys(rk).find(k => k.includes('element')) || 'ELEMENT'];
+        if (rkRef) { await api('POST', `/element/${rkRef}/click`, {}, sid).catch(()=>{}); nativeResult = 'return-tapped'; }
+        else nativeResult = 'return-key-not-found';
+        const web = ctxs.find(c => String(c).indexOf('WEBVIEW') === 0);
+        if (web) await api('POST', '/context', { name: web }, sid).catch(()=>{});
+        await sleep(1500);
+      } else nativeResult = 'no-native-context';
+      const log2 = await exe(sid, `(document.getElementById('chatlog')||{}).textContent||''`).catch(()=>null);
+      const sent = !!(log2 && log2.indexOf('QA chat probe') >= 0);
+      console.log('chatdbg(native)', nativeResult, 'sent=', sent, String(log2).slice(0, 80));
+      if (sent) rec(A, 'chat: iPhone send via native keyboard Return key - message lands in chat log (WS round-trip)', true, nativeResult);
+      else rec(A, 'chat: iPhone on-screen typing lands in input; send route unavailable', false, 'native=' + nativeResult + ' log=' + String(log2).slice(0, 60));
     } else {
       rec(A, 'chat: typed message + Enter lands in chat log (WS echo round-trip)', !!(log && log.indexOf('QA chat probe') >= 0), String(log).slice(0, 80));
     }

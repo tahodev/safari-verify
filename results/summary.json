@@ -1,20 +1,32 @@
 [
   {
-    "app": "sweet-factory-escape-3d",
-    "check": "resume: reattached to live BS session",
+    "app": "coworking-world",
+    "check": "serves 200 with real title",
     "ok": true,
-    "detail": "[object Object]"
+    "detail": "KINZIE 코워킹 - 온라인 집중 공간"
   },
   {
-    "app": "sweet-factory-escape-3d",
-    "check": "resume: game state still live",
+    "app": "coworking-world",
+    "check": "boot: entry panel present",
     "ok": true,
     "detail": ""
   },
   {
-    "app": "sweet-factory-escape-3d",
-    "check": "session",
-    "ok": false,
-    "detail": "undefined is not iterable (cannot read property Symbol(Symbol.iterator))"
+    "app": "coworking-world",
+    "check": "entry: avatar joins world (WebSocket presence)",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "app": "coworking-world",
+    "check": "timer: 25-minute focus timer starts via real menu clicks",
+    "ok": true,
+    "detail": "{\"vis\":true,\"txt\":\"25분 집중 24:58\"}"
+  },
+  {
+    "app": "coworking-world",
+    "check": "chat: iPhone send via native keyboard Return key - message lands in chat log (WS round-trip)",
+    "ok": true,
+    "detail": "return-tapped"
   }
 ]
