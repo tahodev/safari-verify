@@ -27,6 +27,32 @@ jobs:
           wait
       - name: Enable safaridriver
         run: sudo safaridriver --enable
+      - name: Canvas sanity probe (Safari environment)
+        run: |
+          set -o pipefail
+          mkdir -p results
+          (python3 -m http.server 8099 >/dev/null 2>&1 &) ; sleep 2
+          cat > /tmp/canvas-probe.mjs <<'MJS'
+          import { spawn } from 'node:child_process';
+          const sleep=(ms)=>new Promise(r=>setTimeout(r,ms));
+          const driver=spawn('/usr/bin/safaridriver',['-p','4445'],{stdio:'ignore'});
+          await sleep(2500);
+          const B='http://127.0.0.1:4445';
+          async function wd(m,p,b){const r=await fetch(B+p,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):undefined});return r.json()}
+          try{
+            const s=await wd('POST','/session',{capabilities:{alwaysMatch:{browserName:'safari'}}});
+            const sid=s.value.sessionId;
+            await wd('POST',`/session/${sid}/url`,{url:'http://localhost:8099/probe.html'});
+            let out='';
+            for(let i=0;i<30;i++){await sleep(1000);const t=await wd('POST',`/session/${sid}/execute/sync`,{script:'return document.title',args:[]});if(t.value==='DONE'){const o=await wd('POST',`/session/${sid}/execute/sync`,{script:'return document.getElementById("out").textContent',args:[]});out=o.value;break}}
+            console.log('CANVAS-PROBE:',out||'(timed out)');
+            const png=await wd('GET',`/session/${sid}/screenshot`);
+            if(png.value){const{writeFileSync}=await import('node:fs');writeFileSync('results/canvas-probe.png',Buffer.from(png.value,'base64'))}
+            await wd('DELETE',`/session/${sid}`);
+          }catch(e){console.log('CANVAS-PROBE error',String(e))}
+          driver.kill();
+          MJS
+          node /tmp/canvas-probe.mjs 2>&1 | tee results/canvas-probe.log
       - name: Desktop Safari verification
         run: |
           set -o pipefail
