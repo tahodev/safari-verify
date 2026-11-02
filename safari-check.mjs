@@ -34,7 +34,8 @@ async function newSession() {
   return v.sessionId;
 }
 const nav = (sid, url) => api('POST', '/url', { url }, sid);
-const exe = (sid, script, args = []) => api('POST', '/execute/sync', { script, args }, sid);
+const wrap = s => /\breturn\b/.test(s) ? s : 'return (' + s + ');';
+const exe = (sid, script, args = []) => api('POST', '/execute/sync', { script: wrap(script), args }, sid);
 async function el(sid, using, value) {
   try {
     const v = await api('POST', '/element', { using, value }, sid);
@@ -128,8 +129,8 @@ async function checkCoworking(sid) {
 }
 
 async function checkDalbit(sid) {
-  const A = 'dalbit-saju-clone';
-  const boot = await waitFor(sid, `document.title && document.title.indexOf('달빛사주') >= 0 && !!document.querySelector('button')`, 60000);
+  const A = 'sajumadang';
+  const boot = await waitFor(sid, `document.title && document.title.indexOf('사주마당') >= 0 && !!document.querySelector('button')`, 60000);
   rec(A, 'boot: title + UI renders', !!boot);
   if (!boot) return;
   const fx = await waitFor(sid, `!!document.querySelector('.seasonfx')`, 15000);
@@ -141,7 +142,7 @@ async function checkDalbit(sid) {
     const exp = await exe(sid, `(document.querySelector('button.rod')||{}).getAttribute ? document.querySelector('button.rod').getAttribute('aria-expanded') : null`).catch(()=>null);
     rec(A, 'accordion button click works', exp === 'true', 'aria-expanded=' + exp);
   } else rec(A, 'accordion button click works', false, 'no button.rod found');
-  await shot(sid, 'desktop-dalbit-saju-clone');
+  await shot(sid, 'desktop-' + A);
 }
 
 function checkDogam(appName, expectNodes) {
@@ -163,8 +164,8 @@ function checkDogam(appName, expectNodes) {
     const nodes = await exe(sid, `window.GAME_DATA ? window.GAME_DATA.nodes.length : 0`).catch(()=>0);
     rec(A, 'data integrity: expected node count', nodes === expectNodes, 'nodes=' + nodes);
     if (appName === 'seongsu-dogam') {
-      const places = await exe(sid, `window.GAME_DATA.nodes.filter(n=>/베통|무구옥/.test(n.name[0])).map(n=>n.name[0]).join(' | ')`).catch(()=>null);
-      rec(A, 'new places present: Betong + Muguok', !!(places && places.includes('베통') && places.includes('무구옥')), String(places));
+      const places = await exe(sid, `window.GAME_DATA.nodes.filter(n=>/베통|무구옥|원밀리언|올리브영|무신사/.test(n.name[0])).map(n=>n.name[0]).join(' | ')`).catch(()=>null);
+      rec(A, 'new places present: Betong + Muguok + 1MILLION + OliveYoung + Musinsa', !!(places && places.includes('베통') && places.includes('무구옥') && places.includes('원밀리언') && places.includes('올리브영') && places.includes('무신사')), String(places));
     }
     await shot(sid, 'desktop-' + appName);
     const cv = await el(sid, 'css selector', 'canvas');
@@ -177,8 +178,8 @@ const APPS = [
   ['https://golden-gate-picnic.onrender.com/', checkGGP],
   ['https://sweet-factory-escape-3d.onrender.com/', checkSweet],
   ['https://coworking-world.onrender.com/', checkCoworking],
-  ['https://dalbit-saju-clone.onrender.com/', checkDalbit],
-  ['https://seongsu-dogam.onrender.com/', checkDogam('seongsu-dogam', 14)],
+  ['https://sajumadang.onrender.com/', checkDalbit],
+  ['https://seongsu-dogam.onrender.com/', checkDogam('seongsu-dogam', 17)],
   ['https://kurashi-otaru.onrender.com/', checkDogam('kurashi-otaru', 27)],
 ];
 
@@ -211,3 +212,4 @@ try {
 fs.writeFileSync('results/summary.json', JSON.stringify(report, null, 2));
 const fails = report.filter(r => !r.ok).length;
 console.log(`\n==== DESKTOP SAFARI: ${report.length - fails}/${report.length} checks passed ====`);
+process.exit(fails ? 1 : 0);

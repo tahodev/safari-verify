@@ -146,13 +146,13 @@ def flow_coworking(cdp, cal):
     shot("ios-coworking-world")
 
 def flow_dalbit(cdp, cal):
-    A = "dalbit-saju-clone"
-    rec(A, "boot: title + UI", wait_js(cdp, "document.title&&document.title.indexOf('달빛사주')>=0&&!!document.querySelector('button')", 60000))
+    A = "sajumadang"
+    rec(A, "boot: title + UI", wait_js(cdp, "document.title&&document.title.indexOf('사주마당')>=0&&!!document.querySelector('button')", 60000))
     rec(A, "extras22.js executes (seasonfx)", wait_js(cdp, "!!document.querySelector('.seasonfx')", 15000))
     tap_el(cdp, cal, "document.querySelector('button.rod')", "accordion")
     time.sleep(1)
     rec(A, "accordion tap expands", cdp.js("(document.querySelector('button.rod')||{getAttribute:()=>null}).getAttribute('aria-expanded')") == "true")
-    shot("ios-dalbit-saju-clone")
+    shot("ios-" + A)
 
 def flow_dogam(cdp, cal, app, expect_nodes):
     A = app
@@ -166,8 +166,8 @@ def flow_dogam(cdp, cal, app, expect_nodes):
     n = cdp.js("window.GAME_DATA?window.GAME_DATA.nodes.length:0")
     rec(A, "node count", n == expect_nodes, f"nodes={n}")
     if app == "seongsu-dogam":
-        places = cdp.js("window.GAME_DATA.nodes.filter(n=>/베통|무구옥/.test(n.name[0])).map(n=>n.name[0]).join(' | ')")
-        rec(A, "new places present: Betong + Muguok", bool(places and "베통" in places and "무구옥" in places), places)
+        places = cdp.js("window.GAME_DATA.nodes.filter(n=>/베통|무구옥|원밀리언|올리브영|무신사/.test(n.name[0])).map(n=>n.name[0]).join(' | ')")
+        rec(A, "new places present: Betong+Muguok+1MILLION+OliveYoung+Musinsa", bool(places and all(x in places for x in ["베통","무구옥","원밀리언","올리브영","무신사"])), places)
     shot(f"ios-{app}")
     # real tap on canvas to walk
     tap_el(cdp, cal, "document.querySelector('canvas')", "canvas walk")
@@ -179,8 +179,8 @@ def main():
         ("https://golden-gate-picnic.onrender.com/", "golden-gate-picnic", flow_ggp),
         ("https://sweet-factory-escape-3d.onrender.com/", "sweet-factory-escape-3d", flow_sweet),
         ("https://coworking-world.onrender.com/", "coworking-world", flow_coworking),
-        ("https://dalbit-saju-clone.onrender.com/", "dalbit-saju-clone", flow_dalbit),
-        ("https://seongsu-dogam.onrender.com/", "seongsu-dogam", lambda c, k: flow_dogam(c, k, "seongsu-dogam", 14)),
+        ("https://sajumadang.onrender.com/", "sajumadang", flow_dalbit),
+        ("https://seongsu-dogam.onrender.com/", "seongsu-dogam", lambda c, k: flow_dogam(c, k, "seongsu-dogam", 17)),
         ("https://kurashi-otaru.onrender.com/", "kurashi-otaru", lambda c, k: flow_dogam(c, k, "kurashi-otaru", 27)),
     ]
     for url, name, fn in apps:
@@ -209,5 +209,6 @@ def main():
     json.dump(REPORT, open("results/ios-summary.json", "w"), indent=1)
     fails = sum(1 for r in REPORT if not r["ok"])
     print(f"\n==== iOS SIMULATOR SAFARI: {len(REPORT)-fails}/{len(REPORT)} checks passed ====")
+    sys.exit(1 if fails else 0)
 
 main()

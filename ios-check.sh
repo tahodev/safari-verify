@@ -25,7 +25,7 @@ sleep 5
 
 INTERACT_OK=0
 echo "== installing interaction tooling (idb + ios-webkit-debug-proxy) =="
-if brew install idb-companion ios-webkit-debug-proxy >/tmp/ios-brew.log 2>&1 || brew list --versions idb-companion ios-webkit-debug-proxy >>/tmp/ios-brew.log 2>&1; then
+if (brew install ios-webkit-debug-proxy && brew install --cask companion) >/tmp/ios-brew.log 2>&1 || { command -v idb_companion >/dev/null && command -v ios_webkit_debug_proxy >/dev/null; }; then
   if pip3 install --quiet --user fb-idb websocket-client pillow >/tmp/ios-pip.log 2>&1 || python3 -c 'import websocket, PIL' 2>/dev/null; then
     export PATH="$HOME/Library/Python/3.9/bin:$PATH"
     if command -v idb >/dev/null && idb list-targets 2>/dev/null | grep -qi "$DEV"; then
@@ -42,20 +42,23 @@ if brew install idb-companion ios-webkit-debug-proxy >/tmp/ios-brew.log 2>&1 || 
   fi
 else
   echo "brew install failed; falling back to load+screenshot only"
-  tail -3 /tmp/ios-brew.log || true
+  tail -6 /tmp/ios-brew.log || true
 fi
 
 if [ "$INTERACT_OK" = "1" ]; then
   echo "== running real-tap interaction checks =="
-  python3 ios-interact.py "$DEV" 2>&1 || true
+  python3 ios-interact.py "$DEV" 2>&1; IOS_RC=$?
   kill $IWDP_PID 2>/dev/null || true
+  [ "${IOS_RC:-1}" = "0" ] || exit 1
 else
   echo "== LOAD-ONLY fallback (interaction tooling unavailable) =="
-  for app in golden-gate-picnic sweet-factory-escape-3d coworking-world seongsu-dogam dalbit-saju-clone kurashi-otaru; do
+  for app in golden-gate-picnic sweet-factory-escape-3d coworking-world sajumadang seongsu-dogam kurashi-otaru; do
     echo "== ios load: $app =="
     xcrun simctl openurl "$DEV" "https://$app.onrender.com/"
     sleep 35
     xcrun simctl io "$DEV" screenshot "results/ios-$app.png" && echo "screenshot saved: ios-$app.png"
   done
+  echo "LOAD-ONLY is incomplete iOS verification; failing step honestly"
+  exit 1
 fi
 echo "== ios-check done =="
