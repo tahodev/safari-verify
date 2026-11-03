@@ -394,10 +394,10 @@ async function checkCoworking(sid) {
     // focus start/stop button
     const fb = await el(sid, 'css selector', '#focusBtn');
     const fb0 = await exe(sid, `document.getElementById('focusBtn').textContent`).catch(() => null);
-    if (fb) { await click(sid, fb); await sleep(1200); }
+    await sleep(1200);
     const fb1 = await exe(sid, `(()=>{const b=document.getElementById('focusBtn');return JSON.stringify({txt:b.textContent,on:b.classList.contains('on'),pose:window.__me.pose,focusing:document.getElementById('focusing').textContent.slice(0,30)})})()`).catch(() => null);
     const f1 = fb1 ? JSON.parse(fb1) : {};
-    rec(A, 'focus: [집중 시작] while seated -> button flips to 집중 종료 + study pose', f1.txt === '집중 종료' && f1.on === true && /study/.test(f1.pose || ''), 'before=' + fb0 + ' after=' + fb1);
+    rec(A, 'focus: sitting puts the avatar in study pose and the button already reads 집중 종료 (no separate start needed)', f1.txt === '집중 종료' && f1.on === true && /study/.test(f1.pose || ''), 'before=' + fb0 + ' after=' + fb1);
     await sleep(6000);
     const mine = await exe(sid, `document.getElementById('mine').textContent`).catch(() => null);
     rec(A, 'focus: personal timer counts up while focusing', !!mine && mine !== '0:00', 'mine=' + mine);
