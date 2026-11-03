@@ -17,13 +17,13 @@ function rec(app, check, ok, detail = '') {
   console.log(`${ok ? 'PASS' : 'FAIL'} [${app}] ${check}${detail ? ' :: ' + detail : ''}`);
 }
 
-async function api(method, path, body, sid) {
+async function api(method, path, body, sid, timeoutMs = 25000) {
   const url = BASE + (sid ? `/session/${sid}${path}` : path);
   const r = await fetch(url, {
     method,
     headers: { 'content-type': 'application/json', ...(BS_AUTH ? { authorization: BS_AUTH } : {}) },
     body: body ? JSON.stringify(body) : undefined,
-    signal: AbortSignal.timeout(25000),
+    signal: AbortSignal.timeout(timeoutMs),
   });
   const t = await r.text();
   let j = {};
@@ -51,7 +51,7 @@ async function newSession() {
   } else {
     caps = { capabilities: { alwaysMatch: { browserName: 'safari' } } };
   }
-  const v = await api('POST', '/session', caps);
+  const v = await api('POST', '/session', caps, undefined, AP ? 600000 : 25000);
   if (!v || !v.sessionId) throw new Error('no session: ' + JSON.stringify(v));
   if (!BS_DEVICE) await api('POST', '/window/rect', { width: 1280, height: 900 }, v.sessionId).catch(() => {});
   return v.sessionId;

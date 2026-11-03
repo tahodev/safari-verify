@@ -46,6 +46,10 @@ for k,v in d.items():
 ')
 export SIM_UDID="$DEV" SIM_OS="${SIM_INFO%% *}" SIM_NAME="${SIM_INFO#* }"
 echo "sim: $SIM_UDID os=$SIM_OS name=$SIM_NAME"
+# selecting a different Xcode restarts CoreSimulator: Appium run 43 found the device "not running"; boot it again
+xcrun simctl boot "$DEV" 2>&1 | head -2 || true
+run_to 300 xcrun simctl bootstatus "$DEV" -b >/dev/null 2>&1; echo "sim state: $(xcrun simctl list devices | grep "$DEV" | head -1)"
+open -a Simulator --args -CurrentDeviceUDID "$DEV" 2>/dev/null || true; sleep 5
 if run_to 300 npm i -g appium >/tmp/ap-npm.log 2>&1 && run_to 300 appium driver install xcuitest >/tmp/ap-drv.log 2>&1; then
   tail -2 /tmp/ap-drv.log
   (appium --log-no-colors --port 4723 >/tmp/appium.log 2>&1 &) ; sleep 8
