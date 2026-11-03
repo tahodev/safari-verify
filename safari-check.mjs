@@ -760,16 +760,23 @@ function checkDogam(appName, expectNodes) {
     }
       }
     if (appName === 'seongsu-dogam' && process.env.LANGCHECK !== '0') {
-      for (const lg of ['ko','ja','zh','en']) {
-        try {
-          await exe(sid, `localStorage.setItem(window.GAME_DATA.tag+'-atlas-v1', JSON.stringify({lang:'${lg}',character:0,name:'QA',scene:17,visited:[0,17],tipsSeen:true}));return 1`);
-          await nav(sid, 'https://seongsu-dogam.onrender.com/'); await sleep(2500);
-          const sn = await exe(sid, `return (document.querySelector('#app')||document.body).innerText.replace(/\s+/g,' ').slice(0,90)`).catch(() => '');
-          const btnb = await el(sid, 'css selector', '.actions button, .start button, button.primary, .traveler-grid ~ * button'); 
-          await shot(sid, 'lang-' + lg);
-          rec(A, 'language ' + lg + ' renders its own text', String(sn).length > 5, String(sn));
-        } catch (e) { rec(A, 'language ' + lg + ' renders its own text', false, 'THROW ' + String(e).slice(0, 100)); }
-      }
+      try {
+        await exe(sid, `localStorage.clear();return 1`); await nav(sid, 'https://seongsu-dogam.onrender.com/'); await sleep(2500);
+        const seen = [];
+        for (let k = 0; k < 4; k++) {
+          const btns = await els(sid, 'css selector', '.language-grid button');
+          if (!btns[k]) { seen.push('missing-btn-' + k); continue; }
+          const lab = await exe(sid, `return document.querySelectorAll('.language-grid button')[${k}].textContent.trim()`).catch(() => '?');
+          await click(sid, btns[k][Object.keys(btns[k])[0]]); await sleep(900);
+          const txt = await exe(sid, `return document.querySelector('#app').innerText.replace(/\\s+/g,' ').slice(0,70)`).catch(() => '');
+          await shot(sid, 'lang-pick-' + k);
+          seen.push(lab + ' => ' + txt);
+          const back = await exe(sid, `const b=[...document.querySelectorAll('#app button')];return b.length`).catch(() => 0);
+          const bb = await els(sid, 'css selector', '#app button'); if (bb.length) await click(sid, bb[bb.length - 1][Object.keys(bb[bb.length - 1])[0]]); await sleep(800);
+        }
+        const uniq = new Set(seen.map(s => s.split(' => ')[1])).size;
+        rec(A, 'four languages: each language button yields a distinct traveler-screen text', uniq === 4, seen.join(' | '));
+      } catch (e) { rec(A, 'four languages', false, 'THROW ' + String(e).slice(0, 120)); }
     }
     const nodes = await exe(sid, `window.GAME_DATA ? window.GAME_DATA.nodes.length : 0`).catch(()=>0);
     rec(A, 'data integrity: expected node count', nodes === expectNodes, 'nodes=' + nodes);
