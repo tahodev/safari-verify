@@ -716,6 +716,7 @@ function checkDogam(appName, expectNodes) {
     }
     const DW = process.env.DEEPWALK || (((process.env.ONLY || '').split(',').includes('seongsu-dogam') && appName === 'seongsu-dogam') ? '17,19,21,23,26' : ((process.env.ONLY || '').split(',').includes('kurashi-otaru') && appName === 'kurashi-otaru') ? '27,28,29,30,31' : '');
     if (DW) {
+      await exe(sid, `window.__rafProbe=0;(function f(){window.__rafProbe++;requestAnimationFrame(f)})();return 1`).catch(()=>{});
       const targets = DW.split(',').map(Number);
       const links = await exe(sid, `return JSON.stringify(Object.fromEntries(window.GAME_DATA.nodes.map(n=>[n.id,n.links])))`).then(JSON.parse).catch(()=>null);
       const names = await exe(sid, `return JSON.stringify(Object.fromEntries(window.GAME_DATA.nodes.map(n=>[n.id,n.name[0]])))`).then(JSON.parse).catch(()=>null);
@@ -743,7 +744,7 @@ function checkDogam(appName, expectNodes) {
             console.log('deepwalk click', path[i], 'gate', idx, 'attempt', attempt, 'res', JSON.stringify(cr).slice(0,80));
             nxt = await waitFor(sid, `window.__dogam.S().scene === ${path[i+1]} ? window.__dogam.S().scene : null`, 30000);
           }
-          if (nxt === null) { const dg = await exe(sid, `return JSON.stringify((function(){const b=document.querySelectorAll('.gate-links button')[${idx}];const r=b.getBoundingClientRect();const cx=r.x+r.width/2,cy=r.y+r.height/2;const top=document.elementFromPoint(cx,cy);return {scene:window.__dogam.S().scene,pos:window.__dogam.pos(),rect:[r.x,r.y,r.width,r.height].map(Math.round),vp:[innerWidth,innerHeight],top:top?(top.tagName+'.'+(top.className||'')+' '+(top.getAttribute('aria-label')||'').slice(0,30)):null,isSelf:top===b,modal:!!document.querySelector('.modal:not(.hidden),dialog[open]')}})())`).catch(e=>'ERR '+e); console.log('deepwalk DIAG', path[i], '->', path[i+1], dg); }
+          if (nxt === null) { const dg = await exe(sid, `return JSON.stringify((function(){const b=document.querySelectorAll('.gate-links button')[${idx}];const r=b.getBoundingClientRect();const cx=r.x+r.width/2,cy=r.y+r.height/2;const top=document.elementFromPoint(cx,cy);return {scene:window.__dogam.S().scene,pos:window.__dogam.pos(),rect:[r.x,r.y,r.width,r.height].map(Math.round),vp:[innerWidth,innerHeight],top:top?(top.tagName+'.'+(top.className||'')+' '+(top.getAttribute('aria-label')||'').slice(0,30)):null,isSelf:top===b,modal:!!document.querySelector('.modal:not(.hidden),dialog[open]'),vis:document.visibilityState,hasFocus:document.hasFocus(),inner:[innerWidth,innerHeight],canvas:(function(){const c=document.querySelector('canvas');return c?[c.width,c.height,Math.round(c.getBoundingClientRect().width),Math.round(c.getBoundingClientRect().height)]:null})(),ls:Object.keys(localStorage),tip:!!document.querySelector('.modal,.tips'),raf:window.__rafProbe}})())`).catch(e=>'ERR '+e); console.log('deepwalk DIAG', path[i], '->', path[i+1], dg); }
           console.log('deepwalk step', path[i], '->', JSON.stringify(nxt));
           if (nxt === null) { ok = false; break; }
         }
