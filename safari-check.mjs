@@ -367,6 +367,82 @@ async function checkCoworking(sid) {
   const me = await waitFor(sid, `!!(window.__me && window.__me.group)`, 60000);
   rec(A, 'entry: avatar joins world (WebSocket presence)', !!me);
   if (me) {
+    // ---- a54c10c first-use flow checks (real pointer/keyboard/clicks; no synthetic JS state changes) ----
+    const vtap = async (x, y) => { await api('POST', '/actions', { actions: [{ type: 'pointer', id: 'p1', parameters: { pointerType: 'mouse' }, actions: [
+      { type: 'pointerMove', duration: 0, origin: 'viewport', x: Math.round(x), y: Math.round(y) },
+      { type: 'pointerDown', button: 0 }, { type: 'pause', duration: 80 }, { type: 'pointerUp', button: 0 }] }] }, sid).then(() => api('DELETE', '/actions', null, sid)).catch(() => {}); };
+    const cwKey = async (v, ms) => { await api('POST', '/actions', { actions: [{ type: 'key', id: 'k1', actions: [
+      { type: 'keyDown', value: v }, { type: 'pause', duration: ms }, { type: 'keyUp', value: v }] }] }, sid).then(() => api('DELETE', '/actions', null, sid)).catch(() => {}); };
+    const pos = () => exe(sid, `(()=>{const m=window.__me;return m&&m.pos?JSON.stringify({x:+m.pos.x.toFixed(2),z:+m.pos.z.toFixed(2),seat:m.seatIdx,pose:m.pose}):null})()`).catch(() => null);
+    await sleep(1500);
+    const g1 = await exe(sid, `(()=>{const g=document.getElementById('guide');const h=document.getElementById('hint');return JSON.stringify({guide:!!g&&g.style.display!=='none'&&g.offsetHeight>0,hint:h?h.textContent.slice(0,40):null,gtxt:g?g.textContent.slice(0,40):null})})()`).catch(() => null);
+    rec(A, 'guide: entry guide card shown on first entry', !!(g1 && JSON.parse(g1).guide), String(g1));
+    await shot(sid, 'cw-1-entry');
+    const gok = await el(sid, 'css selector', '#guideOk');
+    if (gok) { await click(sid, gok); await sleep(500); }
+    const g2 = await exe(sid, `(()=>{const g=document.getElementById('guide');return g.style.display==='none'||g.offsetHeight===0})()`).catch(() => null);
+    rec(A, 'guide: [알겠어요] dismisses the card', g2 === true, String(g2));
+    // seat markers: project a free seat to the screen, tap it with a real pointer -> walk there and sit
+    const sf = await exe(sid, `(()=>{const m=window.__me,cam=window.__cam,S=window.__seats;if(!m||!cam||!S)return null;let best=null,bd=1e9;S.forEach((s,i)=>{if(s.occupied)return;const v=m.pos.clone();v.set(s.x,0.15,s.z);v.project(cam);if(v.z>1||Math.abs(v.x)>.8||Math.abs(v.y)>.7)return;const d=Math.hypot(s.x-m.pos.x,s.z-m.pos.z);if(d<bd){bd=d;best={i,x:(v.x+1)/2*innerWidth,y:(1-v.y)/2*innerHeight,d:+d.toFixed(1),kind:s.kind}}});return best?JSON.stringify(best):null})()`).catch(() => null);
+    if (!sf) rec(A, 'seat marker tap: tapping a visible free seat walks and sits', false, 'no visible free seat projected on screen');
+    else {
+      const S = JSON.parse(sf); await vtap(S.x, S.y);
+      const sat = await waitFor(sid, `(()=>{const m=window.__me;return m&&m.seatIdx!=null?m.seatIdx:null})()`, 25000);
+      rec(A, 'seat marker tap: tapping a visible free seat walks and sits', sat != null && sat !== false, 'target=' + S.i + ' kind=' + S.kind + ' dist=' + S.d + ' seated=' + sat);
+    }
+    await shot(sid, 'cw-2-seated');
+    // focus start/stop button
+    const fb = await el(sid, 'css selector', '#focusBtn');
+    const fb0 = await exe(sid, `document.getElementById('focusBtn').textContent`).catch(() => null);
+    if (fb) { await click(sid, fb); await sleep(1200); }
+    const fb1 = await exe(sid, `(()=>{const b=document.getElementById('focusBtn');return JSON.stringify({txt:b.textContent,on:b.classList.contains('on'),pose:window.__me.pose,focusing:document.getElementById('focusing').textContent.slice(0,30)})})()`).catch(() => null);
+    const f1 = fb1 ? JSON.parse(fb1) : {};
+    rec(A, 'focus: [집중 시작] while seated -> button flips to 집중 종료 + study pose', f1.txt === '집중 종료' && f1.on === true && /study/.test(f1.pose || ''), 'before=' + fb0 + ' after=' + fb1);
+    await sleep(6000);
+    const mine = await exe(sid, `document.getElementById('mine').textContent`).catch(() => null);
+    rec(A, 'focus: personal timer counts up while focusing', !!mine && mine !== '0:00', 'mine=' + mine);
+    await shot(sid, 'cw-3-focusing');
+    if (fb) { await click(sid, fb); await sleep(1200); }
+    const fb2 = await exe(sid, `(()=>{const b=document.getElementById('focusBtn');return JSON.stringify({txt:b.textContent,on:b.classList.contains('on'),pose:window.__me.pose,seat:window.__me.seatIdx})})()`).catch(() => null);
+    const f2 = fb2 ? JSON.parse(fb2) : {};
+    rec(A, 'focus: [집중 종료] stops and stands up', f2.txt === '집중 시작' && f2.on === false && f2.pose === 'stand', String(fb2));
+    // focus start from standing walks to the nearest seat and sits
+    if (fb) { await click(sid, fb); }
+    const auto = await waitFor(sid, `(()=>{const m=window.__me;return m&&m.seatIdx!=null&&/study/.test(m.pose)?m.seatIdx:null})()`, 30000);
+    rec(A, 'focus: [집중 시작] from standing auto-walks to nearest free seat and starts', auto != null && auto !== false, 'seat=' + auto);
+    if (fb) { await click(sid, fb); await sleep(1200); }
+    // movement: keyboard WASD
+    const p0 = await pos(); await cwKey('d', 1200); await cwKey('w', 800); const p1 = await pos();
+    rec(A, 'movement: WASD keys move the avatar', !!(p0 && p1 && (JSON.parse(p0).x !== JSON.parse(p1).x || JSON.parse(p0).z !== JSON.parse(p1).z)), p0 + ' -> ' + p1);
+    // movement: click floor
+    const cvEl = await el(sid, 'css selector', '#c');
+    const p2 = await pos();
+    const dim = await exe(sid, `JSON.stringify({w:innerWidth,h:innerHeight})`).catch(() => null);
+    if (dim) { const D = JSON.parse(dim); await vtap(D.w * 0.62, D.h * 0.78); await sleep(2500); }
+    const p3 = await pos();
+    rec(A, 'movement: clicking the floor walks there', !!(p2 && p3 && (JSON.parse(p2).x !== JSON.parse(p3).x || JSON.parse(p2).z !== JSON.parse(p3).z)), p2 + ' -> ' + p3);
+    // zones via move menu: lounge + terrace labels
+    const zoneTest = async (data, re) => {
+      const mb = await el(sid, 'css selector', 'button[data-menu="moveMenu"]'); if (mb) { await click(sid, mb); await sleep(500); }
+      const zb = await el(sid, 'css selector', `[data-move="${data}"]`); if (zb) await click(sid, zb);
+      const ok = await waitFor(sid, `(()=>{const t=document.getElementById('roomname').textContent;return ${re}.test(t)?t:null})()`, 30000);
+      return ok;
+    };
+    const zl = await zoneTest('lounge', '/라운지/'); rec(A, 'zones: move menu -> lounge (roomname label updates)', !!zl, String(zl)); await sleep(800); await shot(sid, 'cw-4-lounge');
+    const zt = await zoneTest('terrace', '/루프탑/'); rec(A, 'zones: move menu -> rooftop terrace (roomname label updates)', !!zt, String(zt)); await sleep(800); await shot(sid, 'cw-5-terrace');
+    const zh = await zoneTest('hall', '/포커스홀/'); rec(A, 'zones: move menu -> focus hall (roomname label updates)', !!zh, String(zh)); await sleep(800); await shot(sid, 'cw-6-hall');
+    // audio: sound button cycles modes (real clicks, user gesture)
+    const sb = await el(sid, 'css selector', '#snd'); const modes = [];
+    for (let k = 0; k < 4 && sb; k++) { await click(sid, sb); await sleep(700); modes.push(await exe(sid, `JSON.stringify({t:document.getElementById('snd').textContent,s:window.__sndState()})`).catch(() => null)); }
+    const parsed = modes.map(m => { try { return JSON.parse(m); } catch (e) { return null; } });
+    const labelsOk = parsed.length === 4 && parsed[0] && /빗소리/.test(parsed[0].t) && /카페/.test(parsed[1].t) && /풀벌레/.test(parsed[2].t) && /끔/.test(parsed[3].t);
+    rec(A, 'audio: sound button cycles rain -> cafe -> crickets -> off', !!labelsOk, JSON.stringify(parsed).slice(0, 300));
+    rec(A, 'audio: AudioContext running while a sound mode is on (Safari autoplay)', !!(parsed[1] && parsed[1].s && parsed[1].s.ctx === 'running' && parsed[1].s.playing), JSON.stringify(parsed[1] && parsed[1].s));
+    // photo: composes canvas + info band
+    const c2d = await exe(sid, `(()=>{try{const c=document.createElement('canvas');c.width=c.height=8;c.getContext('2d').fillRect(0,0,8,8);return c.toDataURL().length>20}catch(e){return false}})()`).catch(() => null);
+    const phb = await el(sid, 'css selector', '#photo'); if (phb) { await click(sid, phb); await sleep(2500); }
+    const plen = await exe(sid, `window.__photoLen||0`).catch(() => 0);
+    rec(A, 'photo: 📷 composes a PNG with info band (date/name/focus time)', plen > 5000, 'photoLen=' + plen + ' | default-2D-canvas-works-in-this-browser=' + c2d + (c2d === false ? ' (ENVIRONMENT: runner Safari cannot allocate default 2D canvases; not an app verdict)' : ''));
     // timer: open 타이머 menu, pick 25분 집중 -> HUD shows a running focus timer
     const tbtn = await el(sid, 'css selector', 'button[data-menu="timerMenu"]');
     if (tbtn) { await click(sid, tbtn); await sleep(600); }
