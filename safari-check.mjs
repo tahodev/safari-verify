@@ -764,15 +764,18 @@ function checkDogam(appName, expectNodes) {
         await exe(sid, `localStorage.clear();return 1`); await nav(sid, 'https://seongsu-dogam.onrender.com/'); await sleep(2500);
         const seen = [];
         for (let k = 0; k < 4; k++) {
-          const btns = await els(sid, 'css selector', '.language-grid button');
+          let btns = await els(sid, 'css selector', '.language-grid button');
+          if (!btns[k]) { // app skips the language screen when initialLang is set: open it via the start screen's Language button (last in #start-actions)
+            const sa = await els(sid, 'css selector', '#start-actions button');
+            if (sa.length) await click(sid, sa[sa.length - 1][Object.keys(sa[sa.length - 1])[0]]);
+            await sleep(700); btns = await els(sid, 'css selector', '.language-grid button');
+          }
           if (!btns[k]) { seen.push('missing-btn-' + k); continue; }
           const lab = await exe(sid, `return document.querySelectorAll('.language-grid button')[${k}].textContent.trim()`).catch(() => '?');
-          await click(sid, btns[k][Object.keys(btns[k])[0]]); await sleep(900);
-          const txt = await exe(sid, `return document.querySelector('#app').innerText.replace(/\\s+/g,' ').slice(0,70)`).catch(() => '');
+          await click(sid, btns[k][Object.keys(btns[k])[0]]); await sleep(1000);
+          const txt = await exe(sid, `return document.documentElement.lang+' | '+document.querySelector('#app h1').innerText+' | '+document.querySelector('#start-actions').innerText.replace(/\\s+/g,' ')`).catch(() => '');
           await shot(sid, 'lang-pick-' + k);
           seen.push(lab + ' => ' + txt);
-          const back = await exe(sid, `const b=[...document.querySelectorAll('#app button')];return b.length`).catch(() => 0);
-          const bb = await els(sid, 'css selector', '#app button'); if (bb.length) await click(sid, bb[bb.length - 1][Object.keys(bb[bb.length - 1])[0]]); await sleep(800);
         }
         const uniq = new Set(seen.map(s => s.split(' => ')[1])).size;
         rec(A, 'four languages: each language button yields a distinct traveler-screen text', uniq === 4, seen.join(' | '));
