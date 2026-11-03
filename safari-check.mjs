@@ -374,6 +374,10 @@ async function checkCoworking(sid) {
     const cwKey = async (v, ms) => { await api('POST', '/actions', { actions: [{ type: 'key', id: 'k1', actions: [
       { type: 'keyDown', value: v }, { type: 'pause', duration: ms }, { type: 'keyUp', value: v }] }] }, sid).then(() => api('DELETE', '/actions', null, sid)).catch(() => {}); };
     const pos = () => exe(sid, `(()=>{const m=window.__me;return m&&m.pos?JSON.stringify({x:+m.pos.x.toFixed(2),z:+m.pos.z.toFixed(2),seat:m.seatIdx,pose:m.pose}):null})()`).catch(() => null);
+    const gld = await exe(sid, `(()=>{const c=document.getElementById('c');if(!c)return 'no #c';const gl=c.getContext('webgl2')||c.getContext('webgl');if(!gl)return 'no gl ctx on #c';const e=gl.getExtension('WEBGL_debug_renderer_info');return JSON.stringify({kind:(typeof WebGL2RenderingContext!=='undefined'&&gl instanceof WebGL2RenderingContext)?'webgl2':'webgl1',lost:gl.isContextLost(),err:gl.getError(),buf:[gl.drawingBufferWidth,gl.drawingBufferHeight],css:[c.clientWidth,c.clientHeight],vendor:e?gl.getParameter(e.UNMASKED_VENDOR_WEBGL):gl.getParameter(gl.VENDOR),renderer:e?gl.getParameter(e.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER),attrs:gl.getContextAttributes(),errs:window.__cerr||null})})()`).catch(e => 'ERR ' + e);
+    console.log('cwdiag(webgl)', String(gld).slice(0, 700));
+    const wk = await exe(sid, `(()=>{const m=window.__me;const out={hasGroup:!!(m&&m.group),inScene:!!(m&&m.group&&m.group.parent),camPos:window.__cam?[window.__cam.position.x,window.__cam.position.y,window.__cam.position.z].map(v=>+v.toFixed(1)):null,seats:(window.__seats||[]).length};return JSON.stringify(out)})()`).catch(() => null);
+    console.log('cwdiag(scene)', wk);
     await sleep(1500);
     const g1 = await exe(sid, `(()=>{const g=document.getElementById('guide');const h=document.getElementById('hint');return JSON.stringify({guide:!!g&&g.style.display!=='none'&&g.offsetHeight>0,hint:h?h.textContent.slice(0,40):null,gtxt:g?g.textContent.slice(0,40):null})})()`).catch(() => null);
     rec(A, 'guide: entry guide card shown on first entry', !!(g1 && JSON.parse(g1).guide), String(g1));
