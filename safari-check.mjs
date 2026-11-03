@@ -394,6 +394,10 @@ async function checkCoworking(sid) {
       const sat = await waitFor(sid, `(()=>{const m=window.__me;return m&&m.seatIdx!=null?m.seatIdx:null})()`, 25000);
       rec(A, 'seat marker tap: tapping a visible free seat walks and sits', sat != null && sat !== false, 'target=' + S.i + ' kind=' + S.kind + ' dist=' + S.d + ' seated=' + sat);
     }
+    {
+      const glpx = await exe(sid, `(()=>{try{const c=document.getElementById('c');const gl=c.getContext('webgl2')||c.getContext('webgl');const W=gl.drawingBufferWidth,H=gl.drawingBufferHeight;const buf=new Uint8Array(W*H*4);gl.readPixels(0,0,W,H,gl.RGBA,gl.UNSIGNED_BYTE,buf);let nz=0,bright=0;const S=8,w=Math.floor(W/S),h=Math.floor(H/S);const out=new Uint8Array(w*h*3);for(let y=0;y<h;y++)for(let x=0;x<w;x++){const si=((H-1-y*S)*W+x*S)*4;const o=(y*w+x)*3;out[o]=buf[si];out[o+1]=buf[si+1];out[o+2]=buf[si+2];if(buf[si]+buf[si+1]+buf[si+2]>30)nz++;if(buf[si]+buf[si+1]+buf[si+2]>240)bright++}let b64='';const CH=0x8000;for(let i=0;i<out.length;i+=CH)b64+=String.fromCharCode.apply(null,out.subarray(i,i+CH));return JSON.stringify({W,H,w,h,nonDark:nz,bright,total:w*h,err:gl.getError(),b64:btoa(b64)})}catch(e){return JSON.stringify({error:String(e)})}})()`).catch(e => JSON.stringify({error: 'ERR ' + e}));
+      try { const o = JSON.parse(glpx); const { b64, ...meta } = o; console.log('cwdiag(readPixels)', JSON.stringify(meta)); if (b64) { (await import('node:fs')).writeFileSync('results/cw-glpixels.json', JSON.stringify(o)); } } catch (e) { console.log('cwdiag(readPixels) parse fail', String(glpx).slice(0, 200)); }
+    }
     await shot(sid, 'cw-2-seated');
     // focus start/stop button (e5dea79: sitting idles; focus starts only on explicit press)
     const fb = await el(sid, 'css selector', '#focusBtn');
