@@ -293,6 +293,32 @@ async function sweetPlay(sid, A) {
     const open = await waitFor(sid, `!document.getElementById('mathModal').hidden && (function(){const v=function(id){const i=document.getElementById(id);const r=i&&i.getBoundingClientRect();return !!(r&&r.width>0&&getComputedStyle(i).display!=='none')};return v('in1')||v('inQ')})()`, 9000);
     if (!open) return 'failed';
     await sleep(400);
+    if (room === 0 && !globalThis.__sweetExtras) {
+      globalThis.__sweetExtras = true;
+      try {
+        const ext = await exe(sid, `return JSON.stringify((function(){const o=new Set();performance.getEntriesByType('resource').forEach(r=>{try{o.add(new URL(r.name).origin)}catch(e){}});const sc=[...document.scripts].map(s=>s.src).filter(Boolean);return {origins:[...o],scripts:sc,here:location.origin}})())`).then(JSON.parse);
+        const extOrig = ext.origins.filter(x => x !== ext.here);
+        rec(A, 'selfhost: three.js served from own origin (no CDN script)', ext.scripts.every(s => s.startsWith(ext.here)) , 'scripts=' + ext.scripts.join(',') + ' otherOrigins=' + extOrig.join(','));
+        // SFX: count oscillators created by the app's own wrong-answer path
+        await exe(sid, `(function(){window.__osc=0;const P=(window.AudioContext||window.webkitAudioContext).prototype;const o=P.createOscillator;P.createOscillator=function(){window.__osc++;return o.apply(this,arguments)};return 1})()`);
+        const i0 = await el(sid, 'css selector', '#in1'); if (i0) { await click(sid, i0); await type(sid, i0, '1'); }
+        const ok0 = await el(sid, 'css selector', '#okBtn'); if (ok0) await click(sid, ok0);
+        await sleep(900);
+        const wr = await exe(sid, `return JSON.stringify({val:document.getElementById('in1').value,osc:window.__osc,ctx:(typeof actx!=='undefined'&&actx)?actx.state:'n/a'})`).then(JSON.parse);
+        rec(A, 'wrong answer: input is cleared automatically', wr.val === '', JSON.stringify(wr));
+        rec(A, 'sfx: wrong-answer sound is synthesized by WebAudio (oscillators created, ctx running) [audibility to a human not measurable here]', wr.osc >= 2 && wr.ctx === 'running', JSON.stringify(wr));
+        // short / narrow window geometry with the modal open
+        for (const [w, h] of [[520, 560], [820, 480]]) {
+          await api('POST', '/window/rect', { width: w, height: h }, sid).catch(() => {}); await sleep(900);
+          const g = await exe(sid, `return JSON.stringify((function(){const vis=id=>{const e=document.getElementById(id);if(!e)return null;const r=e.getBoundingClientRect();return {t:Math.round(r.top),b:Math.round(r.bottom),l:Math.round(r.left),r:Math.round(r.right),h:Math.round(r.height)}};const hud=document.getElementById('hud');const rn=document.getElementById('roomName')||hud.querySelector('*');const lines=[...hud.querySelectorAll('*')].filter(e=>e.children.length===0&&e.textContent.trim()).map(e=>({t:e.textContent.trim().slice(0,12),h:Math.round(e.getBoundingClientRect().height),w:Math.round(e.getBoundingClientRect().width)}));return {vp:[innerWidth,innerHeight],ok:vis('okBtn'),close:vis('closeMath')||vis('mathClose'),modalScroll:(document.getElementById('mathModal').scrollHeight>innerHeight),hudLines:lines.slice(0,6)}})())`).then(JSON.parse).catch(e => ({ err: String(e) }));
+          const inView = g.ok && g.ok.b <= g.vp[1] && g.ok.t >= 0;
+          const charwrap = (g.hudLines || []).some(x => x.w > 0 && x.h > 3 * 20 && x.w < 40);
+          rec(A, 'layout ' + w + 'x' + h + ': OK button inside viewport with modal open, HUD text not stacked per-character', !!inView && !charwrap, JSON.stringify(g));
+          await shot(sid, 'sweet-layout-' + w + 'x' + h);
+        }
+        await api('POST', '/window/rect', { width: 1280, height: 848 }, sid).catch(() => {}); await sleep(700);
+      } catch (e) { rec(A, 'sweet extras (selfhost/sfx/wrong-clear/layout)', false, 'THROW ' + String(e).slice(0, 160)); }
+    }
     const [kind, ans] = ANSWERS[room];
     if (kind === 'in1') { const i1 = await el(sid, 'css selector', '#in1'); if (i1) { await click(sid, i1); await type(sid, i1, ans); } }
     else { const [q, r] = ans.split('/'); const iq = await el(sid, 'css selector', '#inQ'); if (iq) { await click(sid, iq); await type(sid, iq, q); } const ir = await el(sid, 'css selector', '#inR'); if (ir) { await click(sid, ir); await type(sid, ir, r); } }
