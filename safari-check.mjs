@@ -717,6 +717,7 @@ function checkDogam(appName, expectNodes) {
             console.log('deepwalk click', path[i], 'gate', idx, 'attempt', attempt, 'res', JSON.stringify(cr).slice(0,80));
             nxt = await waitFor(sid, `window.__dogam.S().scene === ${path[i+1]} ? window.__dogam.S().scene : null`, 30000);
           }
+          if (nxt === null) { const dg = await exe(sid, `return JSON.stringify((function(){const b=document.querySelectorAll('.gate-links button')[${idx}];const r=b.getBoundingClientRect();const cx=r.x+r.width/2,cy=r.y+r.height/2;const top=document.elementFromPoint(cx,cy);return {scene:window.__dogam.S().scene,pos:window.__dogam.pos(),rect:[r.x,r.y,r.width,r.height].map(Math.round),vp:[innerWidth,innerHeight],top:top?(top.tagName+'.'+(top.className||'')+' '+(top.getAttribute('aria-label')||'').slice(0,30)):null,isSelf:top===b,modal:!!document.querySelector('.modal:not(.hidden),dialog[open]')}})())`).catch(e=>'ERR '+e); console.log('deepwalk DIAG', path[i], '->', path[i+1], dg); }
           console.log('deepwalk step', path[i], '->', JSON.stringify(nxt));
           if (nxt === null) { ok = false; break; }
         }
@@ -732,6 +733,18 @@ function checkDogam(appName, expectNodes) {
       }
     }
       }
+    if (appName === 'seongsu-dogam' && process.env.LANGCHECK !== '0') {
+      for (const lg of ['ko','ja','zh','en']) {
+        try {
+          await exe(sid, `localStorage.setItem(window.GAME_DATA.tag+'-atlas-v1', JSON.stringify({lang:'${lg}',character:0,name:'QA',scene:17,visited:[0,17],tipsSeen:true}));return 1`);
+          await nav(sid, 'https://seongsu-dogam.onrender.com/'); await sleep(2500);
+          const sn = await exe(sid, `return (document.querySelector('#app')||document.body).innerText.replace(/\s+/g,' ').slice(0,90)`).catch(() => '');
+          const btnb = await el(sid, 'css selector', '.actions button, .start button, button.primary, .traveler-grid ~ * button'); 
+          await shot(sid, 'lang-' + lg);
+          rec(A, 'language ' + lg + ' renders its own text', String(sn).length > 5, String(sn));
+        } catch (e) { rec(A, 'language ' + lg + ' renders its own text', false, 'THROW ' + String(e).slice(0, 100)); }
+      }
+    }
     const nodes = await exe(sid, `window.GAME_DATA ? window.GAME_DATA.nodes.length : 0`).catch(()=>0);
     rec(A, 'data integrity: expected node count', nodes === expectNodes, 'nodes=' + nodes);
     if (appName === 'seongsu-dogam') {
