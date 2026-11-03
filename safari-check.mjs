@@ -4,8 +4,9 @@ import fs from 'node:fs';
 import { spawn } from 'node:child_process';
 
 const BS = process.env.BS === '1';
-const BS_DEVICE = process.env.BS_DEVICE || null; // e.g. 'iPhone 15 Pro' for real-mobile session
-const BASE = BS ? 'https://hub-cloud.browserstack.com/wd/hub' : 'http://127.0.0.1:4444';
+const AP = process.env.AP === '1'; // local Appium (XCUITest) against the booted iOS Simulator
+const BS_DEVICE = process.env.BS_DEVICE || (AP ? 'iPhone-Simulator' : null); // e.g. 'iPhone 15 Pro' for real-mobile session
+const BASE = BS ? 'https://hub-cloud.browserstack.com/wd/hub' : (AP ? 'http://127.0.0.1:4723' : 'http://127.0.0.1:4444');
 const BS_AUTH = BS ? 'Basic ' + Buffer.from(process.env.BS_CREDS + ':').toString('base64') : null;
 const EL = 'element-6066-11e4-a52e-4f735466cecf';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -32,7 +33,12 @@ async function api(method, path, body, sid) {
 }
 async function newSession() {
   let caps;
-  if (BS && BS_DEVICE) {
+  if (AP) {
+    caps = { capabilities: { alwaysMatch: { platformName: 'iOS', browserName: 'Safari',
+      'appium:automationName': 'XCUITest', 'appium:udid': process.env.SIM_UDID, 'appium:deviceName': process.env.SIM_NAME || 'iPhone',
+      'appium:platformVersion': process.env.SIM_OS, 'appium:newCommandTimeout': 300, 'appium:wdaLaunchTimeout': 420000,
+      'appium:wdaConnectionTimeout': 420000, 'appium:wdaStartupRetries': 1, 'appium:noReset': true, 'appium:showXcodeLog': true } } };
+  } else if (BS && BS_DEVICE) {
     caps = { capabilities: { alwaysMatch: {
       browserName: BS_DEVICE.startsWith('iPhone') || BS_DEVICE.startsWith('iPad') ? 'iPhone' : BS_DEVICE,
       'bstack:options': { deviceName: BS_DEVICE, osVersion: process.env.BS_OS_VERSION || '17', realMobile: 'true',
@@ -629,7 +635,7 @@ const APPS = [
 
 const ONLY = process.env.ONLY ? process.env.ONLY.split(',') : null;
 const APPS_RUN = ONLY ? APPS.filter(([u]) => ONLY.some(o => u.includes(o))) : APPS;
-const driver = BS ? null : spawn('/usr/bin/safaridriver', ['-p', '4444'], { stdio: 'ignore' });
+const driver = (BS || AP) ? null : spawn('/usr/bin/safaridriver', ['-p', '4444'], { stdio: 'ignore' });
 await sleep(BS ? 500 : 2500);
 try {
   for (const [url, fn] of APPS_RUN) {

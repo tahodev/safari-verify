@@ -35,6 +35,32 @@ INTERACT_OK=0
 echo "== xcode diagnostics =="; xcode-select -p; ls -d /Applications/Xcode* 2>/dev/null; xcodebuild -version 2>&1 | head -2
 NEWX=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -1)
 if [ -n "$NEWX" ]; then echo "selecting $NEWX for idb-companion build"; sudo xcode-select -s "$NEWX/Contents/Developer"; fi
+# ---- Route A: Appium XCUITest (W3C WebDriver) on the booted simulator, reusing safari-check.mjs in mobile mode ----
+echo "== Appium XCUITest route =="
+SIM_INFO=$(xcrun simctl list devices -j | python3 -c '
+import json,sys
+d=json.load(sys.stdin)["devices"]
+for k,v in d.items():
+    for x in v:
+        if x["udid"]=="'"$DEV"'": print(k.split("SimRuntime.")[-1].replace("iOS-","").replace("-","."), x["name"])
+')
+export SIM_UDID="$DEV" SIM_OS="${SIM_INFO%% *}" SIM_NAME="${SIM_INFO#* }"
+echo "sim: $SIM_UDID os=$SIM_OS name=$SIM_NAME"
+if run_to 300 npm i -g appium >/tmp/ap-npm.log 2>&1 && run_to 300 appium driver install xcuitest >/tmp/ap-drv.log 2>&1; then
+  tail -2 /tmp/ap-drv.log
+  (appium --log-no-colors --port 4723 >/tmp/appium.log 2>&1 &) ; sleep 8
+  APDIR=$(pwd)/appium-work; mkdir -p "$APDIR"; SRC=$(pwd)
+  ( set -o pipefail; cd "$APDIR" && AP=1 ONLY="seongsu-dogam,sajumadang,kurashi-otaru" run_to 780 node "$SRC/safari-check.mjs" 2>&1 | tee "$SRC/results/ios-appium.log" ); AP_RC=${PIPESTATUS[0]}
+  cp -R "$APDIR/results" results/appium-ios 2>/dev/null || true
+  echo "---- appium server log tail ----"; tail -25 /tmp/appium.log | cut -c1-240
+  cp /tmp/appium.log results/appium-server.log 2>/dev/null || true
+  echo "== appium route done rc=${AP_RC:-?} =="
+  exit "${AP_RC:-1}"
+else
+  echo "appium install failed:"; tail -5 /tmp/ap-npm.log /tmp/ap-drv.log 2>/dev/null
+  exit 1
+fi
+
 echo "== installing interaction tooling (idb + ios-webkit-debug-proxy) =="
 if run_to 600 brew install ios-webkit-debug-proxy >/tmp/ios-brew.log 2>&1 && { run_to 300 brew tap facebook/fb >>/tmp/ios-brew.log 2>&1; run_to 60 brew trust facebook/fb >>/tmp/ios-brew.log 2>&1; run_to 900 brew install idb-companion >>/tmp/ios-brew.log 2>&1; } || { command -v idb_companion >/dev/null && command -v ios_webkit_debug_proxy >/dev/null; }; then
   # fb-idb breaks on the runner's newest default python (3.15 traceback in idb/cli/main.py); use 3.12
