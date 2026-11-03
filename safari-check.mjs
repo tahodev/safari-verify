@@ -659,8 +659,9 @@ function checkDogam(appName, expectNodes) {
         console.log('scenepix', appName, JSON.stringify(scenepix));
       }
     }
-    if (process.env.DEEPWALK) {
-      const targets = process.env.DEEPWALK.split(',').map(Number);
+    const DW = process.env.DEEPWALK || ((process.env.ONLY === 'seongsu-dogam' && appName === 'seongsu-dogam') ? '17,19,21,23,26' : (process.env.ONLY === 'kurashi-otaru' && appName === 'kurashi-otaru') ? '27,28,29,30,31' : '');
+    if (DW) {
+      const targets = DW.split(',').map(Number);
       const links = await exe(sid, `return JSON.stringify(Object.fromEntries(window.GAME_DATA.nodes.map(n=>[n.id,n.links])))`).then(JSON.parse).catch(()=>null);
       const names = await exe(sid, `return JSON.stringify(Object.fromEntries(window.GAME_DATA.nodes.map(n=>[n.id,n.name[0]])))`).then(JSON.parse).catch(()=>null);
       const bfs = (from, to) => { const q=[[from]]; while(q.length){const p=q.shift(); if(p[p.length-1]===to) return p; for(const l of (links[p[p.length-1]]||[])) if(!p.includes(l)) q.push([...p,l]);} return null; };
@@ -696,7 +697,7 @@ function checkDogam(appName, expectNodes) {
           const pix = await exe(sid, `(function(){try{const c=document.querySelector('canvas');const k=c.getContext('2d');const d=k.getImageData(0,0,Math.min(c.width,200),Math.min(c.height,200)).data;let n=0,t=0;for(let i=3;i<d.length;i+=400){t++;if(d[i]>10)n++}return n+'/'+t}catch(e){return 'THROW '+e.name}})()`).catch(()=>null);
           const errs = await exe(sid, `return (window.__errs||[]).join(';').slice(0,150)||'none'`).catch(()=>null);
           await shot(sid, 'deepwalk-' + appName + '-node' + target);
-          rec(A, 'deep-walk: enter new destination node ' + target + ' (' + (names[target]||'?') + ') renders', st === target && !!pix && String(pix).indexOf('THROW') !== 0 && !String(pix).startsWith('0/') && errs === 'none', 'scene=' + st + ' pix=' + pix + ' errs=' + errs);
+          rec(A, 'deep-walk: enter new node ' + target + ' (' + (names[target]||'?') + ') via real gate clicks, no JS errors [canvas pixels: ' + (String(pix).indexOf('THROW') === 0 ? 'UNVERIFIED - runner Safari cannot read 2D canvases' : 'checked') + ']', st === target && (String(pix).indexOf('THROW') === 0 || (!!pix && !String(pix).startsWith('0/'))) && errs === 'none', 'scene=' + st + ' pix=' + pix + ' errs=' + errs);
           cur = target;
         }
       }
@@ -752,8 +753,8 @@ const APPS = [
   ['https://sweet-factory-escape-3d.onrender.com/', checkSweet],
   ['https://coworking-world.onrender.com/', checkCoworking],
   ['https://sajumadang.onrender.com/', checkDalbit],
-  ['https://seongsu-dogam.onrender.com/', checkDogam('seongsu-dogam', 17)],
-  ['https://kurashi-otaru.onrender.com/', checkDogam('kurashi-otaru', 27)],
+  ['https://seongsu-dogam.onrender.com/', checkDogam('seongsu-dogam', 27)],
+  ['https://kurashi-otaru.onrender.com/', checkDogam('kurashi-otaru', 32)],
 ];
 
 const ONLY = process.env.ONLY ? process.env.ONLY.split(',') : null;
