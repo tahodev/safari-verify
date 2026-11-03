@@ -314,7 +314,30 @@ async function sweetPlay(sid, A) {
     const sv = await exe(sid, 'JSON.stringify(window.__qa.solved())').then(r=>r&&JSON.parse(r)).catch(()=>null);
     if (sv && sv[room]) { rec(A, 'playthrough: room ' + (room+1) + ' puzzle solved via real input', true, 'already solved earlier in this session'); continue; }
     let solvedThis = false;
-    for (let iter = 0; iter < 40 && !solvedThis; iter++) {
+    let ITERMAX = 40;
+    if (room === 2 && !globalThis.__sweetSaveDone && (process.env.ONLY || '').split(',').includes('sweet-factory-escape-3d')) {
+      globalThis.__sweetSaveDone = true; ITERMAX = 12; // bounded: room 3 gets 12 iterations + a target/position diagnostic
+      const raw = await exe(sid, `localStorage.getItem('sweet-factory-save-v1')`).catch(() => null);
+      let sv0 = null; try { sv0 = JSON.parse(raw); } catch (e) {}
+      rec(A, 'save: progress stored in localStorage after solving rooms 1-2', !!(sv0 && sv0.solved && sv0.solved[0] && sv0.solved[1] && !sv0.solved[2]), String(raw));
+      await api('POST', '/url', { url: 'https://sweet-factory-escape-3d.onrender.com/' }, sid).catch(() => {});
+      const back = await waitFor(sid, `!!document.getElementById('startBtn')`, 40000);
+      const cbs = await exe(sid, `(()=>{const b=[...document.querySelectorAll('button')].find(x=>/이어하기/.test(x.textContent));return b?b.textContent:null})()`).catch(() => null);
+      rec(A, 'save: after reload the intro offers [이어하기] with medal count', !!back && !!cbs, 'continue=' + cbs + ' startBtn=' + (await exe(sid, `document.getElementById('startBtn').textContent`).catch(() => null)));
+      await shot(sid, 'sweet-after-reload');
+      const cb = await el(sid, 'xpath', `//button[contains(.,'이어하기')]`);
+      if (cb) await click(sid, cb);
+      await sleep(1500);
+      const rs = await exe(sid, `JSON.stringify({solved:window.__qa.solved(),room:window.__qa.room(),doors:window.__qa.doors(),obj:(document.getElementById('objective')||{}).textContent,rn:document.getElementById('roomName').textContent,medal:document.getElementById('medal').textContent})`).catch(() => null);
+      let R = null; try { R = JSON.parse(rs); } catch (e) {}
+      rec(A, 'save: [이어하기] restores solved rooms, current room 3, open doors, HUD', !!(R && R.solved[0] && R.solved[1] && !R.solved[2] && R.room === 2 && R.doors[0] && R.doors[1]), String(rs));
+      await shot(sid, 'sweet-continued');
+      await exe(sid, `return (function(){const c=document.querySelector('canvas');if(c) c.requestPointerLock=function(){};try{document.exitPointerLock()}catch(e){}return true})()`).catch(() => {});
+      staticCount = 0;
+      const tg = await exe(sid, `JSON.stringify({t:window.__qa.targets().filter(t=>t.room===2),pos:window.__qa.pos(),yaw:window.__qa.yaw(),prompt:window.__qa.prompt()})`).catch(() => null);
+      console.log('sweetdiag(room3 start)', tg);
+    }
+    for (let iter = 0; iter < ITERMAX && !solvedThis; iter++) {
       const st = await exe(sid, `JSON.stringify({pos:window.__qa.pos(),prompt:window.__qa.prompt(),room:window.__qa.room(),solved:window.__qa.solved(),fin:window.__qa.fin()})`).then(r=>r&&JSON.parse(r)).catch(()=>null);
       if (!st) break;
       if (st.fin) { solvedThis = true; break; }
@@ -346,6 +369,7 @@ async function sweetPlay(sid, A) {
     }
     if (solvedThis) rec(A, 'playthrough: room ' + (room+1) + ' puzzle solved via real input', true);
     else allOk = false;
+    if (!solvedThis) { const dg = await exe(sid, `JSON.stringify({t:window.__qa.targets().filter(t=>t.room===${room}),pos:window.__qa.pos(),yaw:window.__qa.yaw(),prompt:window.__qa.prompt(),modal:!document.getElementById('mathModal').hidden,look:!!(document.getElementById('lookPanel')&&!document.getElementById('lookPanel').hidden)})`).catch(() => null); console.log('sweetdiag(room' + (room+1) + ' end unsolved)', dg); }
   }
   // escape: steer to the centered exit (x=0, past the last wall) until fin()
   let fin = await exe(sid, 'window.__qa.fin()').catch(()=>false);
