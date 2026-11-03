@@ -395,26 +395,36 @@ async function checkCoworking(sid) {
       rec(A, 'seat marker tap: tapping a visible free seat walks and sits', sat != null && sat !== false, 'target=' + S.i + ' kind=' + S.kind + ' dist=' + S.d + ' seated=' + sat);
     }
     await shot(sid, 'cw-2-seated');
-    // focus start/stop button
+    // focus start/stop button (e5dea79: sitting idles; focus starts only on explicit press)
     const fb = await el(sid, 'css selector', '#focusBtn');
-    const fb0 = await exe(sid, `document.getElementById('focusBtn').textContent`).catch(() => null);
-    await sleep(1200);
-    const fb1 = await exe(sid, `(()=>{const b=document.getElementById('focusBtn');return JSON.stringify({txt:b.textContent,on:b.classList.contains('on'),pose:window.__me.pose,focusing:document.getElementById('focusing').textContent.slice(0,30)})})()`).catch(() => null);
+    await sleep(800);
+    const fa = await exe(sid, `(()=>{const b=document.getElementById('focusBtn');return JSON.stringify({txt:b.textContent,on:b.classList.contains('on'),pose:window.__me.pose,seat:window.__me.seatIdx})})()`).catch(() => null);
+    const fa0 = fa ? JSON.parse(fa) : {};
+    rec(A, 'focus: after sitting the avatar idles and the button reads 집중 시작 (no auto focus)', fa0.txt === '집중 시작' && fa0.on === false && fa0.seat != null && !/study/.test(fa0.pose || ''), String(fa));
+    const m0 = await exe(sid, `document.getElementById('mine').textContent`).catch(() => null);
+    await sleep(3000); const m1 = await exe(sid, `document.getElementById('mine').textContent`).catch(() => null);
+    rec(A, 'focus: personal timer does NOT count while idle-seated', m0 === m1, m0 + ' -> ' + m1);
+    if (fb) { await click(sid, fb); await sleep(1200); }
+    const fb1 = await exe(sid, `(()=>{const b=document.getElementById('focusBtn');return JSON.stringify({txt:b.textContent,on:b.classList.contains('on'),pose:window.__me.pose,seat:window.__me.seatIdx})})()`).catch(() => null);
     const f1 = fb1 ? JSON.parse(fb1) : {};
-    rec(A, 'focus: sitting puts the avatar in study pose and the button already reads 집중 종료 (no separate start needed)', f1.txt === '집중 종료' && f1.on === true && /study/.test(f1.pose || ''), 'before=' + fb0 + ' after=' + fb1);
+    rec(A, 'focus: pressing [집중 시작] while seated -> study pose, button 집중 종료', f1.txt === '집중 종료' && f1.on === true && /study/.test(f1.pose || ''), String(fb1));
     await sleep(6000);
     const mine = await exe(sid, `document.getElementById('mine').textContent`).catch(() => null);
-    rec(A, 'focus: personal timer counts up while focusing', !!mine && mine !== '0:00', 'mine=' + mine);
+    rec(A, 'focus: personal timer counts up while focusing', !!mine && mine !== '0:00' && mine !== m1, 'mine=' + mine);
     await shot(sid, 'cw-3-focusing');
     if (fb) { await click(sid, fb); await sleep(1200); }
     const fb2 = await exe(sid, `(()=>{const b=document.getElementById('focusBtn');return JSON.stringify({txt:b.textContent,on:b.classList.contains('on'),pose:window.__me.pose,seat:window.__me.seatIdx})})()`).catch(() => null);
     const f2 = fb2 ? JSON.parse(fb2) : {};
-    rec(A, 'focus: [집중 종료] stops and stands up', f2.txt === '집중 시작' && f2.on === false && f2.pose === 'stand', String(fb2));
-    // focus start from standing walks to the nearest seat and sits
+    rec(A, 'focus: [집중 종료] stops focus but stays seated (idle)', f2.txt === '집중 시작' && f2.on === false && f2.seat != null && f2.pose === 'idle', String(fb2));
+    // stand up (space) then explicit start from standing walks to nearest free seat, sits, studies
+    await cwKey(' ', 150); await sleep(800);
+    const st = await exe(sid, `window.__me.seatIdx==null?'standing':'still-seated'`).catch(() => null);
     if (fb) { await click(sid, fb); }
     const auto = await waitFor(sid, `(()=>{const m=window.__me;return m&&m.seatIdx!=null&&/study/.test(m.pose)?m.seatIdx:null})()`, 30000);
-    rec(A, 'focus: [집중 시작] from standing auto-walks to nearest free seat and starts', auto != null && auto !== false, 'seat=' + auto);
-    if (fb) { await click(sid, fb); await sleep(1200); }
+    rec(A, 'focus: explicit start from standing walks to nearest free seat, sits and studies', auto != null && auto !== false, 'preState=' + st + ' seat=' + auto);
+    await shot(sid, 'cw-3b-autoseat');
+    if (fb) { await click(sid, fb); await sleep(1000); }
+    await cwKey(' ', 150); await sleep(800);
     // movement: keyboard WASD
     const p0 = await pos(); await cwKey('d', 1200); await cwKey('w', 800); const p1 = await pos();
     rec(A, 'movement: WASD keys move the avatar', !!(p0 && p1 && (JSON.parse(p0).x !== JSON.parse(p1).x || JSON.parse(p0).z !== JSON.parse(p1).z)), p0 + ' -> ' + p1);
