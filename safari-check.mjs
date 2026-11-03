@@ -70,6 +70,7 @@ async function el(sid, using, value) {
 }
 const click = (sid, id) => api('POST', `/element/${id}/click`, {}, sid);
 const type = async (sid, id, text) => { await api('POST', `/element/${id}/clear`, {}, sid).catch(()=>{}); return api('POST', `/element/${id}/value`, { text, value: [...text] }, sid); };
+const shotNative = async (name) => { try { const { execFileSync } = await import('node:child_process'); execFileSync('/usr/sbin/screencapture', ['-x', `results/native-${name}.png`], { timeout: 15000 }); console.log('shotNative ok', name, fs.existsSync(`results/native-${name}.png`) ? fs.statSync(`results/native-${name}.png`).size : 0); } catch (e) { console.log('shotNative FAILED', name, String(e).slice(0, 120)); } };
 const shot = async (sid, name) => { const v = await api('GET', '/screenshot', null, sid).catch(() => null); if (v) fs.writeFileSync(`results/${name}.png`, Buffer.from(v, 'base64')); };
 async function waitFor(sid, script, ms = 60000) {
   const t0 = Date.now();
@@ -434,7 +435,7 @@ async function checkCoworking(sid) {
       const glpx = await exe(sid, `(()=>{try{const c=document.getElementById('c');const gl=c.getContext('webgl2')||c.getContext('webgl');const W=gl.drawingBufferWidth,H=gl.drawingBufferHeight;const buf=new Uint8Array(W*H*4);gl.readPixels(0,0,W,H,gl.RGBA,gl.UNSIGNED_BYTE,buf);let nz=0,bright=0;const S=8,w=Math.floor(W/S),h=Math.floor(H/S);const out=new Uint8Array(w*h*3);for(let y=0;y<h;y++)for(let x=0;x<w;x++){const si=((H-1-y*S)*W+x*S)*4;const o=(y*w+x)*3;out[o]=buf[si];out[o+1]=buf[si+1];out[o+2]=buf[si+2];if(buf[si]+buf[si+1]+buf[si+2]>30)nz++;if(buf[si]+buf[si+1]+buf[si+2]>240)bright++}let b64='';const CH=0x8000;for(let i=0;i<out.length;i+=CH)b64+=String.fromCharCode.apply(null,out.subarray(i,i+CH));return JSON.stringify({W,H,w,h,nonDark:nz,bright,total:w*h,err:gl.getError(),b64:btoa(b64)})}catch(e){return JSON.stringify({error:String(e)})}})()`).catch(e => JSON.stringify({error: 'ERR ' + e}));
       try { const o = JSON.parse(glpx); const { b64, ...meta } = o; console.log('cwdiag(readPixels)', JSON.stringify(meta)); if (b64) { (await import('node:fs')).writeFileSync('results/cw-glpixels.json', JSON.stringify(o)); } } catch (e) { console.log('cwdiag(readPixels) parse fail', String(glpx).slice(0, 200)); }
     }
-    await shot(sid, 'cw-2-seated');
+    await shot(sid, 'cw-2-seated'); await shotNative('cw-2-seated');
     // focus start/stop button (e5dea79: sitting idles; focus starts only on explicit press)
     const fb = await el(sid, 'css selector', '#focusBtn');
     await sleep(800);
@@ -451,7 +452,7 @@ async function checkCoworking(sid) {
     await sleep(6000);
     const mine = await exe(sid, `document.getElementById('mine').textContent`).catch(() => null);
     rec(A, 'focus: personal timer counts up while focusing', !!mine && mine !== '0:00' && mine !== m1, 'mine=' + mine);
-    await shot(sid, 'cw-3-focusing');
+    await shot(sid, 'cw-3-focusing'); await shotNative('cw-3-focusing');
     if (fb) { await click(sid, fb); await sleep(1200); }
     const fb2 = await exe(sid, `(()=>{const b=document.getElementById('focusBtn');return JSON.stringify({txt:b.textContent,on:b.classList.contains('on'),pose:window.__me.pose,seat:window.__me.seatIdx})})()`).catch(() => null);
     const f2 = fb2 ? JSON.parse(fb2) : {};
@@ -482,9 +483,9 @@ async function checkCoworking(sid) {
       const ok = await waitFor(sid, `(()=>{const t=document.getElementById('roomname').textContent;return ${re}.test(t)?t:null})()`, 30000);
       return ok;
     };
-    const zl = await zoneTest('lounge', '/라운지/'); rec(A, 'zones: move menu -> lounge (roomname label updates)', !!zl, String(zl)); await sleep(800); await shot(sid, 'cw-4-lounge');
-    const zt = await zoneTest('terrace', '/루프탑/'); rec(A, 'zones: move menu -> rooftop terrace (roomname label updates)', !!zt, String(zt)); await sleep(800); await shot(sid, 'cw-5-terrace');
-    const zh = await zoneTest('hall', '/포커스홀/'); rec(A, 'zones: move menu -> focus hall (roomname label updates)', !!zh, String(zh)); await sleep(800); await shot(sid, 'cw-6-hall');
+    const zl = await zoneTest('lounge', '/라운지/'); rec(A, 'zones: move menu -> lounge (roomname label updates)', !!zl, String(zl)); await sleep(800); await shot(sid, 'cw-4-lounge'); await shotNative('cw-4-lounge');
+    const zt = await zoneTest('terrace', '/루프탑/'); rec(A, 'zones: move menu -> rooftop terrace (roomname label updates)', !!zt, String(zt)); await sleep(800); await shot(sid, 'cw-5-terrace'); await shotNative('cw-5-terrace');
+    const zh = await zoneTest('hall', '/포커스홀/'); rec(A, 'zones: move menu -> focus hall (roomname label updates)', !!zh, String(zh)); await sleep(800); await shot(sid, 'cw-6-hall'); await shotNative('cw-6-hall');
     // audio: sound button cycles modes (real clicks, user gesture)
     const sb = await el(sid, 'css selector', '#snd'); const modes = [];
     for (let k = 0; k < 4 && sb; k++) { await click(sid, sb); await sleep(700); modes.push(await exe(sid, `JSON.stringify({t:document.getElementById('snd').textContent,s:window.__sndState()})`).catch(() => null)); }
@@ -494,7 +495,10 @@ async function checkCoworking(sid) {
     rec(A, 'audio: AudioContext running while a sound mode is on (Safari autoplay)', !!(parsed[1] && parsed[1].s && parsed[1].s.ctx === 'running' && parsed[1].s.playing), JSON.stringify(parsed[1] && parsed[1].s));
     // photo: composes canvas + info band
     const c2d = await exe(sid, `(()=>{try{const c=document.createElement('canvas');c.width=c.height=8;c.getContext('2d').fillRect(0,0,8,8);return c.toDataURL().length>20}catch(e){return false}})()`).catch(() => null);
+    // test-side shim ONLY when the runner cannot allocate default 2D canvases: make 2D contexts CPU-backed so the app's own photo code can run; also capture the generated PNG data URL
+    await exe(sid, `(()=>{window.__photoHref=null;const oc=HTMLAnchorElement.prototype.click;HTMLAnchorElement.prototype.click=function(){if(this.download&&/^data:image\/png/.test(this.href))window.__photoHref=this.href;return oc.apply(this,arguments)};if(${c2d===false}){const og=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(t,o){if(t==='2d')o=Object.assign({},o,{willReadFrequently:true});return og.call(this,t,o)}}return 1})()`).catch(() => {});
     const phb = await el(sid, 'css selector', '#photo'); if (phb) { await click(sid, phb); await sleep(2500); }
+    const phref = await exe(sid, `window.__photoHref||''`).catch(() => ''); if (phref.length > 100) { fs.writeFileSync('results/cw-photo.png', Buffer.from(phref.split(',')[1], 'base64')); console.log('cwphoto saved bytes', fs.statSync('results/cw-photo.png').size); }
     const plen = await exe(sid, `window.__photoLen||0`).catch(() => 0);
     rec(A, 'photo: 📷 composes a PNG with info band (date/name/focus time)', plen > 5000, 'photoLen=' + plen + ' | default-2D-canvas-works-in-this-browser=' + c2d + (c2d === false ? ' (ENVIRONMENT: runner Safari cannot allocate default 2D canvases; not an app verdict)' : ''));
     // timer: open 타이머 menu, pick 25분 집중 -> HUD shows a running focus timer
