@@ -149,6 +149,10 @@ async function checkGGP(sid) {
   await shot(sid, 'desktop-golden-gate-picnic');
 }
 
+async function glDump(sid, name) {
+  const r = await exe(sid, `(()=>{try{const cs=[...document.querySelectorAll('canvas')];let best=null;for(const c of cs){const gl=c.getContext('webgl2')||c.getContext('webgl');if(gl){best={c,gl};break}}if(!best)return JSON.stringify({error:'no webgl canvas'});const gl=best.gl;const W=gl.drawingBufferWidth,H=gl.drawingBufferHeight;const buf=new Uint8Array(W*H*4);gl.readPixels(0,0,W,H,gl.RGBA,gl.UNSIGNED_BYTE,buf);const S=8,w=Math.floor(W/S),h=Math.floor(H/S);const out=new Uint8Array(w*h*3);let nz=0;for(let y=0;y<h;y++)for(let x=0;x<w;x++){const si=((H-1-y*S)*W+x*S)*4;const o=(y*w+x)*3;out[o]=buf[si];out[o+1]=buf[si+1];out[o+2]=buf[si+2];if(buf[si]+buf[si+1]+buf[si+2]>30)nz++}let b64='';for(let i=0;i<out.length;i+=0x8000)b64+=String.fromCharCode.apply(null,out.subarray(i,i+0x8000));return JSON.stringify({W,H,w,h,nonDark:nz,total:w*h,preserve:gl.getContextAttributes().preserveDrawingBuffer,b64:btoa(b64)})}catch(e){return JSON.stringify({error:String(e)})}})()`).catch(e => JSON.stringify({ error: 'ERR ' + e }));
+  try { const o = JSON.parse(r); const { b64, ...meta } = o; console.log('gldump(' + name + ')', JSON.stringify(meta)); if (b64) fs.writeFileSync(`results/gl-${name}.json`, JSON.stringify(o)); } catch (e) { console.log('gldump(' + name + ') parse fail', String(r).slice(0, 150)); }
+}
 async function checkSweet(sid) {
   const A = 'sweet-factory-escape-3d';
   if (process.env.RESUME) {
@@ -193,7 +197,14 @@ async function checkSweet(sid) {
     const lock = await exe(sid, '!!document.pointerLockElement').catch(()=>null);
     rec(A, 'dragprobe: drag-look rotates yaw without pointer lock', mid !== before || after !== mid, JSON.stringify({before, mid, after, hit, lock}));
   }
-  if (run && process.env.PLAYTHROUGH) { await sweetPlay(sid, A); }
+  if (run) {
+    await sleep(2000);
+    const obj = await exe(sid, `(document.getElementById('objective')||{}).textContent||''`).catch(() => null);
+    rec(A, 'objective line: HUD shows a non-empty objective after start', !!obj && obj.length > 3, String(obj).slice(0, 80));
+    await glDump(sid, 'sweet-start');
+    await shot(sid, 'sweet-start');
+  }
+  if (run && (process.env.PLAYTHROUGH || (process.env.ONLY || '').split(',').includes('sweet-factory-escape-3d'))) { await sweetPlay(sid, A); await glDump(sid, 'sweet-end'); await shot(sid, 'sweet-end'); }
 
   if (run && BS_DEVICE && process.env.SWEET_TOUCH) {
     // real iPhone touch controls: joystick drag, touch look, actBtn quiz - native XCTest taps + W3C touch actions
