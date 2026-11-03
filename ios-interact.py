@@ -189,15 +189,109 @@ def flow_dogam(cdp, cal, app, expect_nodes):
     time.sleep(2)
     shot(f"ios-{app}-tap")
 
+
+def tap_xy(cdp, cal, cssx, cssy, label):
+    scale, top = cal
+    res = sh("idb", "ui", "tap", "--udid", UDID, str(round(cssx, 1)), str(round(top + cssy, 1)), timeout=30)
+    print(f"  tapxy {label} at ({cssx:.0f},{cssy:.0f}) rc={res.returncode}", flush=True)
+    time.sleep(0.6)
+    return res.returncode == 0
+
+def flow_seongsu_opt(cdp, cal):
+    A = "seongsu-dogam"
+    LANGS = [("한국어", "ko"), ("日本語", "ja"), ("中文", "zh"), ("English", "en")]
+    rec(A, "boot: language screen", wait_js(cdp, "!!document.querySelector('.language-grid')", 60000))
+    seen = {}
+    for i, (lab, code) in enumerate(LANGS):
+        if not cdp.js("!!document.querySelector('.language-grid')"):
+            tap_el(cdp, cal, "[...document.querySelectorAll('#start-actions button')].pop()", "Language button")
+            wait_js(cdp, "!!document.querySelector('.language-grid')", 8000)
+        shot(f"ios-seongsu-lang-grid-{i}")
+        tap_el(cdp, cal, f"document.querySelectorAll('.language-grid button')[{i}]", lab)
+        wait_js(cdp, "!!document.querySelector('.travelers')", 10000)
+        time.sleep(1.5)
+        h1 = cdp.js("document.documentElement.lang+' | '+document.querySelector('#app h1').innerText")
+        fam = cdp.js("getComputedStyle(document.body).fontFamily.slice(0,60)")
+        loaded = cdp.js("[...document.fonts].filter(f=>f.status==='loaded').map(f=>f.family+' '+f.weight).slice(0,6).join(',')")
+        seen[code] = h1
+        rec(A, f"language {code}: start screen text + fonts", bool(h1 and h1.startswith(code)), f"{h1} | font={fam} | loadedFonts={loaded}")
+        shot(f"ios-seongsu-lang-{code}")
+    rec(A, "four languages yield distinct start-screen text", len(set(seen.values())) == 4, "; ".join(seen.values()))
+    # settle on English, avatar pixels (10 base avatars): first-load fallback may show, then eventual sprites
+    time.sleep(6)
+    shot("ios-seongsu-avatars-grid-8s")
+    n_av = cdp.js("document.querySelectorAll('.travelers button').length")
+    rec(A, "10 base avatars listed", n_av == 10, f"count={n_av}")
+    for idx in (0, 4, 9):
+        tap_el(cdp, cal, f"document.querySelectorAll('.travelers button')[{idx}]", f"avatar {idx}")
+        time.sleep(1.5)
+        shot(f"ios-seongsu-avatar-{idx}")
+    tap_el(cdp, cal, "document.getElementById('name')", "name")
+    type_text("QA")
+    tap_el(cdp, cal, "document.querySelector('#start-actions button')", "begin")
+    city = wait_js(cdp, "window.__dogam&&window.__dogam.stage()==='city'", 20000)
+    if city:
+        tap_el(cdp, cal, "document.querySelector('#city-action button')", "begin-city")
+    stage = wait_js(cdp, "window.__dogam&&window.__dogam.stage()==='game'", 30000)
+    rec(A, "entry via real taps reaches world", stage)
+    time.sleep(0.7); shot("ios-seongsu-entry-0p7s")
+    time.sleep(7); shot("ios-seongsu-entry-8s")
+    r = cdp.js("(()=>{const c=document.querySelector('canvas');const b=c.getBoundingClientRect();return {x:b.x,y:b.y,w:b.width,h:b.height}})()")
+    p0 = cdp.js("JSON.stringify(window.__dogam.pos())")
+    if r:
+        tap_xy(cdp, cal, r["x"] + r["w"] * 0.8, r["y"] + r["h"] * 0.6, "walk right-down")
+        shot("ios-seongsu-walk-a"); time.sleep(0.7); shot("ios-seongsu-walk-b"); time.sleep(1.5); shot("ios-seongsu-walk-c")
+    p1 = cdp.js("JSON.stringify(window.__dogam.pos())")
+    rec(A, "avatar walks after real canvas tap (position changes; direction frames visible in walk-a/b/c shots)", bool(p0 and p1 and p0 != p1), f"{p0} -> {p1}")
+    links = json.loads(cdp.js("JSON.stringify(Object.fromEntries(window.GAME_DATA.nodes.map(n=>[n.id,n.links])))") or "{}")
+    def bfs(a, b):
+        q = [[a]]
+        while q:
+            pth = q.pop(0)
+            if pth[-1] == b: return pth
+            for l in links.get(str(pth[-1]), []):
+                if l not in pth: q.append(pth + [l])
+        return None
+    cur = cdp.js("window.__dogam.S().scene")
+    for target in (17, 19, 21, 23, 26):
+        pth = bfs(cur, target); ok = bool(pth)
+        for i in range((len(pth) - 1) if pth else 0):
+            idx = links[str(pth[i])].index(pth[i + 1])
+            for attempt in range(2):
+                wait_js(cdp, "(()=>{const a=JSON.stringify(window.__dogam.pos());window.__p2=window.__p1;window.__p1=a;return window.__p1===window.__p2})()", 12000)
+                tap_el(cdp, cal, f"document.querySelectorAll('.gate-links button')[{idx}]", f"gate {pth[i]}->{pth[i+1]}")
+                if wait_js(cdp, f"window.__dogam.S().scene==={pth[i+1]}", 25000): break
+            else:
+                ok = False; break
+        cur = cdp.js("window.__dogam.S().scene")
+        time.sleep(1.0); shot(f"ios-seongsu-node{target}-1s")
+        time.sleep(6.0); shot(f"ios-seongsu-node{target}-7s")
+        rec(A, f"new node {target} entered via real gate taps (lazy background; compare 1s vs 7s shots for fallback->real)", ok and cur == target, f"scene={cur}")
+    st = cdp.js("localStorage.getItem(window.GAME_DATA.tag+'-atlas-v1')")
+    cdp.js("setTimeout(()=>location.reload(),50);1")
+    time.sleep(8)
+    ws = find_page("seongsu-dogam")
+    try:
+        c2 = CDP(ws) if ws else cdp
+        back = wait_js(c2, "!!document.querySelector('#app')&&document.querySelector('#app').innerText.length>5", 30000)
+        info = c2.js("JSON.stringify({stage:window.__dogam&&window.__dogam.stage(),scene:window.__dogam&&window.__dogam.S&&window.__dogam.S().scene,ls:(localStorage.getItem(window.GAME_DATA.tag+'-atlas-v1')||'').slice(0,80)})")
+        shot("ios-seongsu-after-reload")
+        rec(A, "reload keeps saved state (see after-reload shot)", bool(back and info and '"scene"' in info), f"before={str(st)[:60]} after={info}")
+    except Exception as e:
+        rec(A, "reload keeps saved state", False, str(e)[:150])
+
 def main():
     apps = [
         ("https://golden-gate-picnic.onrender.com/", "golden-gate-picnic", flow_ggp),
         ("https://sweet-factory-escape-3d.onrender.com/", "sweet-factory-escape-3d", flow_sweet),
         ("https://coworking-world.onrender.com/", "coworking-world", flow_coworking),
         ("https://sajumadang.onrender.com/", "sajumadang", flow_dalbit),
-        ("https://seongsu-dogam.onrender.com/", "seongsu-dogam", lambda c, k: flow_dogam(c, k, "seongsu-dogam", 17)),
-        ("https://kurashi-otaru.onrender.com/", "kurashi-otaru", lambda c, k: flow_dogam(c, k, "kurashi-otaru", 27)),
+        ("https://seongsu-dogam.onrender.com/", "seongsu-dogam", lambda c, k: flow_seongsu_opt(c, k)),
+        ("https://kurashi-otaru.onrender.com/", "kurashi-otaru", lambda c, k: flow_dogam(c, k, "kurashi-otaru", 32)),
     ]
+    import os
+    only = [x for x in os.environ.get('ONLY','').split(',') if x]
+    if only: apps = [a for a in apps if any(o in a[1] for o in only)]
     for url, name, fn in apps:
         open_app(url)
         time.sleep(8)
