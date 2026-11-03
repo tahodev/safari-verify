@@ -375,7 +375,9 @@ async function checkCoworking(sid) {
     const thud = await exe(sid, `(function(){const h=document.getElementById('timerhud');return h?JSON.stringify({vis:h.style.display!=='none'&&h.offsetHeight>0,txt:h.textContent.slice(0,40)}):null})()`).catch(()=>null);
     rec(A, 'timer: 25-minute focus timer starts via real menu clicks', !!(thud && JSON.parse(thud).vis && /25분 집중|집중/.test(JSON.parse(thud).txt)), String(thud));
     // chat: type into #chatin + Enter -> message lands in #chatlog
-    const ci = await el(sid, 'css selector', '#chatin');
+    // GUARD: typing+sending a chat message broadcasts to every visitor of the public world; off unless ALLOW_PUBLIC_CHAT=1 (explicit user approval)
+    const ci = process.env.ALLOW_PUBLIC_CHAT === '1' ? await el(sid, 'css selector', '#chatin') : null;
+    if (!ci) console.log('chat probe SKIPPED (public broadcast; set ALLOW_PUBLIC_CHAT=1 only with approval)');
     if (ci) { await click(sid, ci); await type(sid, ci, 'QA chat probe');
       console.log('chatdbg(typed)', await exe(sid, `JSON.stringify({val:document.getElementById('chatin').value,ws:(window.ws&&window.ws.readyState)||(window.socket&&window.socket.readyState)||null,focus:document.activeElement&&document.activeElement.id})`).catch(()=>null));
       if (BS_DEVICE) { await api('POST', '/keys', { value: ['\uE007'] }, sid).catch(()=>{}); }
@@ -383,7 +385,8 @@ async function checkCoworking(sid) {
       await sleep(1500); }
     console.log('chatdbg(info)', await exe(sid, `JSON.stringify({val:(document.getElementById('chatin')||{}).value||'',log:((document.getElementById('chatlog')||{}).textContent||'').slice(0,60)})`).catch(()=>null));
     const log = await exe(sid, `(document.getElementById('chatlog')||{}).textContent||''`).catch(()=>null);
-    if (BS_DEVICE) {
+    if (!ci) { /* guarded: no chat send, no check recorded (neither pass nor fail) */ }
+    else if (BS_DEVICE) {
       // native route: switch to NATIVE_APP context and tap the on-screen keyboard's Return key (real XCTest tap)
       const ctxs = await api('GET', '/contexts', null, sid).catch(e => null);
       console.log('chatdbg(contexts)', JSON.stringify(ctxs).slice(0, 200));
