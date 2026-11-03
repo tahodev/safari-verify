@@ -377,6 +377,7 @@ async function checkCoworking(sid) {
     // chat: type into #chatin + Enter -> message lands in #chatlog
     const ci = await el(sid, 'css selector', '#chatin');
     if (ci) { await click(sid, ci); await type(sid, ci, 'QA chat probe');
+      console.log('chatdbg(typed)', await exe(sid, `JSON.stringify({val:document.getElementById('chatin').value,ws:(window.ws&&window.ws.readyState)||(window.socket&&window.socket.readyState)||null,focus:document.activeElement&&document.activeElement.id})`).catch(()=>null));
       if (BS_DEVICE) { await api('POST', '/keys', { value: ['\uE007'] }, sid).catch(()=>{}); }
       else await type(sid, ci, '\uE007');
       await sleep(1500); }
@@ -610,6 +611,10 @@ function checkDogam(appName, expectNodes) {
         const tres = await api('POST', '/execute/sync', { script: 'mobile: tap', args: [rect ? JSON.parse(rect) : {x:180,y:400}] }, sid).catch(e=>('ERR '+String(e).slice(0,120)));
         console.log('canvastap-native(info)', appName, String(JSON.stringify(tres)).slice(0,140), 'at', rect);
       } else {
+        if (appName === 'kurashi-otaru') {
+          const hit = await exe(sid, `(function(){const c=document.querySelector('canvas');const r=c.getBoundingClientRect();const e=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return e?(e.tagName+'.'+e.className+'#'+e.id+' '+(e.textContent||'').slice(0,20)+' canvas='+(e===c)):null})()`).catch(()=>null);
+          console.log('centerhit(info)', appName, hit);
+        }
         const cres = await click(sid, cv);
         console.log('canvasclick(info)', appName, String(JSON.stringify(cres)).slice(0,120));
       }
@@ -618,6 +623,16 @@ function checkDogam(appName, expectNodes) {
         const posB = await exe(sid, 'return JSON.stringify(window.__dogam.pos())').catch(()=>null);
         const posA0 = await exe(sid, 'return JSON.stringify(window.__tapPos || null)').catch(()=>null);
         rec(A, 'avatar moves after real canvas tap (position changes)', !!(posA0 && posB && posA0 !== posB), String(posA0) + ' -> ' + String(posB));
+        if (appName === 'kurashi-otaru') {
+          const hit2 = await exe(sid, `(function(){const c=document.querySelector('canvas');const r=c.getBoundingClientRect();const e=document.elementFromPoint(r.x+r.width*0.7,r.y+r.height*0.35);return e?(e.tagName+'.'+e.className+' canvas='+(e===c)):null})()`).catch(()=>null);
+          console.log('offcenterhit(info)', hit2);
+          await exe(sid, `return window.__dogam ? (window.__tapPos = window.__dogam.pos(), true) : false`).catch(()=>{});
+          await tapFraction(sid, cv, 0.7, 0.35).catch(e=>console.log('tapFraction err', String(e).slice(0,100)));
+          await sleep(3500); await shot(sid, 'desktop-' + appName + '-tap-offcenter');
+          const pb = await exe(sid, 'return JSON.stringify(window.__dogam.pos())').catch(()=>null);
+          const pa = await exe(sid, 'return JSON.stringify(window.__tapPos || null)').catch(()=>null);
+          rec(A, 'avatar moves after real mouse-action tap off-center (position changes)', !!(pa && pb && pa !== pb), String(pa) + ' -> ' + String(pb));
+        }
       }
     }
   };
