@@ -379,7 +379,7 @@ async function checkCoworking(sid) {
     if (ci) { await click(sid, ci); await type(sid, ci, 'QA chat probe');
       console.log('chatdbg(typed)', await exe(sid, `JSON.stringify({val:document.getElementById('chatin').value,ws:(window.ws&&window.ws.readyState)||(window.socket&&window.socket.readyState)||null,focus:document.activeElement&&document.activeElement.id})`).catch(()=>null));
       if (BS_DEVICE) { await api('POST', '/keys', { value: ['\uE007'] }, sid).catch(()=>{}); }
-      else await type(sid, ci, '\uE007');
+      else await api('POST', `/element/${ci}/value`, { text: '\uE007', value: ['\uE007'] }, sid); // no clear(): type() wipes the typed text first
       await sleep(1500); }
     console.log('chatdbg(info)', await exe(sid, `JSON.stringify({val:(document.getElementById('chatin')||{}).value||'',log:((document.getElementById('chatlog')||{}).textContent||'').slice(0,60)})`).catch(()=>null));
     const log = await exe(sid, `(document.getElementById('chatlog')||{}).textContent||''`).catch(()=>null);
