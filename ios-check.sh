@@ -2,6 +2,9 @@
 # iOS Simulator Mobile Safari verification: booted simulator + real Safari app,
 # real taps via idb, element positions via Web Inspector (IWDP) + pixel calibration.
 set -u
+# global watchdog: end this script before the job timeout so the results upload step still runs
+( sleep 1200; echo "GLOBAL WATCHDOG: ios-check exceeded 20 min, aborting"; pkill -P $$ 2>/dev/null; kill -9 $$ 2>/dev/null ) &
+WD_PID=$!
 # watchdog: run command with hard timeout (idb/brew can block indefinitely)
 run_to() { local secs=$1; shift; "$@" & local pid=$!; local i=0
   while kill -0 $pid 2>/dev/null; do sleep 2; i=$((i+2))
@@ -29,6 +32,9 @@ open -a Simulator --args -CurrentDeviceUDID "$DEV" 2>/dev/null || true
 sleep 5
 
 INTERACT_OK=0
+echo "== xcode diagnostics =="; xcode-select -p; ls -d /Applications/Xcode* 2>/dev/null; xcodebuild -version 2>&1 | head -2
+NEWX=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -1)
+if [ -n "$NEWX" ]; then echo "selecting $NEWX for idb-companion build"; sudo xcode-select -s "$NEWX/Contents/Developer"; fi
 echo "== installing interaction tooling (idb + ios-webkit-debug-proxy) =="
 if run_to 600 brew install ios-webkit-debug-proxy >/tmp/ios-brew.log 2>&1 && { run_to 300 brew tap facebook/fb >>/tmp/ios-brew.log 2>&1; run_to 60 brew trust facebook/fb >>/tmp/ios-brew.log 2>&1; run_to 900 brew install idb-companion >>/tmp/ios-brew.log 2>&1; } || { command -v idb_companion >/dev/null && command -v ios_webkit_debug_proxy >/dev/null; }; then
   # fb-idb breaks on the runner's newest default python (3.15 traceback in idb/cli/main.py); use 3.12
