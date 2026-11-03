@@ -349,6 +349,7 @@ async function sweetPlay(sid, A) {
       rec(A, 'save: progress stored in localStorage after solving rooms 1-2', !!(sv0 && sv0.solved && sv0.solved[0] && sv0.solved[1] && !sv0.solved[2]), String(raw));
       await api('POST', '/url', { url: 'https://sweet-factory-escape-3d.onrender.com/' }, sid).catch(() => {});
       const back = await waitFor(sid, `!!document.getElementById('startBtn')`, 40000);
+      await waitFor(sid, `[...document.querySelectorAll('button')].some(x=>/이어하기/.test(x.textContent))?true:null`, 6000);
       const cbs = await exe(sid, `(()=>{const b=[...document.querySelectorAll('button')].find(x=>/이어하기/.test(x.textContent));return b?b.textContent:null})()`).catch(() => null);
       rec(A, 'save: after reload the intro offers [이어하기] with medal count', !!back && !!cbs, 'continue=' + cbs + ' startBtn=' + (await exe(sid, `document.getElementById('startBtn').textContent`).catch(() => null)));
       await shot(sid, 'sweet-after-reload');
