@@ -361,7 +361,7 @@ async function sweetPlay(sid, A) {
       const p0 = st.pos;
       if (sp.behind) { await drag(420); await sleep(320); }
       else if (Math.abs(sp.x - 640) > 110) { await drag(Math.max(-380, Math.min(380, Math.round((sp.x - 640) * 0.55)))); await sleep(320); }
-      else if (staticCount >= 1 && Math.abs(p0[0]) > 0.7) { await key(p0[0] < 0 ? 'd' : 'a', 520); await sleep(260); } // pinned on a boundary wall: strafe to the centered doorway
+      else if (staticCount >= 1 && Math.abs(p0[0]) > 0.35) { await key(p0[0] < 0 ? 'd' : 'a', Math.min(900, Math.max(180, Math.round(Math.abs(p0[0]) * 260)))); await sleep(260); } // pinned on a boundary wall: strafe to the centered doorway
       else { await key('w', 380); await sleep(340); }
       const p1 = await exe(sid, 'JSON.stringify(window.__qa.pos())').catch(()=>null);
       try { const a = JSON.parse(p1); staticCount = (Math.hypot(a[0]-p0[0], a[1]-p0[1]) < 0.05) ? staticCount + 1 : 0; } catch(e) {}
@@ -380,6 +380,7 @@ async function sweetPlay(sid, A) {
     const sp = ex.sp;
     if (sp.behind) { await drag(300); await sleep(300); }
     else if (Math.abs(sp.x - 640) > 60) { await drag(Math.max(-120, Math.min(120, Math.round((sp.x - 640) * 0.35)))); await sleep(280); }
+    else if (escStatic >= 1 && Math.abs(ex.p[0]) > 0.35) { await key(ex.p[0] < 0 ? 'd' : 'a', Math.min(900, Math.max(180, Math.round(Math.abs(ex.p[0]) * 260)))); await sleep(300); }
     else { await key('w', 700); await sleep(500); }
     const p2 = await exe(sid, 'JSON.stringify(window.__qa.pos())').then(r=>r&&JSON.parse(r)).catch(()=>null);
     try { escStatic = (Math.hypot(p2[0]-ex.p[0], p2[1]-ex.p[1]) < 0.05) ? escStatic + 1 : 0; } catch(e) {}
