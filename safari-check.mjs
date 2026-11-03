@@ -683,7 +683,7 @@ function checkDogam(appName, expectNodes) {
         console.log('scenepix', appName, JSON.stringify(scenepix));
       }
     }
-    const DW = process.env.DEEPWALK || ((process.env.ONLY === 'seongsu-dogam' && appName === 'seongsu-dogam') ? '17,19,21,23,26' : (process.env.ONLY === 'kurashi-otaru' && appName === 'kurashi-otaru') ? '27,28,29,30,31' : '');
+    const DW = process.env.DEEPWALK || (((process.env.ONLY || '').split(',').includes('seongsu-dogam') && appName === 'seongsu-dogam') ? '17,19,21,23,26' : ((process.env.ONLY || '').split(',').includes('kurashi-otaru') && appName === 'kurashi-otaru') ? '27,28,29,30,31' : '');
     if (DW) {
       const targets = DW.split(',').map(Number);
       const links = await exe(sid, `return JSON.stringify(Object.fromEntries(window.GAME_DATA.nodes.map(n=>[n.id,n.links])))`).then(JSON.parse).catch(()=>null);
