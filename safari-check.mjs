@@ -19,6 +19,18 @@ function rec(app, check, ok, detail = '') {
 
 async function api(method, path, body, sid, timeoutMs = 25000) {
   const url = BASE + (sid ? `/session/${sid}${path}` : path);
+  if (AP) { // node:http has no headers timeout; WDA first start on the runner takes ~4.5 min
+    const http = await import('node:http');
+    const txt = await new Promise((resolve, reject) => {
+      const rq = http.request(url, { method, headers: { 'content-type': 'application/json' }, timeout: timeoutMs }, (res) => { let d = ''; res.on('data', c => d += c); res.on('end', () => resolve(d)); });
+      rq.on('timeout', () => { rq.destroy(new Error('http timeout ' + timeoutMs)); });
+      rq.on('error', reject);
+      if (body) rq.write(JSON.stringify(body)); rq.end();
+    });
+    let j = {}; try { j = JSON.parse(txt); } catch { console.log('WD non-JSON', method, path, txt.slice(0, 200)); }
+    if (j && j.value && j.value.error) console.log('WD error', method, path, JSON.stringify(j.value).slice(0, 300));
+    return j.value !== undefined ? j.value : j;
+  }
   const r = await fetch(url, {
     method,
     headers: { 'content-type': 'application/json', ...(BS_AUTH ? { authorization: BS_AUTH } : {}) },
@@ -641,6 +653,7 @@ function checkDogam(appName, expectNodes) {
     if (!FAST) { console.log('btnpix', appName, JSON.stringify(btnpix));
     rec(A, 'traveler sprite canvas actually painted (pixels)', !!(btnpix && !String(btnpix).startsWith('btncanvas=0/') && !String(btnpix).startsWith('THROW') && btnpix !== 'nocanvas'), String(btnpix)); }
     if (!FAST) await shot(sid, 'desktop-' + appName + '-start');
+    if (AP) { await sleep(7000); await shot(sid, 'ap-' + appName + '-avatars-8s'); }
     const name = await el(sid, 'css selector', '#name');
     if (name) { await click(sid, name); await type(sid, name, 'QA'); }
     const begin = await el(sid, 'xpath', `//*[@id='start-actions']//button[1]`);
@@ -653,6 +666,7 @@ function checkDogam(appName, expectNodes) {
       if (begin2) await click(sid, begin2);
     }
     const entered = await waitFor(sid, `window.__dogam && window.__dogam.stage()==='game' ? 'game' : null`, 30000);
+    if (AP && entered) { await shot(sid, 'ap-' + appName + '-entry-early'); await sleep(7000); await shot(sid, 'ap-' + appName + '-entry-8s'); }
     const errs = entered ? '' : await exe(sid, `(window.__errs||[]).join(' | ').slice(0,180)+' stage='+(window.__dogam?window.__dogam.stage():'?')`).catch(()=>'');
     rec(A, 'entry: language -> traveler -> begin via real clicks', !!entered, entered ? 'stage=' + entered : String(errs));
     if (entered) {
@@ -757,6 +771,7 @@ function checkDogam(appName, expectNodes) {
           const pix = await exe(sid, `(function(){try{const c=document.querySelector('canvas');const k=c.getContext('2d');const d=k.getImageData(0,0,Math.min(c.width,200),Math.min(c.height,200)).data;let n=0,t=0;for(let i=3;i<d.length;i+=400){t++;if(d[i]>10)n++}return n+'/'+t}catch(e){return 'THROW '+e.name}})()`).catch(()=>null);
           const errs = await exe(sid, `return (window.__errs||[]).join(';').slice(0,150)||'none'`).catch(()=>null);
           await shot(sid, 'deepwalk-' + appName + '-node' + target);
+          if (AP) { await sleep(6000); await shot(sid, 'ap-' + appName + '-node' + target + '-7s'); }
           rec(A, 'deep-walk: enter new node ' + target + ' (' + (names[target]||'?') + ') via real gate clicks, no JS errors [canvas pixels: ' + (String(pix).indexOf('THROW') === 0 ? 'UNVERIFIED - runner Safari cannot read 2D canvases' : 'checked') + ']', st === target && (String(pix).indexOf('THROW') === 0 || (!!pix && !String(pix).startsWith('0/'))) && errs === 'none', 'scene=' + st + ' pix=' + pix + ' errs=' + errs);
           cur = target;
         }

@@ -3,7 +3,7 @@
 # real taps via idb, element positions via Web Inspector (IWDP) + pixel calibration.
 set -u
 # global watchdog: end this script before the job timeout so the results upload step still runs
-( exec >/dev/null 2>&1; sleep 1200; echo "GLOBAL WATCHDOG: ios-check exceeded 20 min, aborting"; pkill -P $$ 2>/dev/null; kill -9 $$ 2>/dev/null ) &
+( exec >/dev/null 2>&1; sleep 1680; echo "GLOBAL WATCHDOG: ios-check exceeded 28 min, aborting"; pkill -P $$ 2>/dev/null; kill -9 $$ 2>/dev/null ) &
 WD_PID=$!; trap 'kill $WD_PID 2>/dev/null' EXIT
 # watchdog: run command with hard timeout (idb/brew can block indefinitely)
 run_to() { local secs=$1; shift; "$@" & local pid=$!; local i=0
@@ -54,7 +54,7 @@ if run_to 300 npm i -g appium >/tmp/ap-npm.log 2>&1 && run_to 300 appium driver 
   tail -2 /tmp/ap-drv.log
   (appium --log-no-colors --port 4723 >/tmp/appium.log 2>&1 &) ; sleep 8
   APDIR=$(pwd)/appium-work; mkdir -p "$APDIR"; SRC=$(pwd)
-  ( set -o pipefail; cd "$APDIR" && AP=1 ONLY="seongsu-dogam,sajumadang,kurashi-otaru" run_to 780 node "$SRC/safari-check.mjs" 2>&1 | tee "$SRC/results/ios-appium.log" ); AP_RC=${PIPESTATUS[0]}
+  ( set -o pipefail; cd "$APDIR" && AP=1 ONLY="${ONLY:-seongsu-dogam,sajumadang,kurashi-otaru}" run_to 1200 node "$SRC/safari-check.mjs" 2>&1 | tee "$SRC/results/ios-appium.log" ); AP_RC=${PIPESTATUS[0]}
   cp -R "$APDIR/results" results/appium-ios 2>/dev/null || true
   echo "---- appium server log tail ----"; tail -25 /tmp/appium.log | cut -c1-240
   cp /tmp/appium.log results/appium-server.log 2>/dev/null || true
