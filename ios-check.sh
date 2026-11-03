@@ -3,8 +3,8 @@
 # real taps via idb, element positions via Web Inspector (IWDP) + pixel calibration.
 set -u
 # global watchdog: end this script before the job timeout so the results upload step still runs
-( sleep 1200; echo "GLOBAL WATCHDOG: ios-check exceeded 20 min, aborting"; pkill -P $$ 2>/dev/null; kill -9 $$ 2>/dev/null ) &
-WD_PID=$!
+( exec >/dev/null 2>&1; sleep 1200; echo "GLOBAL WATCHDOG: ios-check exceeded 20 min, aborting"; pkill -P $$ 2>/dev/null; kill -9 $$ 2>/dev/null ) &
+WD_PID=$!; trap 'kill $WD_PID 2>/dev/null' EXIT
 # watchdog: run command with hard timeout (idb/brew can block indefinitely)
 run_to() { local secs=$1; shift; "$@" & local pid=$!; local i=0
   while kill -0 $pid 2>/dev/null; do sleep 2; i=$((i+2))
