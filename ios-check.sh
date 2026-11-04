@@ -54,8 +54,21 @@ if run_to 300 npm i -g appium >/tmp/ap-npm.log 2>&1 && run_to 300 appium driver 
   tail -2 /tmp/ap-drv.log
   (appium --log-no-colors --port 4723 >/tmp/appium.log 2>&1 &) ; sleep 8
   APDIR=$(pwd)/appium-work; mkdir -p "$APDIR"; SRC=$(pwd)
+  # --- WDA startup diagnostics (why does the xcodebuild test run exit without opening :8100?) ---
+  mkdir -p results; : > results/wda-monitor.log
+  ( while true; do { date -u +%T; ps -axo pid,etime,stat,command | grep -iE "xcodebuild|XCTRunner|WebDriverAgent|testmanagerd|xctest" | grep -v grep | cut -c1-200; lsof -nP -iTCP:8100 2>/dev/null | head -3; echo "--"; } >> results/wda-monitor.log; sleep 10; done ) & MON_PID=$!
+  xcrun simctl spawn "$DEV" log stream --style compact --predicate 'process CONTAINS "WebDriverAgent" OR process CONTAINS "XCTRunner" OR process == "testmanagerd" OR process == "xctest" OR eventMessage CONTAINS "WebDriverAgent"' > results/sim-wda-log.txt 2>&1 & LOG_PID=$!
   ( set -o pipefail; cd "$APDIR" && AP=1 ONLY="${ONLY:-seongsu-dogam,sajumadang,kurashi-otaru}" run_to 1200 node "$SRC/safari-check.mjs" 2>&1 | tee "$SRC/results/ios-appium.log" ); AP_RC=${PIPESTATUS[0]}
   cp -R "$APDIR/results" results/appium-ios 2>/dev/null || true
+  kill $MON_PID $LOG_PID 2>/dev/null
+  if [ "${AP_RC:-1}" != "0" ]; then
+    echo "== WDA diagnostics after failure =="; ls -la ~/Library/Logs/DiagnosticReports 2>/dev/null | tail -8
+    cp ~/Library/Logs/DiagnosticReports/*WebDriverAgent* ~/Library/Logs/DiagnosticReports/*XCTRunner* ~/Library/Logs/DiagnosticReports/*xctest* results/ 2>/dev/null || true
+    XCR=$(ls -dt ~/Library/Developer/Xcode/DerivedData/WebDriverAgent-*/Logs/Test/*.xcresult 2>/dev/null | head -1); echo "xcresult: $XCR"
+    [ -n "$XCR" ] && xcrun xcresulttool get test-results summary --path "$XCR" 2>&1 | head -60 > results/wda-xcresult-summary.txt || true
+    xcrun simctl spawn "$DEV" log show --last 25m --style compact --predicate 'process CONTAINS "WebDriverAgent" OR process CONTAINS "XCTRunner" OR process == "testmanagerd"' 2>/dev/null | tail -150 > results/sim-wda-logshow.txt || true
+    tail -20 results/wda-monitor.log
+  fi
   echo "---- appium server log tail ----"; tail -25 /tmp/appium.log | cut -c1-240
   cp /tmp/appium.log results/appium-server.log 2>/dev/null || true
   echo "== appium route done rc=${AP_RC:-?} =="
