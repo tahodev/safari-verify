@@ -289,7 +289,7 @@ def flow_seongsu_opt(cdp, cal):
 
 def main():
     apps = [
-        ("https://golden-gate-picnic.onrender.com/", "golden-gate-picnic", flow_ggp),
+        ("https://golden-gate-picnic-sf.onrender.com/", "golden-gate-picnic", flow_ggp),
         ("https://sweet-factory-escape-3d.onrender.com/", "sweet-factory-escape-3d", flow_sweet),
         ("https://coworking-world.onrender.com/", "coworking-world", flow_coworking),
         ("https://sajumadang.onrender.com/", "sajumadang", flow_dalbit),

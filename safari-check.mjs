@@ -854,7 +854,7 @@ function checkDogam(appName, expectNodes) {
 
 // ---- main ----
 const APPS = [
-  ['https://golden-gate-picnic.onrender.com/', checkGGP],
+  ['https://golden-gate-picnic-sf.onrender.com/', checkGGP],
   ['https://sweet-factory-escape-3d.onrender.com/', checkSweet],
   ['https://coworking-world.onrender.com/', checkCoworking],
   ['https://sajumadang.onrender.com/', checkDalbit],
