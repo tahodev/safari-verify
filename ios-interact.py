@@ -112,7 +112,9 @@ def wait_js(cdp, expr, ms=45000):
 def flow_ggp(cdp, cal):
     A = "golden-gate-picnic"
     rec(A, "boot: __ggp + entry gate", wait_js(cdp, "!!(window.__ggp&&document.getElementById('go'))", 60000))
-    tap_el(cdp, cal, "document.querySelector(\"#langRow button[data-l='en']\")", "lang en")
+    gs = cdp.js("JSON.stringify({en:document.querySelector('#langRow button[data-l=en]').classList.contains('on'),ko:document.querySelector('#langRow button[data-l=ko]').classList.contains('on'),goDisabled:document.getElementById('go').disabled,hint:getComputedStyle(document.getElementById('langHint')).display,goText:document.getElementById('go').textContent,cls:document.documentElement.className,emojiCss:[...document.styleSheets].some(x=>(x.href||'').includes('emoji.css'))})") or ""
+    shot("ios-ggp-gate-firstvisit")
+    rec(A, "gate first visit (no language tap): English preselected, entry enabled", ('"en":true' in gs and '"ko":false' in gs and '"goDisabled":false' in gs and '"hint":"none"' in gs), gs)
     tap_el(cdp, cal, "document.getElementById('nickIn')", "nick field")
     type_text("QA iOS")
     tap_el(cdp, cal, "document.getElementById('go')", "GO")

@@ -112,8 +112,11 @@ async function checkGGP(sid) {
   const boot = await waitFor(sid, `!!(window.__ggp && document.getElementById('go'))`, 60000);
   rec(A, 'boot: page loads, __ggp handle + entry gate present', !!boot);
   if (!boot) return;
-  const lang = await el(sid, 'xpath', `//*[@id='langRow']//button[@data-l='en']`);
-  if (lang) { await click(sid, lang); await sleep(400); }
+  // first-visit gate state BEFORE touching the language picker: English preselected, entry open, emoji font path
+  const g0 = await exe(sid, `return JSON.stringify({en:document.querySelector('#langRow button[data-l=en]').classList.contains('on'),ko:document.querySelector('#langRow button[data-l=ko]').classList.contains('on'),goDisabled:document.getElementById('go').disabled,hint:getComputedStyle(document.getElementById('langHint')).display,goText:document.getElementById('go').textContent,cls:document.documentElement.className,emojiCss:[...document.styleSheets].some(x=>(x.href||'').includes('emoji.css')),dice:document.getElementById('nickDice').textContent,boy:document.querySelector('#gRow button').textContent,ua:navigator.userAgent})`).catch(() => null);
+  console.log('GATE-STATE', g0);
+  await sleep(1500); await shot(sid, 'desktop-ggp-gate-firstvisit');
+  try { const gs = JSON.parse(g0); rec(A, 'gate first visit: English preselected, Korean not, entry enabled, no pick-language hint', gs.en && !gs.ko && !gs.goDisabled && gs.hint === 'none' && gs.goText === 'Spread the mat', g0); } catch (e) { rec(A, 'gate first visit: English preselected, entry enabled', false, 'no state'); }
   const inp = await el(sid, 'css selector', '#nickIn');
   if (inp) { await click(sid, inp); await type(sid, inp, 'QA Safari'); }
   const go = await el(sid, 'css selector', '#go');
