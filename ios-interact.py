@@ -125,6 +125,13 @@ def flow_ggp(cdp, cal):
             sh("idb", "ui", "tap", "--udid", UDID, str(round(seat["x"],1)), str(round(top+seat["y"],1)), timeout=30)
             time.sleep(3)
             rec(A, "canvas tap claims seat (hit-test + WS)", bool(cdp.js("(()=>{const s=window.__ggp.seats[4];return!!(s&&s.by===window.__ggp.me)})()")))
+    try:
+        sky = cdp.js("document.getElementById('skyinfo')?document.getElementById('skyinfo').textContent:''") or ""
+        nxt = cdp.js("document.getElementById('rest')?document.getElementById('rest').textContent:''") or ""
+        rec(A, "sky info pill shows SF sun+moon times", ("SF" in sky and "\U0001F305" in sky and "\U0001F319" in sky), sky.replace("\n"," | "))
+        rec(A, "Next pill labels its time zone (SF or local)", ("Next" in nxt and (" SF" in nxt or " local" in nxt)), nxt)
+    except Exception as e:
+        rec(A, "sky/next pill read", False, str(e)[:150])
     shot("ios-golden-gate-picnic")
 
 def flow_sweet(cdp, cal):
