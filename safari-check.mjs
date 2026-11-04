@@ -121,6 +121,14 @@ async function checkGGP(sid) {
   const me = await waitFor(sid, `!!(window.__ggp && window.__ggp.chars && window.__ggp.chars.get(window.__ggp.me))`, 45000);
   rec(A, 'entry: real button clicks spawn avatar (WebSocket join)', !!me);
   if (me) {
+    { // sky info / Next pill labels and avatar alpha (regression checks for the 2026-11-04 fixes)
+      const sky = await exe(sid, `var e=document.getElementById('skyinfo');return e?e.textContent:''`).catch(() => ''), nxt = await exe(sid, `var e=document.getElementById('rest');return e?e.textContent:''`).catch(() => '');
+      rec(A, 'sky info pill shows SF sun+moon times', !!(sky && sky.includes('SF') && sky.includes('\u{1F305}') && sky.includes('\u{1F319}')), String(sky).replace(/\n/g, ' | '));
+      await exe(sid, `var f=CanvasRenderingContext2D.prototype.fill;window.__al=[];if(!window.__alHook){window.__alHook=1;var col=window.__ggp.chars.get(window.__ggp.me).top;CanvasRenderingContext2D.prototype.fill=function(){if(this.fillStyle===col)window.__al.push(+this.globalAlpha.toFixed(3));return f.apply(this,arguments)}}return 1`).catch(() => null);
+      const al = await waitFor(sid, `return window.__al&&window.__al.length>3?JSON.stringify(Array.from(new Set(window.__al))):null`, 8000);
+      rec(A, 'avatar drawn fully opaque (globalAlpha 1)', al === '[1]', 'alphas=' + al);
+      console.log('nextpill(info)', JSON.stringify(nxt));
+    }
     const seatF = await exe(sid, `(()=>{const c=document.getElementById('cv');const m=window.__ggp.chars.get(window.__ggp.me);
       const cw=c.clientWidth, ch=c.clientHeight; let best=null, bd=1e9;
       window.__ggp.seats.forEach((s,i)=>{const fx=s.x/cw, fy=s.y/ch; if(fx>0.04&&fx<0.96&&fy>0.04&&fy<0.96){const d=m?Math.abs(s.x-m.x):i; if(d<bd){bd=d;best={i,fx,fy,dist:Math.round(bd)}}}});
