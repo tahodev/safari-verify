@@ -11,25 +11,20 @@ try{
  console.log('UA',(await wd('POST',`/session/${sid}/execute/sync`,{script:'return navigator.userAgent',args:[]})).value);
  await wd('POST',`/session/${sid}/window/rect`,{width:1100,height:860});
  const ex=async(sc_)=>(await wd('POST',`/session/${sid}/execute/sync`,{script:sc_,args:[]})).value;
+ const exa=async(sc_)=>(await wd('POST',`/session/${sid}/execute/async`,{script:sc_,args:[]})).value;
  const shot=async(name)=>{const png=await wd('GET',`/session/${sid}/screenshot`);if(png.value)writeFileSync(`results/${name}.png`,Buffer.from(png.value,'base64'))};
- for(const sc of [12,26]){
-  await wd('POST',`/session/${sid}/url`,{url:URL_+'npcs.js'});await sleep(800);
-  await ex(`localStorage.setItem('seongsu-atlas-v1',JSON.stringify({lang:'en',scene:${sc},visited:[${sc}],character:0,tipsSeen:true,showTips:false}));return 1`);
-  await wd('POST',`/session/${sid}/url`,{url:URL_});await sleep(3000);
-  const el=await wd('POST',`/session/${sid}/element`,{using:'xpath',value:"//button[contains(normalize-space(),'Start walking')]"});
-  console.log('START-BTN',sc,JSON.stringify(el.value).slice(0,80));
-  const eid=el.value&&Object.values(el.value)[0];if(eid)await wd('POST',`/session/${sid}/element/${eid}/click`,{});
-  await sleep(1500);
-  const el2=await wd('POST',`/session/${sid}/element`,{using:'xpath',value:"//button[contains(normalize-space(),'Start walking')]"});
-  const eid2=el2.value&&Object.values(el2.value)[0];if(eid2)await wd('POST',`/session/${sid}/element/${eid2}/click`,{});
-  await sleep(12000);
-  console.log('DIAG',sc,await ex(`let r=[];document.querySelectorAll('canvas').forEach(c=>{let n=-1;try{let d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;n=0;for(let i=3;i<d.length;i+=4)if(d[i])n++}catch(e){n='err '+e.message}r.push([c.width,c.height,n])});return JSON.stringify({canv:r,imgs:[...document.images].map(i=>[i.src.split('/').pop(),i.complete,i.naturalWidth]).slice(0,8)})`));
-  console.log('SCENE',sc,await ex(`return JSON.stringify({s:window.__dogam&&__dogam.S(),stage:window.__dogam&&__dogam.stage(),pos:__dogam.pos(),act:(document.querySelector('.actions button')||{}).textContent,npcjs:typeof window.SeongsuNPCs})`));
-  await shot(`nd-safari-${sc}-a`);await sleep(2500);await shot(`nd-safari-${sc}-b`);
-  console.log('POS-b',sc,await ex(`return JSON.stringify(__dogam.pos())`));
-  await wd('POST',`/session/${sid}/actions`,{actions:[{type:'key',id:'k',actions:[{type:'keyDown',value:'e'},{type:'keyUp',value:'e'}]}]});await sleep(1500);
-  console.log('AFTER-E',sc,await ex(`let m=document.querySelector('.modal,[role=dialog]');return m?m.innerText.slice(0,160):'no-modal'`));
-  await shot(`nd-safari-${sc}-E`);
+ const probe=`const done=arguments[arguments.length-1];const out={};const im=new Image();im.onload=()=>{out.webp=[im.naturalWidth,im.naturalHeight];try{const c=document.createElement('canvas');c.width=64;c.height=64;const x=c.getContext('2d');x.drawImage(im,0,0,64,64);const d=x.getImageData(0,0,64,64).data;let n=0;for(let i=3;i<d.length;i+=4)if(d[i])n++;out.fresh_nonzero=n}catch(e){out.fresh_err=e.message}
+  const gc=[...document.querySelectorAll('canvas')];out.canv=gc.map(c=>{let r={w:c.width,h:c.height,cw:c.clientWidth,ch:c.clientHeight};try{r.url=c.toDataURL().length}catch(e){r.urlerr=e.message}try{const z=c.getContext('2d');r.ctx=!!z;r.t=Object.prototype.toString.call(z)}catch(e){r.cerr=e.message}return r});
+  const b=document.createElement('canvas');b.width=gc[0]?gc[0].width:10;b.height=gc[0]?gc[0].height:10;out.blankurl=b.toDataURL().length;done(JSON.stringify(out))};im.onerror=()=>{out.err='img error';done(JSON.stringify(out))};im.src='assets/scene-12.webp?x='+Date.now();`;
+ const targets=[['nd',URL_,'seongsu-atlas-v1',{lang:'en',scene:12,visited:[12],character:0,tipsSeen:true,showTips:false}],['ggp','https://golden-gate-picnic.onrender.com/',null,null]];
+ for(const [nm,u,key,val] of targets){
+  await wd('POST',`/session/${sid}/url`,{url:u+'robots.txt'});await sleep(800);
+  if(key)await ex(`localStorage.setItem('${key}',JSON.stringify(${JSON.stringify(val)}));return 1`);
+  await wd('POST',`/session/${sid}/url`,{url:u});await sleep(3000);
+  for(let k=0;k<2;k++){const el=await wd('POST',`/session/${sid}/element`,{using:'xpath',value:"//button[contains(normalize-space(),'Start walking')]"});const eid=el.value&&Object.values(el.value)[0];if(eid)await wd('POST',`/session/${sid}/element/${eid}/click`,{});await sleep(1500)}
+  await sleep(10000);
+  console.log('PROBE',nm,await exa(probe));
+  await shot('nd-diag-'+nm);
  }
  await wd('DELETE',`/session/${sid}`);
 }catch(e){console.log('ERR',String(e))}

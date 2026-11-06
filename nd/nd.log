@@ -1,5 +1,6 @@
 UA Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Safari/605.1.15
-START-BTN 12 {"element-6066-11e4-a52e-4f735466cecf":"node-7640AFB4-42AE-4A51-9490-15EE488AEC7
+START-BTN 12 {"element-6066-11e4-a52e-4f735466cecf":"node-6625E5B9-4F6E-40C7-A2CF-D74EDCA2A72
+DIAG 12 {"canv":[[699,699,"err The object is in an invalid state."]],"imgs":[]}
 SCENE 12 {"s":{"scene":12,"name":"","lang":"en","vis":1},"stage":"game","pos":{"x":0.5,"y":0.8},"act":"E · Sit and rest","npcjs":"object"}
 POS-b 12 {"x":0.5,"y":0.8}
 AFTER-E 12 Sit and rest
@@ -8,27 +9,8 @@ AFTER-E 12 Sit and rest
 A salt-bread bakery in a Yeonmujang-gil alley, filling the street with the smell of fresh bakes.
 
 Sit and restLook around
-START-BTN 13 {"element-6066-11e4-a52e-4f735466cecf":"node-9F1B366A-032C-4689-8C10-294F99A09B3
-SCENE 13 {"s":{"scene":13,"name":"","lang":"en","vis":1},"stage":"game","pos":{"x":0.5,"y":0.8},"act":"E · Talk · Waiting for broth","npcjs":"object"}
-POS-b 13 {"x":0.5,"y":0.8}
-AFTER-E 13 Talk · Muguok Seongsu
-×
-
-Waiting for broth
-
-That cauldron broth smell already makes me hungry.
-
-Another wordSit and rest
-START-BTN 25 {"element-6066-11e4-a52e-4f735466cecf":"node-B7A53318-281B-4676-9585-EE3BA4A87FA
-SCENE 25 {"s":{"scene":25,"name":"","lang":"en","vis":1},"stage":"game","pos":{"x":0.5,"y":0.8},"act":"E · Sit and rest","npcjs":"object"}
-POS-b 25 {"x":0.5,"y":0.8}
-AFTER-E 25 Sit and rest
-×
-
-A warm gamjatang restaurant in a night alley. You can hear the pot bubbling.
-
-Sit and restLook around
-START-BTN 26 {"element-6066-11e4-a52e-4f735466cecf":"node-B401F436-BC98-43DF-A413-841458429ED
+START-BTN 26 {"element-6066-11e4-a52e-4f735466cecf":"node-360D03F2-F9C9-4AAD-BCAF-43FF3A0C543
+DIAG 26 {"canv":[[699,699,"err The object is in an invalid state."]],"imgs":[]}
 SCENE 26 {"s":{"scene":26,"name":"","lang":"en","vis":1},"stage":"game","pos":{"x":0.5,"y":0.8},"act":"E · Sit and rest","npcjs":"object"}
 POS-b 26 {"x":0.5,"y":0.8}
 AFTER-E 26 Sit and rest
