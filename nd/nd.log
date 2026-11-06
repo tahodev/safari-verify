@@ -1,6 +1,17 @@
 UA Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Safari/605.1.15
-SCENE 12 {"scene":{"scene":0,"name":"","lang":"en","vis":1},"npcjs":"object","scenes":27,"canvas":10}
-SCENE 13 {"scene":{"scene":0,"name":"","lang":"en","vis":1},"npcjs":"object","scenes":27,"canvas":10}
-SCENE 25 {"scene":{"scene":0,"name":"","lang":"en","vis":1},"npcjs":"object","scenes":27,"canvas":10}
-SCENE 26 {"scene":{"scene":0,"name":"","lang":"en","vis":1},"npcjs":"object","scenes":27,"canvas":10}
-SCENE 3 {"scene":{"scene":0,"name":"","lang":"en","vis":1},"npcjs":"object","scenes":27,"canvas":10}
+START-BTN 12 {"element-6066-11e4-a52e-4f735466cecf":"node-870B6986-8118-4413-A16A-4A1CC48BF01
+SCENE 12 {"s":{"scene":12,"name":"","lang":"en","vis":1},"stage":"city","pos":{"x":0.5,"y":0.7},"npcjs":"object"}
+POS-b 12 {"x":0.5,"y":0.7}
+AFTER-E 12 no-modal
+START-BTN 13 {"element-6066-11e4-a52e-4f735466cecf":"node-CEBCBD37-12B7-49CC-B29A-3E5188C05AE
+SCENE 13 {"s":{"scene":13,"name":"","lang":"en","vis":1},"stage":"city","pos":{"x":0.5,"y":0.7},"npcjs":"object"}
+POS-b 13 {"x":0.5,"y":0.7}
+AFTER-E 13 no-modal
+START-BTN 25 {"element-6066-11e4-a52e-4f735466cecf":"node-9B5BD1F7-3697-4294-AE77-C9EBC2BFA10
+SCENE 25 {"s":{"scene":25,"name":"","lang":"en","vis":1},"stage":"city","pos":{"x":0.5,"y":0.7},"npcjs":"object"}
+POS-b 25 {"x":0.5,"y":0.7}
+AFTER-E 25 no-modal
+START-BTN 26 {"element-6066-11e4-a52e-4f735466cecf":"node-C386FFB5-621F-487D-813D-64848419442
+SCENE 26 {"s":{"scene":26,"name":"","lang":"en","vis":1},"stage":"city","pos":{"x":0.5,"y":0.7},"npcjs":"object"}
+POS-b 26 {"x":0.5,"y":0.7}
+AFTER-E 26 no-modal

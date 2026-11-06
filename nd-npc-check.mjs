@@ -19,6 +19,9 @@ try{
   const el=await wd('POST',`/session/${sid}/element`,{using:'xpath',value:"//button[contains(normalize-space(),'Start walking')]"});
   console.log('START-BTN',sc,JSON.stringify(el.value).slice(0,80));
   const eid=el.value&&Object.values(el.value)[0];if(eid)await wd('POST',`/session/${sid}/element/${eid}/click`,{});
+  await sleep(1500);
+  const el2=await wd('POST',`/session/${sid}/element`,{using:'xpath',value:"//button[contains(normalize-space(),'Start walking')]"});
+  const eid2=el2.value&&Object.values(el2.value)[0];if(eid2)await wd('POST',`/session/${sid}/element/${eid2}/click`,{});
   await sleep(3500);
   console.log('SCENE',sc,await ex(`return JSON.stringify({s:window.__dogam&&__dogam.S(),stage:window.__dogam&&__dogam.stage(),pos:__dogam.pos(),act:(document.querySelector('.actions button')||{}).textContent,npcjs:typeof window.SeongsuNPCs})`));
   await shot(`nd-safari-${sc}-a`);await sleep(2500);await shot(`nd-safari-${sc}-b`);
