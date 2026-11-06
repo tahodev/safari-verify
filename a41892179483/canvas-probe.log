@@ -1,0 +1,1 @@
+CANVAS-PROBE: procedural=THROW InvalidStateError | wrf=640/640 | webgl=true | toDataURL=data:, | img-onload=THROW InvalidStateError nw=313 | decode=ok | img-decoded=THROW InvalidStateError | bitmap=THROW InvalidStateError

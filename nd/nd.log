@@ -1,4 +1,4 @@
 UA Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Safari/605.1.15
 PROBE nd {"webp":[560,560],"fresh_err":"The object is in an invalid state.","canv":[{"w":699,"h":699,"cw":699,"ch":699,"url":6,"ctx":true,"t":"[object CanvasRenderingContext2D]"}],"blankurl":11618}
-PROBE oldsd {"err":"img error"}
-PROBE kurashi {"err":"img error"}
+INJECT drawn url=6
+GAMECANVAS-visible [200.5,0,699,699,"visible","1",1100,808,1]

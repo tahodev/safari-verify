@@ -1,0 +1,164 @@
+[
+  {
+    "app": "golden-gate-picnic-sf",
+    "check": "serves 200 with real title",
+    "ok": false,
+    "detail": "null"
+  },
+  {
+    "app": "sweet-factory-escape-3d",
+    "check": "serves 200 with real title",
+    "ok": false,
+    "detail": "null"
+  },
+  {
+    "app": "coworking-world-u4pn",
+    "check": "serves 200 with real title",
+    "ok": true,
+    "detail": "KINZIE Coworking - Online Focus Space"
+  },
+  {
+    "app": "coworking-world",
+    "check": "boot: entry panel present",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "app": "coworking-world",
+    "check": "entry: avatar joins world (WebSocket presence)",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "app": "coworking-world",
+    "check": "guide: entry guide card shown on first entry",
+    "ok": true,
+    "detail": "{\"guide\":true,\"hint\":\"① Tap a glowing seat to sit → ② [Start f\",\"gtxt\":\"\\n  How to start\\n  1. Tap a glowing seat \"}"
+  },
+  {
+    "app": "coworking-world",
+    "check": "guide: [알겠어요] dismisses the card",
+    "ok": true,
+    "detail": "true"
+  },
+  {
+    "app": "coworking-world",
+    "check": "seat marker tap: tapping a visible free seat walks and sits",
+    "ok": true,
+    "detail": "target=27 kind=sofa dist=2.8 seated=27"
+  },
+  {
+    "app": "coworking-world",
+    "check": "focus: after sitting the avatar idles and the button reads 집중 시작 (no auto focus)",
+    "ok": false,
+    "detail": "{\"txt\":\"Start focus\",\"on\":false,\"pose\":\"idle\",\"seat\":27}"
+  },
+  {
+    "app": "coworking-world",
+    "check": "focus: personal timer does NOT count while idle-seated",
+    "ok": true,
+    "detail": "0:00 -> 0:00"
+  },
+  {
+    "app": "coworking-world",
+    "check": "focus: pressing [집중 시작] while seated -> study pose, button 집중 종료",
+    "ok": false,
+    "detail": "{\"txt\":\"End focus\",\"on\":true,\"pose\":\"study_laptop\",\"seat\":27}"
+  },
+  {
+    "app": "coworking-world",
+    "check": "focus: personal timer counts up while focusing",
+    "ok": true,
+    "detail": "mine=0:07"
+  },
+  {
+    "app": "coworking-world",
+    "check": "focus: [집중 종료] stops focus but stays seated (idle)",
+    "ok": false,
+    "detail": "{\"txt\":\"Start focus\",\"on\":false,\"pose\":\"idle\",\"seat\":27}"
+  },
+  {
+    "app": "coworking-world",
+    "check": "focus: explicit start from standing walks to nearest free seat, sits and studies",
+    "ok": true,
+    "detail": "preState=standing seat=27"
+  },
+  {
+    "app": "coworking-world",
+    "check": "movement: WASD keys move the avatar",
+    "ok": true,
+    "detail": "{\"x\":-34,\"z\":3.2,\"seat\":null,\"pose\":\"stand\"} -> {\"x\":-30.23,\"z\":-3.7,\"seat\":null,\"pose\":\"stand\"}"
+  },
+  {
+    "app": "coworking-world",
+    "check": "movement: clicking the floor walks there",
+    "ok": true,
+    "detail": "{\"x\":-30.23,\"z\":-3.7,\"seat\":null,\"pose\":\"stand\"} -> {\"x\":-27.19,\"z\":-2.28,\"seat\":null,\"pose\":\"stand\"}"
+  },
+  {
+    "app": "coworking-world",
+    "check": "zones: move menu -> lounge (roomname label updates)",
+    "ok": false,
+    "detail": "null"
+  },
+  {
+    "app": "coworking-world",
+    "check": "zones: move menu -> rooftop terrace (roomname label updates)",
+    "ok": false,
+    "detail": "null"
+  },
+  {
+    "app": "coworking-world",
+    "check": "zones: move menu -> focus hall (roomname label updates)",
+    "ok": false,
+    "detail": "null"
+  },
+  {
+    "app": "coworking-world",
+    "check": "audio: sound button cycles rain -> cafe -> crickets -> off",
+    "ok": false,
+    "detail": "[{\"t\":\"Sound: rain\",\"s\":{\"mode\":1,\"ctx\":\"running\",\"playing\":true}},{\"t\":\"Sound: cafe\",\"s\":{\"mode\":2,\"ctx\":\"running\",\"playing\":true}},{\"t\":\"Sound: crickets\",\"s\":{\"mode\":3,\"ctx\":\"running\",\"playing\":true}},{\"t\":\"Sound: off\",\"s\":{\"mode\":0,\"ctx\":\"running\",\"playing\":false}}]"
+  },
+  {
+    "app": "coworking-world",
+    "check": "audio: AudioContext running while a sound mode is on (Safari autoplay)",
+    "ok": true,
+    "detail": "{\"mode\":2,\"ctx\":\"running\",\"playing\":true}"
+  },
+  {
+    "app": "coworking-world",
+    "check": "photo: 📷 composes a PNG with info band (date/name/focus time)",
+    "ok": false,
+    "detail": "photoLen=6 | default-2D-canvas-works-in-this-browser=false (ENVIRONMENT: runner Safari cannot allocate default 2D canvases; not an app verdict)"
+  },
+  {
+    "app": "coworking-world",
+    "check": "timer: 25-minute focus timer starts via real menu clicks",
+    "ok": false,
+    "detail": "{\"vis\":true,\"txt\":\"25-min focus 24:59\"}"
+  },
+  {
+    "app": "sajumadang",
+    "check": "serves 200 with real title",
+    "ok": true,
+    "detail": "Sajumadang"
+  },
+  {
+    "app": "sajumadang",
+    "check": "boot: title + UI renders",
+    "ok": false,
+    "detail": ""
+  },
+  {
+    "app": "seongsu-dogam",
+    "check": "serves 200 with real title",
+    "ok": false,
+    "detail": "null"
+  },
+  {
+    "app": "kurashi-otaru",
+    "check": "serves 200 with real title",
+    "ok": false,
+    "detail": "null"
+  }
+]

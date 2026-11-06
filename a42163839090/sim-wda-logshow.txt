@@ -1,0 +1,150 @@
+2026-11-06 05:14:24.785 Df testmanagerd[55073:268a6] [com.apple.dt.xctest:Default] Calling handler for AX notification kAXUserTestingNotification from AX element pid: 57299, elementOrHash.elementID: 0.1 with payload {
+    controllerClass = UITrackingElementWindowController;
+    event = ViewDidAppear;
+}
+2026-11-06 05:14:24.785 Df testmanagerd[55073:24e03] [com.apple.dt.xctest:Default] Got user testing notification with payload {
+    controllerClass = UITrackingElementWindowController;
+    event = ViewDidAppear;
+}
+2026-11-06 05:14:25.211 A  testmanagerd[55073:24f81] (RunningBoardServices) observedProcessStatesDidChange
+2026-11-06 05:14:25.211 Df testmanagerd[55073:24f81] [com.apple.runningboard:monitor] Received state update for 57299 (app<com.apple.mobilesafari((null))>, running-active-Visible
+2026-11-06 05:14:25.853 Df testmanagerd[55073:24e03] [com.apple.dt.xctest:Default] Handling kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 (0x600002102490)
+2026-11-06 05:14:25.853 Df testmanagerd[55073:268a6] [com.apple.dt.xctest:Default] Calling handler for AX notification kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 with payload {
+    "display-type" = 0;
+    pid = 56763;
+    "suspended-status" = resumed;
+}
+2026-11-06 05:14:26.223 Df testmanagerd[55073:24e03] [com.apple.dt.xctest:Default] Handling kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 (0x600002102490)
+2026-11-06 05:14:26.223 Df testmanagerd[55073:268a6] [com.apple.dt.xctest:Default] Calling handler for AX notification kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 with payload {
+    "display-type" = 0;
+    pid = 57326;
+    "suspended-status" = resumed;
+}
+2026-11-06 05:14:27.223 Df testmanagerd[55073:24e03] [com.apple.dt.xctest:Default] Handling kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 (0x600002102490)
+2026-11-06 05:14:27.224 Df testmanagerd[55073:24f81] [com.apple.dt.xctest:Default] Calling handler for AX notification kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 with payload {
+    "display-type" = 0;
+    pid = 57325;
+    "suspended-status" = suspended;
+}
+2026-11-06 05:14:27.394 Df testmanagerd[55073:24e03] [com.apple.dt.xctest:Default] Handling kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 (0x600002102490)
+2026-11-06 05:14:27.394 Df testmanagerd[55073:24f81] [com.apple.dt.xctest:Default] Calling handler for AX notification kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 with payload {
+    "display-type" = 0;
+    pid = 57334;
+    "suspended-status" = suspended;
+}
+2026-11-06 05:14:27.416 Df testmanagerd[55073:24e03] [com.apple.dt.xctest:Default] Handling kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 (0x600002102490)
+2026-11-06 05:14:27.416 Df testmanagerd[55073:24f81] [com.apple.dt.xctest:Default] Calling handler for AX notification kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 with payload {
+    "display-type" = 0;
+    pid = 57334;
+    "suspended-status" = resumed;
+}
+2026-11-06 05:14:28.031 Df testmanagerd[55073:24e03] [com.apple.dt.xctest:Default] Handling AXNotification 3031 from AX element pid: 57299, elementOrHash.elementID: 0.1 (0x600002102490)
+2026-11-06 05:14:28.031 Df testmanagerd[55073:24f81] [com.apple.dt.xctest:Default] Calling handler for AX notification AXNotification 3031 from AX element pid: 57299, elementOrHash.elementID: 0.1 with payload com.apple.mobilesafari
+2026-11-06 05:14:28.485 Df testmanagerd[55073:24e03] [com.apple.dt.xctest:Default] Handling kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 (0x600002102490)
+2026-11-06 05:14:28.485 Df testmanagerd[55073:24f81] [com.apple.dt.xctest:Default] Calling handler for AX notification kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 with payload {
+    "display-type" = 0;
+    pid = 57324;
+    "suspended-status" = resumed;
+}
+2026-11-06 05:14:28.906 Df testmanagerd[55073:24e03] [com.apple.dt.xctest:Default] Handling kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 (0x600002102490)
+2026-11-06 05:14:28.906 Df testmanagerd[55073:24f81] [com.apple.dt.xctest:Default] Calling handler for AX notification kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 with payload {
+    "display-type" = 0;
+    pid = 57339;
+    "suspended-status" = resumed;
+}
+2026-11-06 05:14:30.657 Df testmanagerd[55073:24e03] [com.apple.dt.xctest:Default] Handling kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 (0x600002102490)
+2026-11-06 05:14:30.657 Df testmanagerd[55073:24f81] [com.apple.dt.xctest:Default] Calling handler for AX notification kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 with payload {
+    "display-type" = 0;
+    pid = 57336;
+    "suspended-status" = resumed;
+}
+2026-11-06 05:14:33.124 Df testmanagerd[55073:24e03] [com.apple.dt.xctest:Default] Handling AXNotification 3031 from AX element pid: 57326, elementOrHash.elementID: 0.1 (0x600002102490)
+2026-11-06 05:14:33.124 Df testmanagerd[55073:268a6] [com.apple.dt.xctest:Default] Calling handler for AX notification AXNotification 3031 from AX element pid: 57326, elementOrHash.elementID: 0.1 with payload com.apple.InputUI
+2026-11-06 05:14:33.127 Df testmanagerd[55073:268a6] [com.apple.runningboard:process] Hit the server for a process handle 1646ec6b0000dfee that resolved to: [osservice<com.apple.InputUI>:57326]
+2026-11-06 05:14:33.724 Df testmanagerd[55073:24e03] [com.apple.dt.xctest:Default] Handling AXNotification 3031 from AX element pid: 57339, elementOrHash.elementID: 0.1 (0x600002102490)
+2026-11-06 05:14:33.724 Df testmanagerd[55073:268a6] [com.apple.dt.xctest:Default] Calling handler for AX notification AXNotification 3031 from AX element pid: 57339, elementOrHash.elementID: 0.1 with payload com.apple.iMessageAppsViewService
+2026-11-06 05:14:33.726 Df testmanagerd[55073:268a6] [com.apple.runningboard:process] Hit the server for a process handle 1a94e9b30000dffb that resolved to: [app<com.apple.iMessageAppsViewService((null))>:57339]
+2026-11-06 05:14:34.195 Df testmanagerd[55073:24e03] [com.apple.dt.xctest:Default] Handling kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 (0x600002102490)
+2026-11-06 05:14:34.195 Df testmanagerd[55073:268a6] [com.apple.dt.xctest:Default] Calling handler for AX notification kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 with payload {
+    "display-type" = 0;
+    pid = 57339;
+    "suspended-status" = suspended;
+}
+2026-11-06 05:14:34.198 Df testmanagerd[55073:24e03] [com.apple.dt.xctest:Default] Handling kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 (0x600002102490)
+2026-11-06 05:14:34.198 Df testmanagerd[55073:268a6] [com.apple.dt.xctest:Default] Calling handler for AX notification kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 with payload {
+    "display-type" = 0;
+    pid = 57326;
+    "suspended-status" = suspended;
+}
+2026-11-06 05:14:34.199 Df testmanagerd[55073:24e03] [com.apple.dt.xctest:Default] Handling kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 (0x600002102490)
+2026-11-06 05:14:34.199 Df testmanagerd[55073:268a6] [com.apple.dt.xctest:Default] Calling handler for AX notification kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 with payload {
+    "display-type" = 0;
+    pid = 55172;
+    "suspended-status" = suspended;
+}
+2026-11-06 05:14:34.199 Df testmanagerd[55073:24e03] [com.apple.dt.xctest:Default] Handling kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 (0x600002102490)
+2026-11-06 05:14:34.199 Df testmanagerd[55073:268a6] [com.apple.dt.xctest:Default] Calling handler for AX notification kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 with payload {
+    "display-type" = 0;
+    pid = 57323;
+    "suspended-status" = resumed;
+}
+2026-11-06 05:14:36.048 Df testmanagerd[55073:24e03] [com.apple.dt.xctest:Default] Handling kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 (0x600002102490)
+2026-11-06 05:14:36.048 Df testmanagerd[55073:268a6] [com.apple.dt.xctest:Default] Calling handler for AX notification kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 with payload {
+    "display-type" = 0;
+    pid = 57335;
+    "suspended-status" = resumed;
+}
+2026-11-06 05:14:40.230 Df testmanagerd[55073:24e03] [com.apple.dt.xctest:Default] Handling kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 (0x600002102490)
+2026-11-06 05:14:40.230 Df testmanagerd[55073:268a6] [com.apple.dt.xctest:Default] Calling handler for AX notification kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 with payload {
+    "display-type" = 0;
+    pid = 57335;
+    "suspended-status" = suspended;
+}
+2026-11-06 05:14:46.167 Df testmanagerd[55073:268a5] [com.apple.dt.xctest:Default] Getting files in /Users/runner/Library/Logs/DiagnosticReports
+2026-11-06 05:14:46.171 Df testmanagerd[55073:268a5] [com.apple.dt.xctest:Default] Found 4 files in /Users/runner/Library/Logs/DiagnosticReports
+2026-11-06 05:14:46.172 Df testmanagerd[55073:268a5] [com.apple.dt.xctest:Default] Not reporting .ExcUserFault_MobileSafari-2026-11-06-051446.ips, doesn't match list of processes {DTServiceHub, SpringBoard, FrontBoard, WebDriverAgentRunner, testmanagerd, xctest, runningboardd, assertiond, backboardd, WebDriverAgentRunner-Runner, debugserver}
+2026-11-06 05:14:46.204 Df testmanagerd[55073:268a5] [com.apple.dt.xctest:Default] Getting files in /Users/runner/Library/Logs/DiagnosticReports
+2026-11-06 05:14:46.204 Df testmanagerd[55073:268a5] [com.apple.dt.xctest:Default] Found 4 files in /Users/runner/Library/Logs/DiagnosticReports
+2026-11-06 05:14:46.204 Df testmanagerd[55073:268a5] [com.apple.dt.xctest:Default] Not reporting ExcUserFault_MobileSafari-2026-11-06-051446.ips, doesn't match list of processes {DTServiceHub, SpringBoard, FrontBoard, WebDriverAgentRunner, testmanagerd, xctest, runningboardd, assertiond, backboardd, WebDriverAgentRunner-Runner, debugserver}
+2026-11-06 05:14:48.268 Df testmanagerd[55073:24e03] [com.apple.dt.xctest:Default] Handling kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 (0x600002102490)
+2026-11-06 05:14:48.268 Df testmanagerd[55073:268a5] [com.apple.dt.xctest:Default] Calling handler for AX notification kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 with payload {
+    "display-type" = 0;
+    pid = 57326;
+    "suspended-status" = resumed;
+}
+2026-11-06 05:14:48.379 Df testmanagerd[55073:24e03] [com.apple.dt.xctest:Default] Handling kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 (0x600002102490)
+2026-11-06 05:14:48.379 Df testmanagerd[55073:268a5] [com.apple.dt.xctest:Default] Calling handler for AX notification kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 with payload {
+    "display-type" = 0;
+    pid = 57326;
+    "suspended-status" = suspended;
+}
+2026-11-06 05:14:48.964 Df testmanagerd[55073:24e03] [com.apple.dt.xctest:Default] Handling kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 (0x600002102490)
+2026-11-06 05:14:48.980 Df testmanagerd[55073:268a5] [com.apple.dt.xctest:Default] Calling handler for AX notification kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 with payload {
+    "display-type" = 0;
+    pid = 57326;
+    "suspended-status" = resumed;
+}
+2026-11-06 05:14:49.058 Df testmanagerd[55073:24e03] [com.apple.dt.xctest:Default] Handling kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 (0x600002102490)
+2026-11-06 05:14:49.059 Df testmanagerd[55073:268a5] [com.apple.dt.xctest:Default] Calling handler for AX notification kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 with payload {
+    "display-type" = 0;
+    pid = 57326;
+    "suspended-status" = suspended;
+}
+2026-11-06 05:14:49.690 Df testmanagerd[55073:24e03] [com.apple.dt.xctest:Default] Handling kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 (0x600002102490)
+2026-11-06 05:14:49.690 Df testmanagerd[55073:268a5] [com.apple.dt.xctest:Default] Calling handler for AX notification kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 with payload {
+    "display-type" = 0;
+    pid = 57835;
+    "suspended-status" = suspended;
+}
+2026-11-06 05:14:49.692 Df testmanagerd[55073:24e03] [com.apple.dt.xctest:Default] Handling kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 (0x600002102490)
+2026-11-06 05:14:49.693 Df testmanagerd[55073:268a5] [com.apple.dt.xctest:Default] Calling handler for AX notification kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 with payload {
+    "display-type" = 0;
+    pid = 57835;
+    "suspended-status" = resumed;
+}
+2026-11-06 05:14:52.446 Df testmanagerd[55073:24e03] [com.apple.dt.xctest:Default] Handling kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 (0x600002102490)
+2026-11-06 05:14:52.447 Df testmanagerd[55073:268a5] [com.apple.dt.xctest:Default] Calling handler for AX notification kAXPidStatusChangedNotification from AX element pid: 55100, elementOrHash.elementID: 0.0 with payload {
+    "display-type" = 0;
+    pid = 57835;
+    "suspended-status" = suspended;
+}

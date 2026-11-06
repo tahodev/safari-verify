@@ -1,0 +1,237 @@
+== simulator inventory ==
+    iPhone 16 Pro (15FAB4A1-2F41-4DFB-B3E0-FB0C9936253D) (Shutdown) 
+    iPhone 16 Pro Max (05149308-5C0B-4991-A958-E061DE68556F) (Shutdown) 
+    iPhone 16e (2A6295B6-754E-4209-9524-C62EAE190E66) (Shutdown) 
+    iPhone 16 (141DD5FC-FF1D-429C-B43E-1323E1915FDE) (Shutdown) 
+    iPhone 16 Plus (48673FE0-21AD-4D40-9CBD-926B77290522) (Shutdown) 
+    iPhone SE (3rd generation) (4B35B468-69CD-4004-BDA9-463359998DBA) (Shutdown) 
+    iPhone 16 Pro (388CDC20-2304-4FC7-ADC8-B06C7619013C) (Shutdown) 
+    iPhone 16 Pro Max (BCE69EF3-7FCD-49FC-8681-B9EA8D75E47E) (Shutdown) 
+Using simulator UDID: B220EC43-535F-472F-935A-5B2D0E9F2975
+Monitoring boot status for iPhone SE (3rd generation) (B220EC43-535F-472F-935A-5B2D0E9F2975).
+[2026-11-06 04:48:58 +0000] Status=2, isTerminal=NO, Elapsed=01:17.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.securityd.KeychainMigrator (KeychainMigrator.migrator, user-agnostic)
+		Migration Elapsed:01:03 seconds
+
+[2026-11-06 04:48:59 +0000] Status=2, isTerminal=NO, Elapsed=01:18.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.addressbook.migrator (AddressBookLegacy.migrator)
+		Migration Elapsed:01:09 seconds
+
+[2026-11-06 04:49:00 +0000] Status=2, isTerminal=NO, Elapsed=01:19.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.addressbook.migrator (AddressBookLegacy.migrator)
+		Migration Elapsed:01:10 seconds
+
+[2026-11-06 04:49:02 +0000] Status=2, isTerminal=NO, Elapsed=01:21.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.addressbook.migrator (AddressBookLegacy.migrator)
+		Migration Elapsed:01:11 seconds
+
+[2026-11-06 04:49:02 +0000] Status=2, isTerminal=NO, Elapsed=01:21.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.addressbook.migrator (AddressBookLegacy.migrator)
+		Migration Elapsed:01:13 seconds
+
+[2026-11-06 04:49:03 +0000] Status=2, isTerminal=NO, Elapsed=01:22.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.addressbook.migrator (AddressBookLegacy.migrator)
+		Migration Elapsed:01:14 seconds
+
+[2026-11-06 04:49:04 +0000] Status=2, isTerminal=NO, Elapsed=01:23.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.addressbook.migrator (AddressBookLegacy.migrator)
+		Migration Elapsed:01:15 seconds
+
+[2026-11-06 04:49:05 +0000] Status=2, isTerminal=NO, Elapsed=01:24.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.addressbook.migrator (AddressBookLegacy.migrator)
+		Migration Elapsed:01:15 seconds
+
+[2026-11-06 04:49:05 +0000] Status=2, isTerminal=NO, Elapsed=01:24.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.addressbook.migrator (AddressBookLegacy.migrator)
+		Migration Elapsed:01:16 seconds
+
+[2026-11-06 04:49:09 +0000] Status=2, isTerminal=NO, Elapsed=01:28.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.addressbook.migrator (AddressBookLegacy.migrator)
+		Migration Elapsed:01:17 seconds
+
+[2026-11-06 04:49:10 +0000] Status=2, isTerminal=NO, Elapsed=01:29.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.addressbook.migrator (AddressBookLegacy.migrator)
+		Migration Elapsed:01:21 seconds
+
+[2026-11-06 04:49:11 +0000] Status=2, isTerminal=NO, Elapsed=01:30.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.addressbook.migrator (AddressBookLegacy.migrator)
+		Migration Elapsed:01:21 seconds
+
+[2026-11-06 04:49:12 +0000] Status=2, isTerminal=NO, Elapsed=01:31.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.addressbook.migrator (AddressBookLegacy.migrator)
+		Migration Elapsed:01:23 seconds
+
+[2026-11-06 04:49:13 +0000] Status=2, isTerminal=NO, Elapsed=01:32.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.addressbook.migrator (AddressBookLegacy.migrator)
+		Migration Elapsed:01:23 seconds
+
+[2026-11-06 04:49:18 +0000] Status=2, isTerminal=NO, Elapsed=01:37.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.addressbook.migrator (AddressBookLegacy.migrator)
+		Migration Elapsed:01:24 seconds
+
+[2026-11-06 04:49:20 +0000] Status=2, isTerminal=NO, Elapsed=01:39.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.MobileSafari.migrator (MobileSafari.migrator)
+		Migration Elapsed:01:30 seconds
+
+[2026-11-06 04:49:20 +0000] Status=2, isTerminal=NO, Elapsed=01:39.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.MobileSafari.migrator (MobileSafari.migrator)
+		Migration Elapsed:01:31 seconds
+
+[2026-11-06 04:49:21 +0000] Status=2, isTerminal=NO, Elapsed=01:39.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.facetime.migrator (FaceTimeMigrator.migrator)
+		Migration Elapsed:01:31 seconds
+
+[2026-11-06 04:49:23 +0000] Status=2, isTerminal=NO, Elapsed=01:42.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.PreferencesMigrator (PreferencesMigrator.migrator)
+		Migration Elapsed:01:32 seconds
+
+[2026-11-06 04:49:24 +0000] Status=4, isTerminal=NO, Elapsed=01:43.
+	Waiting on System App
+
+[2026-11-06 04:49:25 +0000] Status=4, isTerminal=NO, Elapsed=01:44.
+	Waiting on System App
+
+[2026-11-06 04:49:27 +0000] Status=4, isTerminal=NO, Elapsed=01:46.
+	Waiting on System App
+
+[2026-11-06 04:49:28 +0000] Status=4, isTerminal=NO, Elapsed=01:47.
+	Waiting on System App
+
+[2026-11-06 04:49:28 +0000] Status=4, isTerminal=NO, Elapsed=01:47.
+	Waiting on System App
+
+[2026-11-06 04:49:29 +0000] Status=4, isTerminal=NO, Elapsed=01:48.
+	Waiting on System App
+
+[2026-11-06 04:49:31 +0000] Status=4, isTerminal=NO, Elapsed=01:50.
+	Waiting on System App
+
+[2026-11-06 04:49:32 +0000] Status=4, isTerminal=NO, Elapsed=01:51.
+	Waiting on System App
+
+[2026-11-06 04:49:36 +0000] Status=4, isTerminal=NO, Elapsed=01:55.
+	Waiting on System App
+
+[2026-11-06 04:49:46 +0000] Status=4294967295, isTerminal=YES, Elapsed=02:05.
+	Finished
+
+== xcode diagnostics ==
+/Applications/Xcode_16.4.app/Contents/Developer
+/Applications/Xcode_16.0.0.app
+/Applications/Xcode_16.0.app
+/Applications/Xcode_16.1.0.app
+/Applications/Xcode_16.1.app
+/Applications/Xcode_16.2.0.app
+/Applications/Xcode_16.2.app
+/Applications/Xcode_16.3.0.app
+/Applications/Xcode_16.3.app
+/Applications/Xcode_16.4.0.app
+/Applications/Xcode_16.4.app
+/Applications/Xcode_16.app
+/Applications/Xcode_26.0.1.app
+/Applications/Xcode_26.0.app
+/Applications/Xcode_26.1.1.app
+/Applications/Xcode_26.1.app
+/Applications/Xcode_26.2.0.app
+/Applications/Xcode_26.2.app
+/Applications/Xcode_26.3.0.app
+/Applications/Xcode_26.3.app
+/Applications/Xcode.app
+Xcode 16.4
+Build version 16F6
+selecting /Applications/Xcode_26.3.0.app for idb-companion build
+== Appium XCUITest route ==
+sim: B220EC43-535F-472F-935A-5B2D0E9F2975 os=26.2 name=iPhone SE (3rd generation)
+An error was encountered processing the command (domain=com.apple.CoreSimulator.SimError, code=405):
+Unable to boot device in current state: Booted
+sim state:     iPhone SE (3rd generation) (B220EC43-535F-472F-935A-5B2D0E9F2975) (Booted) 
+- automationName: XCUITest
+- platformNames: ["iOS","tvOS","watchOS"]
+nav sajumadang null
+probe sajumadang "execfail Error: http timeout 25000"
+PASS [sajumadang] serves 200 with real title :: Sajumadang
+FAIL [sajumadang] boot: title + UI renders
+WD non-JSON DELETE  
+WD error POST /session {"error":"unknown error","message":"The remote debugger did not return any connected web applications after 6957ms. Make sure your web application is debuggable and could be inspected in Safari Web Inspector. You may try to change the 'webviewConnectTimeout' capability value to customize the retriev
+FAIL [seongsu-dogam] session :: no session: {"error":"unknown error","message":"The remote debugger did not return any connected web applications after 6957ms. Make sure your web application is debuggable and could be inspected in S
+WD error POST /session {"error":"unknown error","message":"The remote debugger did not return any connected web applications after 6470ms. Make sure your web application is debuggable and could be inspected in Safari Web Inspector. You may try to change the 'webviewConnectTimeout' capability value to customize the retriev
+FAIL [kurashi-otaru] session :: no session: {"error":"unknown error","message":"The remote debugger did not return any connected web applications after 6470ms. Make sure your web application is debuggable and could be inspected in S
+
+==== DESKTOP SAFARI: 1/4 checks passed ====
+== WDA diagnostics after failure ==
+total 192
+drwxrwx---   5 runner  _analyticsusers    160 Nov  6 05:09 .
+drwx------+ 14 runner  staff              448 Nov  6 04:40 ..
+-rw-------@  1 runner  _analyticsusers  35326 Nov  6 05:02 ExcUserFault_MobileSafari-2026-11-06-050234.ips
+-rw-------@  1 runner  _analyticsusers  59936 Nov  6 05:09 ExcUserFault_MobileSafari-2026-11-06-050914.ips
+drwxrwx---   2 runner  _analyticsusers     64 Oct 28 03:28 Retired
+ios-check.sh: line 79: 24190 Terminated: 15          ( while true; do
+    { date -u +%T; ps -axo pid,etime,stat,command | grep -iE "xcodebuild|XCTRunner|WebDriverAgent|testmanagerd|xctest" | grep -v grep | cut -c1-200; lsof -nP -iTCP:8100 2> /dev/null | head -3; echo "--"; } >> results/wda-monitor.log; sleep 10;
+done )
+xcresult: /Users/runner/Library/Developer/Xcode/DerivedData/WebDriverAgent-dtmoeonrefnxsncuficthanbldlc/Logs/Test/Test-WebDriverAgentRunner-2026.11.06_05-11-52-+0000.xcresult
+54711   01:52 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+55073   01:33 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+--
+05:13:48
+54711   02:03 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+55073   01:44 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+--
+05:13:59
+54711   02:21 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+55073   02:02 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+56784   00:17 Ts   /Users/runner/Library/Developer/CoreSimulator/Devices/B220EC43-535F-472F-935A-5B2D0E9F2975/data/Containers/Bundle/Application/06904A1A-242D-4AB5-9371-96BABF2634FC/WebDriverAgentRunn
+--
+05:14:22
+54711   02:48 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+55073   02:29 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+56784   00:43 Rs   /Users/runner/Library/Developer/CoreSimulator/Devices/B220EC43-535F-472F-935A-5B2D0E9F2975/data/Containers/Bundle/Application/06904A1A-242D-4AB5-9371-96BABF2634FC/WebDriverAgentRunn
+COMMAND     PID   USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node      23956 runner   28u  IPv4 0xc973ac2f8a3e3c0d      0t0  TCP 127.0.0.1:56734->127.0.0.1:8100 (ESTABLISHED)
+node      23956 runner   29u  IPv4 0x4363ac05f2a5dbb5      0t0  TCP 127.0.0.1:56735->127.0.0.1:8100 (ESTABLISHED)
+--
+---- appium server log tail ----
+    at async asyncHandler (/opt/homebrew/lib/node_modules/appium/node_modules/@appium/base-driver/build/lib/protocol/protocol.js:393:25)
+[2c8e0929][BaseDriver] Unsubscribing 1959dfd7-9e43-49a4-bb50-5c8a464491af from topic 'xcuitest:sessionUdidClaimed'
+[2c8e0929][XCUITestDriver@1959] Proxying [DELETE /session/2c8e0929-8798-483a-9c38-0e05cd7ac651] to [DELETE http://127.0.0.1:8100/session/DDDA087A-68D7-4A93-A928-DE761AC0F266] with no body
+[2c8e0929][XCUITestDriver@1959] Got response with status 200: {"value":null,"sessionId":null}
+[2c8e0929][XCUITestDriver@1959] Not clearing log files. Use `clearSystemFiles` capability to turn on.
+[2c8e0929][XCUITestDriver@1959] Releasing connections for B220EC43-535F-472F-935A-5B2D0E9F2975 device on any port number
+[2c8e0929][XCUITestDriver@1959] Found cached connections to release: ["B220EC43-535F-472F-935A-5B2D0E9F2975:8100"]
+[2c8e0929][XCUITestDriver@1959] Cached connections count: 0
+[2c8e0929][XCUITestDriver@1959] Found a remote debugger session. Removing...
+[2c8e0929][RemoteDebugger] Disconnecting from remote debugger
+[2c8e0929][RemoteDebugger] Cleaning up listeners
+[2c8e0929][AppiumDriver@f60c] Event 'newSessionStarted' logged at 1793942073775 (05:14:33 GMT+0000 (Coordinated Universal Time))
+[2c8e0929][AppiumDriver@f60c] Encountered internal error running command: Error: The remote debugger did not return any connected web applications after 6470ms. Make sure your web application is debuggable and could be inspected in Safari W
+    at XCUITestDriver.activateRecentWebview (file:///Users/runner/.appium/node_modules/appium-xcuitest-driver/build/lib/commands/context.js:47:15)
+    at async XCUITestDriver.finalizeSessionStartup (file:///Users/runner/.appium/node_modules/appium-xcuitest-driver/build/lib/driver.js:1202:13)
+    at async XCUITestDriver.start (file:///Users/runner/.appium/node_modules/appium-xcuitest-driver/build/lib/driver.js:1058:9)
+    at async XCUITestDriver.createSession (file:///Users/runner/.appium/node_modules/appium-xcuitest-driver/build/lib/driver.js:749:13)
+    at async AppiumDriver.createSession (/opt/homebrew/lib/node_modules/appium/build/lib/appium.js:266:44)
+    at async runCommandPromise (/opt/homebrew/lib/node_modules/appium/node_modules/@appium/base-driver/build/lib/basedriver/driver.js:120:24)
+    at async AppiumDriver.executeCommand (/opt/homebrew/lib/node_modules/appium/node_modules/@appium/base-driver/build/lib/basedriver/driver.js:161:15)
+    at async defaultBehavior (/opt/homebrew/lib/node_modules/appium/build/lib/appium.js:575:24)
+    at async AppiumDriver.executeWrappedCommand (/opt/homebrew/lib/node_modules/appium/build/lib/appium.js:683:22)
+    at async AppiumDriver.executeCommand (/opt/homebrew/lib/node_modules/appium/build/lib/appium.js:591:21)
+    at async asyncHandler (/opt/homebrew/lib/node_modules/appium/node_modules/@appium/base-driver/build/lib/protocol/protocol.js:393:25)
+[3736d00f][HTTP] <-- POST /session 500 321831 ms - 2723
+== appium route done rc=1 ==

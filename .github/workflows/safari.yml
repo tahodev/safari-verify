@@ -1,7 +1,7 @@
 name: safari-verify
 on:
   push:
-    paths-ignore: ["nd-*",".github/workflows/nd-npc.yml"]
+    paths-ignore: ["nd-*","cv*",".github/workflows/nd-npc.yml",".github/workflows/cv.yml"]
   workflow_dispatch:
     inputs:
       only:

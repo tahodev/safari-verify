@@ -1,0 +1,44 @@
+[
+  {
+    "app": "golden-gate-picnic-sf",
+    "check": "serves 200 with real title",
+    "ok": true,
+    "detail": "Golden Gate Picnic - a night picnic by the bridge"
+  },
+  {
+    "app": "golden-gate-picnic",
+    "check": "boot: page loads, __ggp handle + entry gate present",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "app": "golden-gate-picnic",
+    "check": "gate first visit: English preselected, Korean not, entry enabled, no pick-language hint",
+    "ok": true,
+    "detail": "{\"en\":true,\"ko\":false,\"goDisabled\":false,\"hint\":\"none\",\"goText\":\"Spread the mat\",\"cls\":\" native-emoji\",\"emojiCss\":false,\"dice\":\"🎲\",\"boy\":\"👦 Boy\",\"ua\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Safari/605.1.15\"}"
+  },
+  {
+    "app": "golden-gate-picnic",
+    "check": "entry: real button clicks spawn avatar (WebSocket join)",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "app": "golden-gate-picnic",
+    "check": "sky info pill shows SF sun+moon times",
+    "ok": true,
+    "detail": "SF 🌅 06:39 (109°) · 🌇 17:09 (251°) | 🌙 ↑ ≈02:04 (84°) · ↓ 14:46 (272°)"
+  },
+  {
+    "app": "golden-gate-picnic",
+    "check": "avatar drawn fully opaque (globalAlpha 1)",
+    "ok": true,
+    "detail": "alphas=[1]"
+  },
+  {
+    "app": "golden-gate-picnic",
+    "check": "canvas tap claims seat (hit-testing + WS round-trip)",
+    "ok": true,
+    "detail": "tap seat#9 dist=7 claimed=9"
+  }
+]

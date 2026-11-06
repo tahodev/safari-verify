@@ -1,0 +1,26 @@
+[
+  {
+    "app": "sajumadang",
+    "check": "serves 200 with real title",
+    "ok": true,
+    "detail": "Sajumadang"
+  },
+  {
+    "app": "sajumadang",
+    "check": "boot: title + UI renders",
+    "ok": false,
+    "detail": ""
+  },
+  {
+    "app": "seongsu-dogam",
+    "check": "session",
+    "ok": false,
+    "detail": "no session: {\"error\":\"unknown error\",\"message\":\"The remote debugger did not return any connected web applications after 6957ms. Make sure your web application is debuggable and could be inspected in S"
+  },
+  {
+    "app": "kurashi-otaru",
+    "check": "session",
+    "ok": false,
+    "detail": "no session: {\"error\":\"unknown error\",\"message\":\"The remote debugger did not return any connected web applications after 6470ms. Make sure your web application is debuggable and could be inspected in S"
+  }
+]

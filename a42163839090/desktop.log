@@ -1,0 +1,52 @@
+nav golden-gate-picnic-sf null
+probe golden-gate-picnic-sf "complete||https://golden-gate-picnic-sf.onrender.com/"
+FAIL [golden-gate-picnic-sf] serves 200 with real title :: null
+nav sweet-factory-escape-3d null
+probe sweet-factory-escape-3d "complete||https://sweet-factory-escape-3d.onrender.com/"
+FAIL [sweet-factory-escape-3d] serves 200 with real title :: null
+nav coworking-world-u4pn null
+probe coworking-world-u4pn "complete|KINZIE Coworking - Online Focus Space|https://coworking-world-u4pn.onrender.com/"
+PASS [coworking-world-u4pn] serves 200 with real title :: KINZIE Coworking - Online Focus Space
+PASS [coworking-world] boot: entry panel present
+PASS [coworking-world] entry: avatar joins world (WebSocket presence)
+cwdiag(webgl) {"kind":"webgl2","lost":false,"err":0,"buf":[1280,848],"css":[1280,848],"vendor":"Apple Inc.","renderer":"Apple GPU","attrs":{"alpha":true,"antialias":true,"depth":true,"failIfMajorPerformanceCaveat":false,"powerPreference":"default","premultipliedAlpha":true,"preserveDrawingBuffer":true,"stencil":false},"errs":null}
+cwdiag(scene) {"hasGroup":true,"inScene":true,"camPos":[-28.9,7.6,13.4],"seats":41}
+PASS [coworking-world] guide: entry guide card shown on first entry :: {"guide":true,"hint":"① Tap a glowing seat to sit → ② [Start f","gtxt":"\n  How to start\n  1. Tap a glowing seat "}
+PASS [coworking-world] guide: [알겠어요] dismisses the card :: true
+PASS [coworking-world] seat marker tap: tapping a visible free seat walks and sits :: target=27 kind=sofa dist=2.8 seated=27
+cwdiag(readPixels) {"W":1280,"H":848,"w":160,"h":106,"nonDark":8807,"bright":1822,"total":16960,"err":0}
+shotNative ok cw-2-seated 119078
+FAIL [coworking-world] focus: after sitting the avatar idles and the button reads 집중 시작 (no auto focus) :: {"txt":"Start focus","on":false,"pose":"idle","seat":27}
+PASS [coworking-world] focus: personal timer does NOT count while idle-seated :: 0:00 -> 0:00
+FAIL [coworking-world] focus: pressing [집중 시작] while seated -> study pose, button 집중 종료 :: {"txt":"End focus","on":true,"pose":"study_laptop","seat":27}
+PASS [coworking-world] focus: personal timer counts up while focusing :: mine=0:07
+shotNative ok cw-3-focusing 117539
+FAIL [coworking-world] focus: [집중 종료] stops focus but stays seated (idle) :: {"txt":"Start focus","on":false,"pose":"idle","seat":27}
+PASS [coworking-world] focus: explicit start from standing walks to nearest free seat, sits and studies :: preState=standing seat=27
+PASS [coworking-world] movement: WASD keys move the avatar :: {"x":-34,"z":3.2,"seat":null,"pose":"stand"} -> {"x":-30.23,"z":-3.7,"seat":null,"pose":"stand"}
+PASS [coworking-world] movement: clicking the floor walks there :: {"x":-30.23,"z":-3.7,"seat":null,"pose":"stand"} -> {"x":-27.19,"z":-2.28,"seat":null,"pose":"stand"}
+FAIL [coworking-world] zones: move menu -> lounge (roomname label updates) :: null
+shotNative ok cw-4-lounge 119462
+FAIL [coworking-world] zones: move menu -> rooftop terrace (roomname label updates) :: null
+shotNative ok cw-5-terrace 119760
+FAIL [coworking-world] zones: move menu -> focus hall (roomname label updates) :: null
+shotNative ok cw-6-hall 118944
+FAIL [coworking-world] audio: sound button cycles rain -> cafe -> crickets -> off :: [{"t":"Sound: rain","s":{"mode":1,"ctx":"running","playing":true}},{"t":"Sound: cafe","s":{"mode":2,"ctx":"running","playing":true}},{"t":"Sound: crickets","s":{"mode":3,"ctx":"running","playing":true}},{"t":"Sound: off","s":{"mode":0,"ctx":"running","playing":false}}]
+PASS [coworking-world] audio: AudioContext running while a sound mode is on (Safari autoplay) :: {"mode":2,"ctx":"running","playing":true}
+WD error POST /execute/sync {"error":"javascript error","message":"A JavaScript exception occured: Invalid regular expression: invalid flags","stacktrace":""}
+FAIL [coworking-world] photo: 📷 composes a PNG with info band (date/name/focus time) :: photoLen=6 | default-2D-canvas-works-in-this-browser=false (ENVIRONMENT: runner Safari cannot allocate default 2D canvases; not an app verdict)
+FAIL [coworking-world] timer: 25-minute focus timer starts via real menu clicks :: {"vis":true,"txt":"25-min focus 24:59"}
+chat probe SKIPPED (public broadcast; set ALLOW_PUBLIC_CHAT=1 only with approval)
+chatdbg(info) {"val":"","log":"System: QA left"}
+nav sajumadang null
+probe sajumadang "complete|Sajumadang|https://sajumadang.onrender.com/"
+PASS [sajumadang] serves 200 with real title :: Sajumadang
+FAIL [sajumadang] boot: title + UI renders
+nav seongsu-dogam null
+probe seongsu-dogam "complete||https://seongsu-dogam.onrender.com/"
+FAIL [seongsu-dogam] serves 200 with real title :: null
+nav kurashi-otaru null
+probe kurashi-otaru "complete||https://kurashi-otaru.onrender.com/"
+FAIL [kurashi-otaru] serves 200 with real title :: null
+
+==== DESKTOP SAFARI: 13/27 checks passed ====

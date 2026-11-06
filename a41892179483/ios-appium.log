@@ -1,0 +1,17 @@
+nav golden-gate-picnic-sf null
+probe golden-gate-picnic-sf "execfail Error: http timeout 25000"
+PASS [golden-gate-picnic-sf] serves 200 with real title :: Golden Gate Picnic - a night picnic by the bridge
+PASS [golden-gate-picnic] boot: page loads, __ggp handle + entry gate present
+GATE-STATE {"en":true,"ko":false,"goDisabled":false,"hint":"none","goText":"Spread the mat","cls":" native-emoji","emojiCss":false,"dice":"🎲","boy":"👦 Boy","ua":"Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1"}
+PASS [golden-gate-picnic] gate first visit: English preselected, Korean not, entry enabled, no pick-language hint :: {"en":true,"ko":false,"goDisabled":false,"hint":"none","goText":"Spread the mat","cls":" native-emoji","emojiCss":false,"dice":"🎲","boy":"👦 Boy","ua":"Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1"}
+PASS [golden-gate-picnic] entry: real button clicks spawn avatar (WebSocket join)
+PASS [golden-gate-picnic] sky info pill shows SF sun+moon times :: SF 🌅 06:39 (109°) · 🌇 17:09 (251°) | 🌙 ↑ ≈02:04 (84°) · ↓ 14:46 (272°)
+PASS [golden-gate-picnic] avatar drawn fully opaque (globalAlpha 1) :: alphas=[1]
+nextpill(info) "Next: 🌫️ 20:00 local"
+PASS [golden-gate-picnic] iPhone touch-walk: native tap on ground moves avatar :: pos {} changed=true
+seatsit-ui(info) bar=true sitBtn=true
+PASS [golden-gate-picnic] Actions panel Sit tap claims seat (real UI flow + WS round-trip) :: claimed=1
+PASS [golden-gate-picnic] final seated state after arrival (iPhone) :: {"seat":1,"act":"sit","moving":false}
+WD non-JSON DELETE  
+
+==== DESKTOP SAFARI: 9/9 checks passed ====

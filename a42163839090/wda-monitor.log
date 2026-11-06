@@ -1,0 +1,334 @@
+04:53:54
+24191   00:01 U<   /Library/Developer/PrivateFrameworks/CoreSimulator.framework/Versions/A/Resources/bin/simctl spawn B220EC43-535F-472F-935A-5B2D0E9F2975 log stream --style compact --predicate proces
+--
+04:54:06
+24937   00:06 U<   /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_modules/appium-webdriveragent/WebDriverA
+--
+04:54:19
+24937   00:17 R<   /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_modules/appium-webdriveragent/WebDriverA
+26340   00:00 R<   /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild -license check
+26341   00:00 R<   /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild -license check
+--
+04:54:29
+--
+04:54:40
+--
+04:54:51
+--
+04:55:22
+--
+04:56:03
+28574   00:04 R<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+--
+04:56:13
+28574   00:15 R<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+--
+04:56:24
+28574   00:25 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+--
+04:56:35
+28574   00:36 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+--
+04:56:45
+28574   00:46 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+30311   00:03 S<   /Applications/Xcode_26.3.app/Contents/Developer/usr/bin/actool /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_modules/appium-webdriveragent/WebDriverAgentRunner/Asse
+--
+04:56:55
+28574   00:57 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+30311   00:14 S<   /Applications/Xcode_26.3.app/Contents/Developer/usr/bin/actool /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_modules/appium-webdriveragent/WebDriverAgentRunner/Asse
+--
+04:57:07
+28574   01:08 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+31070   00:01 R<   /Applications/Xcode_26.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -analyzer-config-compatibility-mode true -analyzer-output plist-multi-file -an
+31071   00:01 R<   /Applications/Xcode_26.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -analyzer-config-compatibility-mode true -analyzer-output plist-multi-file -an
+--
+04:57:17
+28574   01:18 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+31087   00:10 R<   /Applications/Xcode_26.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -analyzer-config-compatibility-mode true -analyzer-output plist-multi-file -an
+31231   00:07 R<   /Applications/Xcode_26.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -analyzer-config-compatibility-mode true -analyzer-output plist-multi-file -an
+31668   00:01 R<   /Applications/Xcode_26.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -analyzer-config-compatibility-mode true -analyzer-output plist-multi-file -an
+--
+04:57:27
+28574   01:28 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+31087   00:20 R<   /Applications/Xcode_26.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -analyzer-config-compatibility-mode true -analyzer-output plist-multi-file -an
+31750   00:04 R<   /Applications/Xcode_26.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -analyzer-config-compatibility-mode true -analyzer-output plist-multi-file -an
+31959   00:00 R<   /Applications/Xcode_26.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -analyzer-config-compatibility-mode true -analyzer-output plist-multi-file -an
+--
+04:57:38
+28574   01:39 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+31087   00:31 R<   /Applications/Xcode_26.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -analyzer-config-compatibility-mode true -analyzer-output plist-multi-file -an
+32506   00:01 R<   /Applications/Xcode_26.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -analyzer-config-compatibility-mode true -analyzer-output plist-multi-file -an
+32507   00:01 R<   /Applications/Xcode_26.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -analyzer-config-compatibility-mode true -analyzer-output plist-multi-file -an
+--
+04:57:48
+28574   01:49 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+32506   00:11 R<   /Applications/Xcode_26.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -analyzer-config-compatibility-mode true -analyzer-output plist-multi-file -an
+32646   00:03 R<   /Applications/Xcode_26.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -analyzer-config-compatibility-mode true -analyzer-output plist-multi-file -an
+32881   00:00 R<   /Applications/Xcode_26.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -analyzer-config-compatibility-mode true -analyzer-output plist-multi-file -an
+--
+04:57:59
+28574   02:00 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+32943   00:10 R<   /Applications/Xcode_26.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -analyzer-config-compatibility-mode true -analyzer-output plist-multi-file -an
+33139   00:02 R<   /Applications/Xcode_26.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -analyzer-config-compatibility-mode true -analyzer-output plist-multi-file -an
+33145   00:01 R<   /Applications/Xcode_26.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -analyzer-config-compatibility-mode true -analyzer-output plist-multi-file -an
+--
+04:58:09
+28574   02:10 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+33717   00:00 R<   /Applications/Xcode_26.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -analyzer-config-compatibility-mode true -analyzer-output plist-multi-file -an
+33718   00:00 R<   /Applications/Xcode_26.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -analyzer-config-compatibility-mode true -analyzer-output plist-multi-file -an
+33719   00:00 R<   /Applications/Xcode_26.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -analyzer-config-compatibility-mode true -analyzer-output plist-multi-file -an
+--
+04:58:19
+28574   02:21 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+33752   00:07 R<   /Applications/Xcode_26.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -analyzer-config-compatibility-mode true -analyzer-output plist-multi-file -an
+33836   00:02 R<   /Applications/Xcode_26.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -analyzer-config-compatibility-mode true -analyzer-output plist-multi-file -an
+--
+04:58:30
+28574   02:31 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+33752   00:17 R<   /Applications/Xcode_26.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -analyzer-config-compatibility-mode true -analyzer-output plist-multi-file -an
+34250   00:06 R<   /Applications/Xcode_26.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -analyzer-config-compatibility-mode true -analyzer-output plist-multi-file -an
+34362   00:01 R<   /Applications/Xcode_26.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -analyzer-config-compatibility-mode true -analyzer-output plist-multi-file -an
+--
+04:58:40
+28574   02:42 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+34250   00:17 R<   /Applications/Xcode_26.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -analyzer-config-compatibility-mode true -analyzer-output plist-multi-file -an
+--
+04:58:51
+28574   02:52 R<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+--
+04:59:01
+28574   03:03 U<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+36458   00:03 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+--
+04:59:12
+28574   03:13 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+36458   00:13 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+COMMAND   PID   USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node    23956 runner   28u  IPv4 0x1b1200b9105e1a12      0t0  TCP 127.0.0.1:52818->127.0.0.1:8100 (CLOSED)
+--
+04:59:23
+28574   03:25 R<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+36458   00:25 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+--
+04:59:35
+28574   03:36 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+36458   00:36 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+--
+04:59:45
+28574   03:46 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+36458   00:46 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+--
+04:59:56
+28574   03:58 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+36458   00:58 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+38299   00:11 Ts   /Users/runner/Library/Developer/CoreSimulator/Devices/B220EC43-535F-472F-935A-5B2D0E9F2975/data/Containers/Bundle/Application/E7DA2BA7-798B-4F02-9A20-FF513A5149B1/WebDriverAgentRunn
+--
+05:00:08
+28574   04:20 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+36458   01:20 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+38299   00:32 Rs   /Users/runner/Library/Developer/CoreSimulator/Devices/B220EC43-535F-472F-935A-5B2D0E9F2975/data/Containers/Bundle/Application/E7DA2BA7-798B-4F02-9A20-FF513A5149B1/WebDriverAgentRunn
+COMMAND     PID   USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+WebDriver 38299 runner    7u  IPv6 0x6c8188e08b6a32bd      0t0  TCP *:8100 (LISTEN)
+WebDriver 38299 runner   10u  IPv6 0x6bc405351c8d58f1      0t0  TCP 127.0.0.1:8100->127.0.0.1:53273 (ESTABLISHED)
+--
+05:00:38
+28574   04:42 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+36458   01:42 Rs   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+38299   00:54 Rs   /Users/runner/Library/Developer/CoreSimulator/Devices/B220EC43-535F-472F-935A-5B2D0E9F2975/data/Containers/Bundle/Application/E7DA2BA7-798B-4F02-9A20-FF513A5149B1/WebDriverAgentRunn
+COMMAND     PID   USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node      23956 runner   28u  IPv4  0x62a569a92e93656      0t0  TCP 127.0.0.1:53290->127.0.0.1:8100 (ESTABLISHED)
+node      23956 runner   30u  IPv4 0x960b842623d6f83d      0t0  TCP 127.0.0.1:53292->127.0.0.1:8100 (ESTABLISHED)
+--
+05:00:55
+28574   05:09 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+36458   02:09 Rs   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+38299   01:21 Rs   /Users/runner/Library/Developer/CoreSimulator/Devices/B220EC43-535F-472F-935A-5B2D0E9F2975/data/Containers/Bundle/Application/E7DA2BA7-798B-4F02-9A20-FF513A5149B1/WebDriverAgentRunn
+COMMAND     PID   USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node      23956 runner   28u  IPv4  0x62a569a92e93656      0t0  TCP 127.0.0.1:53290->127.0.0.1:8100 (ESTABLISHED)
+node      23956 runner   30u  IPv4 0x960b842623d6f83d      0t0  TCP 127.0.0.1:53292->127.0.0.1:8100 (ESTABLISHED)
+--
+05:01:47
+28574   05:49 R<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+36458   02:49 Rs   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+38299   02:01 Rs   /Users/runner/Library/Developer/CoreSimulator/Devices/B220EC43-535F-472F-935A-5B2D0E9F2975/data/Containers/Bundle/Application/E7DA2BA7-798B-4F02-9A20-FF513A5149B1/WebDriverAgentRunn
+COMMAND     PID   USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node      23956 runner   28u  IPv4  0x62a569a92e93656      0t0  TCP 127.0.0.1:53290->127.0.0.1:8100 (ESTABLISHED)
+node      23956 runner   30u  IPv4 0x960b842623d6f83d      0t0  TCP 127.0.0.1:53292->127.0.0.1:8100 (ESTABLISHED)
+--
+05:02:02
+28574   06:03 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+36458   03:03 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+38299   02:15 Rs   /Users/runner/Library/Developer/CoreSimulator/Devices/B220EC43-535F-472F-935A-5B2D0E9F2975/data/Containers/Bundle/Application/E7DA2BA7-798B-4F02-9A20-FF513A5149B1/WebDriverAgentRunn
+COMMAND     PID   USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node      23956 runner   28u  IPv4  0x62a569a92e93656      0t0  TCP 127.0.0.1:53290->127.0.0.1:8100 (ESTABLISHED)
+node      23956 runner   30u  IPv4 0x960b842623d6f83d      0t0  TCP 127.0.0.1:53292->127.0.0.1:8100 (ESTABLISHED)
+--
+05:02:13
+28574   06:15 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+36458   03:15 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+38299   02:27 Rs   /Users/runner/Library/Developer/CoreSimulator/Devices/B220EC43-535F-472F-935A-5B2D0E9F2975/data/Containers/Bundle/Application/E7DA2BA7-798B-4F02-9A20-FF513A5149B1/WebDriverAgentRunn
+COMMAND     PID   USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node      23956 runner   28u  IPv4  0x62a569a92e93656      0t0  TCP 127.0.0.1:53290->127.0.0.1:8100 (ESTABLISHED)
+node      23956 runner   30u  IPv4 0x960b842623d6f83d      0t0  TCP 127.0.0.1:53292->127.0.0.1:8100 (ESTABLISHED)
+--
+05:02:25
+28574   06:31 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+36458   03:31 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+38299   02:43 Rs   /Users/runner/Library/Developer/CoreSimulator/Devices/B220EC43-535F-472F-935A-5B2D0E9F2975/data/Containers/Bundle/Application/E7DA2BA7-798B-4F02-9A20-FF513A5149B1/WebDriverAgentRunn
+COMMAND     PID   USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node      23956 runner   28u  IPv4  0x62a569a92e93656      0t0  TCP 127.0.0.1:53290->127.0.0.1:8100 (ESTABLISHED)
+node      23956 runner   30u  IPv4 0x960b842623d6f83d      0t0  TCP 127.0.0.1:53292->127.0.0.1:8100 (ESTABLISHED)
+--
+05:02:40
+28574   06:41 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+36458   03:41 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+38299   02:53 Ss   /Users/runner/Library/Developer/CoreSimulator/Devices/B220EC43-535F-472F-935A-5B2D0E9F2975/data/Containers/Bundle/Application/E7DA2BA7-798B-4F02-9A20-FF513A5149B1/WebDriverAgentRunn
+COMMAND     PID   USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node      23956 runner   28u  IPv4  0x62a569a92e93656      0t0  TCP 127.0.0.1:53290->127.0.0.1:8100 (ESTABLISHED)
+node      23956 runner   30u  IPv4 0x960b842623d6f83d      0t0  TCP 127.0.0.1:53292->127.0.0.1:8100 (ESTABLISHED)
+--
+05:02:52
+28574   06:55 U<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+41069   00:08 R<   /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_modules/appium-webdriveragent/WebDriverA
+--
+05:03:04
+28574   07:05 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+--
+05:03:14
+28574   07:16 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+--
+05:03:28
+28574   07:45 R<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+43747   00:22 R    /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+--
+05:04:29
+28574   08:31 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+43747   01:07 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+--
+05:04:40
+28574   08:41 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+43747   01:17 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+--
+05:04:51
+28574   08:59 R<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+43747   01:36 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+45250   00:11 Ts   /Users/runner/Library/Developer/CoreSimulator/Devices/B220EC43-535F-472F-935A-5B2D0E9F2975/data/Containers/Bundle/Application/E7DA2BA7-798B-4F02-9A20-FF513A5149B1/WebDriverAgentRunn
+--
+05:06:06
+46143   00:00 R<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+--
+05:06:16
+46143   00:11 R<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+--
+05:06:28
+46143   00:33 R<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+46992   00:15 Rs   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+--
+05:07:08
+46143   01:14 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+46992   00:55 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+--
+05:07:32
+46143   01:26 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+46992   01:07 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+--
+05:07:42
+46143   01:36 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+46992   01:17 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+--
+05:07:54
+46143   01:54 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+46992   01:35 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+--
+05:08:29
+46143   02:29 R<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+46992   02:10 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+--
+05:08:51
+46143   02:45 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+46992   02:26 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+48916   00:15 Rs   /Users/runner/Library/Developer/CoreSimulator/Devices/B220EC43-535F-472F-935A-5B2D0E9F2975/data/Containers/Bundle/Application/DCDAA4CC-0AA3-4ECE-A059-D841CAF2430F/WebDriverAgentRunn
+COMMAND     PID   USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node      23956 runner   27u  IPv4 0xe88c196e45f291a8      0t0  TCP 127.0.0.1:55501->127.0.0.1:8100 (ESTABLISHED)
+node      23956 runner   29u  IPv4 0xba6495a542df93cd      0t0  TCP 127.0.0.1:55503->127.0.0.1:8100 (ESTABLISHED)
+--
+05:09:03
+46143   02:57 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+46992   02:38 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+48916   00:27 Rs   /Users/runner/Library/Developer/CoreSimulator/Devices/B220EC43-535F-472F-935A-5B2D0E9F2975/data/Containers/Bundle/Application/DCDAA4CC-0AA3-4ECE-A059-D841CAF2430F/WebDriverAgentRunn
+COMMAND     PID   USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node      23956 runner   27u  IPv4 0xe88c196e45f291a8      0t0  TCP 127.0.0.1:55501->127.0.0.1:8100 (ESTABLISHED)
+node      23956 runner   29u  IPv4 0xba6495a542df93cd      0t0  TCP 127.0.0.1:55503->127.0.0.1:8100 (ESTABLISHED)
+--
+05:09:14
+46143   03:08 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+46992   02:49 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+48916   00:38 Rs   /Users/runner/Library/Developer/CoreSimulator/Devices/B220EC43-535F-472F-935A-5B2D0E9F2975/data/Containers/Bundle/Application/DCDAA4CC-0AA3-4ECE-A059-D841CAF2430F/WebDriverAgentRunn
+49940   00:01 U<   /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_modules/appium-webdriveragent/WebDriverA
+COMMAND     PID   USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node      23956 runner   27u  IPv4 0xe88c196e45f291a8      0t0  TCP 127.0.0.1:55501->127.0.0.1:8100 (ESTABLISHED)
+node      23956 runner   29u  IPv4 0xba6495a542df93cd      0t0  TCP 127.0.0.1:55503->127.0.0.1:8100 (ESTABLISHED)
+--
+05:09:25
+46143   03:19 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+49940   00:12 R<   /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_modules/appium-webdriveragent/WebDriverA
+--
+05:09:35
+46143   03:29 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+--
+05:09:46
+46143   03:47 R<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+--
+05:10:58
+46143   04:52 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+52512   00:51 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+--
+05:11:08
+46143   05:02 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+52512   01:01 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+--
+05:11:19
+46143   05:19 R<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+52512   01:18 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+54106   00:07 Ts   /Users/runner/Library/Developer/CoreSimulator/Devices/B220EC43-535F-472F-935A-5B2D0E9F2975/data/Containers/Bundle/Application/DCDAA4CC-0AA3-4ECE-A059-D841CAF2430F/WebDriverAgentRunn
+--
+05:11:38
+46143   05:36 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+52512   01:35 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+54106   00:24 Ts   /Users/runner/Library/Developer/CoreSimulator/Devices/B220EC43-535F-472F-935A-5B2D0E9F2975/data/Containers/Bundle/Application/DCDAA4CC-0AA3-4ECE-A059-D841CAF2430F/WebDriverAgentRunn
+--
+05:11:52
+54711   00:06 R<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+--
+05:12:02
+54711   00:16 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+--
+05:12:17
+54711   00:54 R<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+55073   00:35 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+--
+05:13:23
+54711   01:41 R<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+55073   01:22 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+--
+05:13:38
+54711   01:52 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+55073   01:33 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+--
+05:13:48
+54711   02:03 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+55073   01:44 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+--
+05:13:59
+54711   02:21 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+55073   02:02 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+56784   00:17 Ts   /Users/runner/Library/Developer/CoreSimulator/Devices/B220EC43-535F-472F-935A-5B2D0E9F2975/data/Containers/Bundle/Application/06904A1A-242D-4AB5-9371-96BABF2634FC/WebDriverAgentRunn
+--
+05:14:22
+54711   02:48 S<s  /Applications/Xcode_26.3.0.app/Contents/Developer/usr/bin/xcodebuild build-for-testing test-without-building -project /Users/runner/.appium/node_modules/appium-xcuitest-driver/node_
+55073   02:29 Ss   /Library/Developer/CoreSimulator/Volumes/iOS_23C54/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 26.2.simruntime/Contents/Resources/RuntimeRoot/usr/libexec/testmanagerd
+56784   00:43 Rs   /Users/runner/Library/Developer/CoreSimulator/Devices/B220EC43-535F-472F-935A-5B2D0E9F2975/data/Containers/Bundle/Application/06904A1A-242D-4AB5-9371-96BABF2634FC/WebDriverAgentRunn
+COMMAND     PID   USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node      23956 runner   28u  IPv4 0xc973ac2f8a3e3c0d      0t0  TCP 127.0.0.1:56734->127.0.0.1:8100 (ESTABLISHED)
+node      23956 runner   29u  IPv4 0x4363ac05f2a5dbb5      0t0  TCP 127.0.0.1:56735->127.0.0.1:8100 (ESTABLISHED)
+--

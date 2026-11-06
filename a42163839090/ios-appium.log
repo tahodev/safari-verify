@@ -1,0 +1,11 @@
+nav sajumadang null
+probe sajumadang "execfail Error: http timeout 25000"
+PASS [sajumadang] serves 200 with real title :: Sajumadang
+FAIL [sajumadang] boot: title + UI renders
+WD non-JSON DELETE  
+WD error POST /session {"error":"unknown error","message":"The remote debugger did not return any connected web applications after 6957ms. Make sure your web application is debuggable and could be inspected in Safari Web Inspector. You may try to change the 'webviewConnectTimeout' capability value to customize the retriev
+FAIL [seongsu-dogam] session :: no session: {"error":"unknown error","message":"The remote debugger did not return any connected web applications after 6957ms. Make sure your web application is debuggable and could be inspected in S
+WD error POST /session {"error":"unknown error","message":"The remote debugger did not return any connected web applications after 6470ms. Make sure your web application is debuggable and could be inspected in Safari Web Inspector. You may try to change the 'webviewConnectTimeout' capability value to customize the retriev
+FAIL [kurashi-otaru] session :: no session: {"error":"unknown error","message":"The remote debugger did not return any connected web applications after 6470ms. Make sure your web application is debuggable and could be inspected in S
+
+==== DESKTOP SAFARI: 1/4 checks passed ====

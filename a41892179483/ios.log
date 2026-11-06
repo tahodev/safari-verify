@@ -1,0 +1,194 @@
+== simulator inventory ==
+    iPhone 16 Pro (15FAB4A1-2F41-4DFB-B3E0-FB0C9936253D) (Shutdown) 
+    iPhone 16 Pro Max (05149308-5C0B-4991-A958-E061DE68556F) (Shutdown) 
+    iPhone 16e (2A6295B6-754E-4209-9524-C62EAE190E66) (Shutdown) 
+    iPhone 16 (141DD5FC-FF1D-429C-B43E-1323E1915FDE) (Shutdown) 
+    iPhone 16 Plus (48673FE0-21AD-4D40-9CBD-926B77290522) (Shutdown) 
+    iPhone SE (3rd generation) (4B35B468-69CD-4004-BDA9-463359998DBA) (Shutdown) 
+    iPhone 16 Pro (388CDC20-2304-4FC7-ADC8-B06C7619013C) (Shutdown) 
+    iPhone 16 Pro Max (BCE69EF3-7FCD-49FC-8681-B9EA8D75E47E) (Shutdown) 
+Using simulator UDID: B220EC43-535F-472F-935A-5B2D0E9F2975
+Monitoring boot status for iPhone SE (3rd generation) (B220EC43-535F-472F-935A-5B2D0E9F2975).
+[2026-11-04 19:10:11 +0000] Status=2, isTerminal=NO, Elapsed=01:02.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.-0LaunchServicesMigrator (00LaunchServicesMigrator.migrator, user-agnostic)
+		Migration Elapsed:00:51 seconds
+
+[2026-11-04 19:10:12 +0000] Status=2, isTerminal=NO, Elapsed=01:03.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.-0LaunchServicesMigrator (00LaunchServicesMigrator.migrator, user-agnostic)
+		Migration Elapsed:00:52 seconds
+
+[2026-11-04 19:10:13 +0000] Status=2, isTerminal=NO, Elapsed=01:04.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.-0LaunchServicesMigrator (00LaunchServicesMigrator.migrator, user-agnostic)
+		Migration Elapsed:00:53 seconds
+
+[2026-11-04 19:10:14 +0000] Status=2, isTerminal=NO, Elapsed=01:05.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.-0LaunchServicesMigrator (00LaunchServicesMigrator.migrator, user-agnostic)
+		Migration Elapsed:00:54 seconds
+
+[2026-11-04 19:10:15 +0000] Status=2, isTerminal=NO, Elapsed=01:06.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.-0LaunchServicesMigrator (00LaunchServicesMigrator.migrator, user-agnostic)
+		Migration Elapsed:00:55 seconds
+
+[2026-11-04 19:10:16 +0000] Status=2, isTerminal=NO, Elapsed=01:07.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.-0LaunchServicesMigrator (00LaunchServicesMigrator.migrator, user-agnostic)
+		Migration Elapsed:00:56 seconds
+
+[2026-11-04 19:10:17 +0000] Status=2, isTerminal=NO, Elapsed=01:08.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.-0LaunchServicesMigrator (00LaunchServicesMigrator.migrator, user-agnostic)
+		Migration Elapsed:00:57 seconds
+
+[2026-11-04 19:10:18 +0000] Status=2, isTerminal=NO, Elapsed=01:09.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.-0LaunchServicesMigrator (00LaunchServicesMigrator.migrator, user-agnostic)
+		Migration Elapsed:00:58 seconds
+
+[2026-11-04 19:10:19 +0000] Status=2, isTerminal=NO, Elapsed=01:10.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.-0LaunchServicesMigrator (00LaunchServicesMigrator.migrator, user-agnostic)
+		Migration Elapsed:00:59 seconds
+
+[2026-11-04 19:10:20 +0000] Status=2, isTerminal=NO, Elapsed=01:11.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.-0LaunchServicesMigrator (00LaunchServicesMigrator.migrator, user-agnostic)
+		Migration Elapsed:01:00 seconds
+
+[2026-11-04 19:10:21 +0000] Status=2, isTerminal=NO, Elapsed=01:12.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.-0LaunchServicesMigrator (00LaunchServicesMigrator.migrator, user-agnostic)
+		Migration Elapsed:01:01 seconds
+
+[2026-11-04 19:10:28 +0000] Status=2, isTerminal=NO, Elapsed=01:19.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.securityd.KeychainMigrator (KeychainMigrator.migrator, user-agnostic)
+		Migration Elapsed:01:03 seconds
+
+[2026-11-04 19:10:32 +0000] Status=2, isTerminal=NO, Elapsed=01:23.
+	Waiting on Data Migration
+		Reason:Running plugin com.apple.MobileSafari.migrator (MobileSafari.migrator)
+		Migration Elapsed:01:09 seconds
+
+[2026-11-04 19:10:34 +0000] Status=4, isTerminal=NO, Elapsed=01:25.
+	Waiting on System App
+
+[2026-11-04 19:10:36 +0000] Status=4, isTerminal=NO, Elapsed=01:27.
+	Waiting on System App
+
+[2026-11-04 19:10:37 +0000] Status=4, isTerminal=NO, Elapsed=01:28.
+	Waiting on System App
+
+[2026-11-04 19:10:39 +0000] Status=4, isTerminal=NO, Elapsed=01:30.
+	Waiting on System App
+
+[2026-11-04 19:10:40 +0000] Status=4, isTerminal=NO, Elapsed=01:31.
+	Waiting on System App
+
+[2026-11-04 19:10:41 +0000] Status=4, isTerminal=NO, Elapsed=01:32.
+	Waiting on System App
+
+[2026-11-04 19:10:42 +0000] Status=4, isTerminal=NO, Elapsed=01:33.
+	Waiting on System App
+
+[2026-11-04 19:10:44 +0000] Status=4, isTerminal=NO, Elapsed=01:35.
+	Waiting on System App
+
+[2026-11-04 19:10:44 +0000] Status=4, isTerminal=NO, Elapsed=01:35.
+	Waiting on System App
+
+[2026-11-04 19:10:45 +0000] Status=4, isTerminal=NO, Elapsed=01:36.
+	Waiting on System App
+
+[2026-11-04 19:10:47 +0000] Status=4, isTerminal=NO, Elapsed=01:38.
+	Waiting on System App
+
+[2026-11-04 19:10:51 +0000] Status=4, isTerminal=NO, Elapsed=01:42.
+	Waiting on System App
+
+[2026-11-04 19:11:01 +0000] Status=4294967295, isTerminal=YES, Elapsed=01:52.
+	Finished
+
+== xcode diagnostics ==
+/Applications/Xcode_16.4.app/Contents/Developer
+/Applications/Xcode_16.0.0.app
+/Applications/Xcode_16.0.app
+/Applications/Xcode_16.1.0.app
+/Applications/Xcode_16.1.app
+/Applications/Xcode_16.2.0.app
+/Applications/Xcode_16.2.app
+/Applications/Xcode_16.3.0.app
+/Applications/Xcode_16.3.app
+/Applications/Xcode_16.4.0.app
+/Applications/Xcode_16.4.app
+/Applications/Xcode_16.app
+/Applications/Xcode_26.0.1.app
+/Applications/Xcode_26.0.app
+/Applications/Xcode_26.1.1.app
+/Applications/Xcode_26.1.app
+/Applications/Xcode_26.2.0.app
+/Applications/Xcode_26.2.app
+/Applications/Xcode_26.3.0.app
+/Applications/Xcode_26.3.app
+/Applications/Xcode.app
+Xcode 16.4
+Build version 16F6
+selecting /Applications/Xcode_26.3.0.app for idb-companion build
+== Appium XCUITest route ==
+sim: B220EC43-535F-472F-935A-5B2D0E9F2975 os=26.2 name=iPhone SE (3rd generation)
+An error was encountered processing the command (domain=com.apple.CoreSimulator.SimError, code=405):
+Unable to boot device in current state: Booted
+sim state:     iPhone SE (3rd generation) (B220EC43-535F-472F-935A-5B2D0E9F2975) (Booted) 
+- automationName: XCUITest
+- platformNames: ["iOS","tvOS","watchOS"]
+nav golden-gate-picnic-sf null
+probe golden-gate-picnic-sf "execfail Error: http timeout 25000"
+PASS [golden-gate-picnic-sf] serves 200 with real title :: Golden Gate Picnic - a night picnic by the bridge
+PASS [golden-gate-picnic] boot: page loads, __ggp handle + entry gate present
+GATE-STATE {"en":true,"ko":false,"goDisabled":false,"hint":"none","goText":"Spread the mat","cls":" native-emoji","emojiCss":false,"dice":"🎲","boy":"👦 Boy","ua":"Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1"}
+PASS [golden-gate-picnic] gate first visit: English preselected, Korean not, entry enabled, no pick-language hint :: {"en":true,"ko":false,"goDisabled":false,"hint":"none","goText":"Spread the mat","cls":" native-emoji","emojiCss":false,"dice":"🎲","boy":"👦 Boy","ua":"Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1"}
+PASS [golden-gate-picnic] entry: real button clicks spawn avatar (WebSocket join)
+PASS [golden-gate-picnic] sky info pill shows SF sun+moon times :: SF 🌅 06:39 (109°) · 🌇 17:09 (251°) | 🌙 ↑ ≈02:04 (84°) · ↓ 14:46 (272°)
+PASS [golden-gate-picnic] avatar drawn fully opaque (globalAlpha 1) :: alphas=[1]
+nextpill(info) "Next: 🌫️ 20:00 local"
+PASS [golden-gate-picnic] iPhone touch-walk: native tap on ground moves avatar :: pos {} changed=true
+seatsit-ui(info) bar=true sitBtn=true
+PASS [golden-gate-picnic] Actions panel Sit tap claims seat (real UI flow + WS round-trip) :: claimed=1
+PASS [golden-gate-picnic] final seated state after arrival (iPhone) :: {"seat":1,"act":"sit","moving":false}
+WD non-JSON DELETE  
+
+==== DESKTOP SAFARI: 9/9 checks passed ====
+---- appium server log tail ----
+[c10e71f1][XCUITestDriver@67d0] Matched '/screenshot' to command name 'getScreenshot'
+[c10e71f1][XCUITestDriver@67d0] Proxying [GET /screenshot] to [GET http://127.0.0.1:8100/session/752E5D38-EFF2-4548-9BBD-D26DA694F079/screenshot] with no body
+[c10e71f1][Xcode] 2026-11-04 19:25:20.756791+0000 WebDriverAgentRunner-Runner[30764:84774] The device under test does not support HEIC image encoding. Falling back to PNG
+[c10e71f1][XCUITestDriver@67d0] Got response with status 200: {"value":"iVBORw0KGgoAAAANSUhEUgAAAu4AAAU2CAIAAABFtaRRAAAAAXNSR0IArs4c6QAAAHplWElmTU0AKgAAAAgAAwEOAAIAAAALAAAAMgESAAMAAAABAAEAAIdpAAQAAAABAAAAPgAAAABTY3JlZW5zaG90AAAAA5KGAAcAAAAS
+[c10e71f1][XCUITestDriver@67d0] Responding to client with driver.getScreenshot() result: "iVBORw0KGgoAAAANSUhEUgAAAu4AAAU2CAIAAABFtaRRAAAAAXNSR0IArs4c6QAAAHplWElmTU0AKgAAAAgAAwEOAAIAAAALAAAAMgESAAMAAAABAAEAAIdpAAQAAAABAAAAPgAAAABTY3JlZW5zaG
+[c10e71f1][HTTP] <-- GET /session/c10e71f1-926b-4a99-97f0-cedbe2cd22b6/screenshot 200 567 ms - 846940
+[c10e71f1][HTTP] --> DELETE /session/c10e71f1-926b-4a99-97f0-cedbe2cd22b6 
+[c10e71f1][HTTP] <-- DELETE /session/c10e71f1-926b-4a99-97f0-cedbe2cd22b6 - - ms - -
+[c10e71f1][XCUITestDriver@67d0] Calling AppiumDriver.deleteSession() with args: ["c10e71f1-926b-4a99-97f0-cedbe2cd22b6"]
+[c10e71f1][AppiumDriver@81fc] Event 'quitSessionRequested' logged at 1793820321367 (19:25:21 GMT+0000 (Coordinated Universal Time))
+[c10e71f1][BaseDriver] Unsubscribing 67d0d740-ccc0-4446-abe4-fb89db7c5ec7 from topic 'xcuitest:sessionUdidClaimed'
+[c10e71f1][XCUITestDriver@67d0] Proxying [DELETE /session/c10e71f1-926b-4a99-97f0-cedbe2cd22b6] to [DELETE http://127.0.0.1:8100/session/752E5D38-EFF2-4548-9BBD-D26DA694F079] with no body
+[c10e71f1][XCUITestDriver@67d0] Got response with status 200: {"value":null,"sessionId":null}
+[c10e71f1][XCUITestDriver@67d0] Not clearing log files. Use `clearSystemFiles` capability to turn on.
+[c10e71f1][XCUITestDriver@67d0] Releasing connections for B220EC43-535F-472F-935A-5B2D0E9F2975 device on any port number
+[c10e71f1][XCUITestDriver@67d0] Found cached connections to release: ["B220EC43-535F-472F-935A-5B2D0E9F2975:8100","B220EC43-535F-472F-935A-5B2D0E9F2975:9100"]
+[c10e71f1][XCUITestDriver@67d0] Cached connections count: 0
+[c10e71f1][XCUITestDriver@67d0] Found a remote debugger session. Removing...
+[c10e71f1][RemoteDebugger] Disconnecting from remote debugger
+[c10e71f1][RemoteDebugger] Cleaning up listeners
+[c10e71f1][AppiumDriver@81fc] Removing session c10e71f1-926b-4a99-97f0-cedbe2cd22b6 from our master session list
+[c10e71f1][AppiumDriver@81fc] Event 'quitSessionFinished' logged at 1793820321482 (19:25:21 GMT+0000 (Coordinated Universal Time))
+[c10e71f1][AppiumDriver@81fc] Received response: null
+[c10e71f1][AppiumDriver@81fc] But deleting session, so not returning
+[c10e71f1][AppiumDriver@81fc] Responding to client with driver.deleteSession() result: null
+ios-check.sh: line 79: 10055 Terminated: 15          ( while true; do
+    { date -u +%T; ps -axo pid,etime,stat,command | grep -iE "xcodebuild|XCTRunner|WebDriverAgent|testmanagerd|xctest" | grep -v grep | cut -c1-200; lsof -nP -iTCP:8100 2> /dev/null | head -3; echo "--"; } >> results/wda-monitor.log; sleep 10;
+done )
+== appium route done rc=0 ==

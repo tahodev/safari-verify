@@ -1,0 +1,15 @@
+nav golden-gate-picnic-sf null
+probe golden-gate-picnic-sf "complete|Render - Application loading|https://golden-gate-picnic-sf.onrender.com/"
+PASS [golden-gate-picnic-sf] serves 200 with real title :: Golden Gate Picnic - a night picnic by the bridge
+PASS [golden-gate-picnic] boot: page loads, __ggp handle + entry gate present
+GATE-STATE {"en":true,"ko":false,"goDisabled":false,"hint":"none","goText":"Spread the mat","cls":" native-emoji","emojiCss":false,"dice":"🎲","boy":"👦 Boy","ua":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Safari/605.1.15"}
+PASS [golden-gate-picnic] gate first visit: English preselected, Korean not, entry enabled, no pick-language hint :: {"en":true,"ko":false,"goDisabled":false,"hint":"none","goText":"Spread the mat","cls":" native-emoji","emojiCss":false,"dice":"🎲","boy":"👦 Boy","ua":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Safari/605.1.15"}
+PASS [golden-gate-picnic] entry: real button clicks spawn avatar (WebSocket join)
+PASS [golden-gate-picnic] sky info pill shows SF sun+moon times :: SF 🌅 06:39 (109°) · 🌇 17:09 (251°) | 🌙 ↑ ≈02:04 (84°) · ↓ 14:46 (272°)
+PASS [golden-gate-picnic] avatar drawn fully opaque (globalAlpha 1) :: alphas=[1]
+nextpill(info) "Next: 🌫️ 20:00 local"
+seattap(info) undefined seat {"i":9,"fy":0.6876025991253555,"fx":0.8167613385255139,"dist":7}
+seatclaim(info) claimed=9 dest=null
+PASS [golden-gate-picnic] canvas tap claims seat (hit-testing + WS round-trip) :: tap seat#9 dist=7 claimed=9
+
+==== DESKTOP SAFARI: 7/7 checks passed ====
