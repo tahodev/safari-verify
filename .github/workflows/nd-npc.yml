@@ -1,6 +1,8 @@
 name: nd-npc-safari
 on:
   workflow_dispatch:
+  push:
+    paths: ["nd-npc-check.mjs"]
 jobs:
   verify:
     runs-on: macos-15
