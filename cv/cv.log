@@ -1,0 +1,11 @@
+VARIANT base DONE {"url":6,"err":"InvalidStateError"}
+VARIANT nogpu_canvas DONE {"url":6,"err":"InvalidStateError"}
+VARIANT nogpu_all DONE {"url":6,"err":"InvalidStateError"}
+VARIANT gui DONE {"url":6,"err":"InvalidStateError"}
+SYS ProductName:		macOS
+ProductVersion:		15.8.2
+BuildVersion:		24H232
+runner           console      Nov  6 05:20 
+Included with Safari 27.2 (20625.2.8.18.4)
+27.2
+
