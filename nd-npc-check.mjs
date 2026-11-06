@@ -16,7 +16,7 @@ try{
  const probe=`const done=arguments[arguments.length-1];const out={};const im=new Image();im.onload=()=>{out.webp=[im.naturalWidth,im.naturalHeight];try{const c=document.createElement('canvas');c.width=64;c.height=64;const x=c.getContext('2d');x.drawImage(im,0,0,64,64);const d=x.getImageData(0,0,64,64).data;let n=0;for(let i=3;i<d.length;i+=4)if(d[i])n++;out.fresh_nonzero=n}catch(e){out.fresh_err=e.message}
   const gc=[...document.querySelectorAll('canvas')];out.canv=gc.map(c=>{let r={w:c.width,h:c.height,cw:c.clientWidth,ch:c.clientHeight};try{r.url=c.toDataURL().length}catch(e){r.urlerr=e.message}try{const z=c.getContext('2d');r.ctx=!!z;r.t=Object.prototype.toString.call(z)}catch(e){r.cerr=e.message}return r});
   const b=document.createElement('canvas');b.width=gc[0]?gc[0].width:10;b.height=gc[0]?gc[0].height:10;out.blankurl=b.toDataURL().length;done(JSON.stringify(out))};im.onerror=()=>{out.err='img error';done(JSON.stringify(out))};im.src='assets/scene-12.webp?x='+Date.now();`;
- const targets=[['nd',URL_,'seongsu-atlas-v1',{lang:'en',scene:12,visited:[12],character:0,tipsSeen:true,showTips:false}],['oldsd','https://seongsu-dogam.onrender.com/','seongsu-atlas-v1',{lang:'en',scene:12,visited:[12],character:0,tipsSeen:true,showTips:false}],['kurashi','https://kurashi-otaru.onrender.com/','kurashi-atlas-v1',{lang:'en',scene:3,visited:[3],character:0,tipsSeen:true,showTips:false}]];
+ const targets=[['nd',URL_,'seongsu-atlas-v1',{lang:'en',scene:12,visited:[12],character:0,tipsSeen:true,showTips:false}]];//];
  for(const [nm,u,key,val] of targets){
   await wd('POST',`/session/${sid}/url`,{url:u+'robots.txt'});await sleep(800);
   if(key)await ex(`localStorage.setItem('${key}',JSON.stringify(${JSON.stringify(val)}));return 1`);
@@ -25,6 +25,9 @@ try{
   await sleep(10000);
   console.log('PROBE',nm,await exa(probe));
   await shot('nd-diag-'+nm);
+  console.log('INJECT',await exa(`const done=arguments[arguments.length-1];const c=document.createElement('canvas');c.width=300;c.height=300;c.style.cssText='position:fixed;left:700px;top:60px;z-index:99999;border:4px solid red;background:#fff';document.body.appendChild(c);const x=c.getContext('2d');x.fillStyle='#0a0';x.fillRect(0,0,100,100);const im=new Image();im.onload=()=>{x.drawImage(im,0,0,300,300);let t='';try{t=c.toDataURL().length}catch(e){t=e.message}done('drawn url='+t)};im.onerror=()=>done('img err');im.src='assets/scene-12.webp?y='+Date.now();`));
+  await sleep(1000);await shot('nd-diag-inject');
+  console.log('GAMECANVAS-visible',await ex(`const g=document.querySelector('canvas');const r=g.getBoundingClientRect();return JSON.stringify([r.x,r.y,r.width,r.height,getComputedStyle(g).visibility,getComputedStyle(g).opacity,innerWidth,innerHeight,devicePixelRatio])`));
  }
  await wd('DELETE',`/session/${sid}`);
 }catch(e){console.log('ERR',String(e))}
