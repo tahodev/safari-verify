@@ -12,7 +12,7 @@ try{
  await wd('POST',`/session/${sid}/window/rect`,{width:1100,height:860});
  const ex=async(sc_)=>(await wd('POST',`/session/${sid}/execute/sync`,{script:sc_,args:[]})).value;
  const shot=async(name)=>{const png=await wd('GET',`/session/${sid}/screenshot`);if(png.value)writeFileSync(`results/${name}.png`,Buffer.from(png.value,'base64'))};
- for(const sc of [12,13,25,26]){
+ for(const sc of [12,26]){
   await wd('POST',`/session/${sid}/url`,{url:URL_+'npcs.js'});await sleep(800);
   await ex(`localStorage.setItem('seongsu-atlas-v1',JSON.stringify({lang:'en',scene:${sc},visited:[${sc}],character:0,tipsSeen:true,showTips:false}));return 1`);
   await wd('POST',`/session/${sid}/url`,{url:URL_});await sleep(3000);
@@ -22,7 +22,8 @@ try{
   await sleep(1500);
   const el2=await wd('POST',`/session/${sid}/element`,{using:'xpath',value:"//button[contains(normalize-space(),'Start walking')]"});
   const eid2=el2.value&&Object.values(el2.value)[0];if(eid2)await wd('POST',`/session/${sid}/element/${eid2}/click`,{});
-  await sleep(3500);
+  await sleep(12000);
+  console.log('DIAG',sc,await ex(`let r=[];document.querySelectorAll('canvas').forEach(c=>{let n=-1;try{let d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;n=0;for(let i=3;i<d.length;i+=4)if(d[i])n++}catch(e){n='err '+e.message}r.push([c.width,c.height,n])});return JSON.stringify({canv:r,imgs:[...document.images].map(i=>[i.src.split('/').pop(),i.complete,i.naturalWidth]).slice(0,8)})`));
   console.log('SCENE',sc,await ex(`return JSON.stringify({s:window.__dogam&&__dogam.S(),stage:window.__dogam&&__dogam.stage(),pos:__dogam.pos(),act:(document.querySelector('.actions button')||{}).textContent,npcjs:typeof window.SeongsuNPCs})`));
   await shot(`nd-safari-${sc}-a`);await sleep(2500);await shot(`nd-safari-${sc}-b`);
   console.log('POS-b',sc,await ex(`return JSON.stringify(__dogam.pos())`));
