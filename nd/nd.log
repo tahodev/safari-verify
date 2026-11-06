@@ -1,21 +1,3 @@
 UA Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Safari/605.1.15
-START-BTN 12 {"element-6066-11e4-a52e-4f735466cecf":"node-6625E5B9-4F6E-40C7-A2CF-D74EDCA2A72
-DIAG 12 {"canv":[[699,699,"err The object is in an invalid state."]],"imgs":[]}
-SCENE 12 {"s":{"scene":12,"name":"","lang":"en","vis":1},"stage":"game","pos":{"x":0.5,"y":0.8},"act":"E · Sit and rest","npcjs":"object"}
-POS-b 12 {"x":0.5,"y":0.8}
-AFTER-E 12 Sit and rest
-×
-
-A salt-bread bakery in a Yeonmujang-gil alley, filling the street with the smell of fresh bakes.
-
-Sit and restLook around
-START-BTN 26 {"element-6066-11e4-a52e-4f735466cecf":"node-360D03F2-F9C9-4AAD-BCAF-43FF3A0C543
-DIAG 26 {"canv":[[699,699,"err The object is in an invalid state."]],"imgs":[]}
-SCENE 26 {"s":{"scene":26,"name":"","lang":"en","vis":1},"stage":"game","pos":{"x":0.5,"y":0.8},"act":"E · Sit and rest","npcjs":"object"}
-POS-b 26 {"x":0.5,"y":0.8}
-AFTER-E 26 Sit and rest
-×
-
-A charcoal grill restaurant. Every table is full of grilling smoke and laughter.
-
-Sit and restLook around
+PROBE nd {"webp":[560,560],"fresh_err":"The object is in an invalid state.","canv":[{"w":699,"h":699,"cw":699,"ch":699,"url":6,"ctx":true,"t":"[object CanvasRenderingContext2D]"}],"blankurl":11618}
+PROBE ggp {"err":"img error"}
