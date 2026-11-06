@@ -1,0 +1,18 @@
+name: nd-npc-safari
+on:
+  workflow_dispatch:
+jobs:
+  verify:
+    runs-on: macos-15
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - run: curl -s -o /dev/null -w "%{http_code}\n" https://seongsu-dogam-4qf0.onrender.com/npcs.js
+      - run: sudo safaridriver --enable
+      - run: mkdir -p results && node nd-npc-check.mjs 2>&1 | tee results/nd.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nd-results
+          path: results/
+          retention-days: 7
