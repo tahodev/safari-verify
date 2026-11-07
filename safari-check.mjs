@@ -170,6 +170,17 @@ async function checkGGP(sid) {
       } else rec(A, 'canvas tap claims seat (hit-testing + WS round-trip)', false, 'no #cv canvas element');
     }
   }
+  // ---- 800px layout regression block (7094b8b: 3-line card + chips + sun/moon + hint readable at 800px) ----
+  if (!BS_DEVICE) {
+    const rect0 = await api('GET', '/window/rect', null, sid).then(r => r.value).catch(() => null);
+    await api('POST', '/window/rect', { width: 800, height: 950 }, sid).catch(() => {});
+    await sleep(1500);
+    const lay = await exe(sid, `(()=>{const de=document.documentElement;const sky=(document.getElementById('skyinfo')||{}).textContent||'';const rest=document.getElementById('rest');const restR=rest?rest.getBoundingClientRect():null;const vis=e=>!!e&&e.offsetHeight>0&&e.offsetWidth>0;return JSON.stringify({scrollW:de.scrollWidth,innerW:innerWidth,sky:sky,skyHasSunMoon:sky.includes('\u{1F305}')&&sky.includes('\u{1F319}'),restVisible:vis(rest),restText:rest?rest.textContent.slice(0,60):null,restInViewport:restR?restR.right<=innerWidth+1&&restR.bottom<=innerHeight+1:null})})()`).catch(() => null);
+    rec(A, '800px: no horizontal overflow (3-line card layout holds)', !!(lay && JSON.parse(lay).scrollW <= JSON.parse(lay).innerW + 2), String(lay));
+    if (lay) { const L = JSON.parse(lay); rec(A, '800px: sun/moon pill + Next line visible inside viewport', !!(L.skyHasSunMoon && L.restVisible && L.restInViewport !== false), L.sky.replace(/\n/g,' | ') + ' || ' + String(L.restText)); }
+    await shot(sid, 'desktop-ggp-800px');
+    if (rect0) await api('POST', '/window/rect', { width: rect0.width, height: rect0.height }, sid).catch(() => {});
+  }
   await shot(sid, 'desktop-golden-gate-picnic');
 }
 
@@ -934,6 +945,60 @@ async function checkGeungrak(sid) {
 }
 
 
+// ---- sajumadang night-market return / Play-yard pin (post-a78f226 verdict) ----
+async function checkSajuPin(sid) {
+  const A = 'saju-playpin';
+  const boot = await waitFor(sid, `document.title && document.title.indexOf('\uC0AC\uC8FC\uB9C8\uB2F9') >= 0 && !!document.querySelector('button')`, 60000);
+  rec(A, 'boot: title + UI renders', !!boot);
+  if (!boot) return;
+  const guideClose = await el(sid, 'xpath', `//button[contains(.,'\uB2EB\uAE30')]`);
+  if (guideClose) { await click(sid, guideClose); await sleep(800); }
+  const nameGo = await el(sid, 'xpath', `//button[contains(.,'\uC774\uB984 \uC9D3\uACE0 \uB4E4\uC5B4\uAC00\uAE30')]`);
+  if (nameGo) {
+    await click(sid, nameGo); await sleep(800);
+    const nickIn = await el(sid, 'css selector', '#fNick');
+    if (nickIn) { await click(sid, nickIn); await type(sid, nickIn, 'QA\uB9C8\uB2F9'); }
+    const nickGo = await el(sid, 'xpath', `//button[contains(.,'\uC774 \uBAA8\uC2B5\uC73C\uB85C \uB4E4\uC5B4\uAC00\uAE30')]`);
+    if (nickGo) { await click(sid, nickGo); await sleep(2000); }
+  }
+  // yard -> night market via the market door chip
+  let door = await el(sid, 'css selector', 'button.pldoor.pd-market');
+  if (!door) { const sb = await el(sid, 'css selector', '#sceneBtn'); if (sb) { await click(sid, sb); await sleep(1500); } door = await el(sid, 'css selector', 'button.pldoor.pd-market'); }
+  rec(A, 'yard: market door chip (button.pldoor.pd-market) present', !!door);
+  if (!door) return;
+  await click(sid, door); await sleep(3000); // avatar idles center in the market
+  const pin = await exe(sid, `(()=>{const p=document.querySelector('button.plpin'),h=document.querySelector('.plhere');if(!p||!h)return JSON.stringify({pin:!!p,here:!!h});const pr=p.getBoundingClientRect(),hr=h.getBoundingClientRect();const overlap=!(pr.right<hr.left||pr.left>hr.right||pr.bottom<hr.top||pr.top>hr.bottom);const zp=getComputedStyle(p).zIndex,zh=getComputedStyle(h).zIndex;const fs=+getComputedStyle(p).fontSize.replace('px','');return JSON.stringify({pin:true,here:true,overlap,zp,zh,pinText:p.textContent.trim().slice(0,30),pinVisible:p.offsetHeight>0&&p.offsetWidth>0,fs})})()`).catch(() => null);
+  if (pin) { const P = JSON.parse(pin);
+    rec(A, 'night-market: Play-yard pin (button.plpin) and avatar head marker (.plhere) both present', !!(P.pin && P.here), JSON.stringify(P));
+    rec(A, 'pin fix a78f226: pin does NOT overlap the idle avatar head, layer above (z 3 vs 2), label readable', !!(P.pin && P.here && !P.overlap && +P.zp > +P.zh && P.pinVisible && P.pinText.length > 0 && P.fs >= 10), JSON.stringify(P));
+  } else rec(A, 'pin fix a78f226: pin does NOT overlap the idle avatar head, layer above (z 3 vs 2), label readable', false, 'probe failed: ' + String(pin));
+  await shot(sid, 'desktop-saju-playpin');
+}
+
+// ---- coworking-world beam repro (post-29e3149 verdict: occluders fade at the repo worker's audit repro) ----
+async function checkCoworkingBeam(sid) {
+  const A = 'coworking-beam-repro';
+  const boot = await waitFor(sid, `!!document.querySelector('canvas')`, 60000);
+  rec(A, 'audit repro URL boots (auto=Audit&zone=lounge&yaw=.6&pitch=.75&dist=14&lite)', !!boot);
+  if (!boot) return;
+  await sleep(3000);
+  // dismiss the guide card if the audit mode shows one ("Got it")
+  const got = await el(sid, 'xpath', `//button[contains(.,'Got it') or contains(.,'\uC54C\uACA0\uC5B4\uC694')]`);
+  if (got) { await click(sid, got); await sleep(800); }
+  // exact repro: teleport to the lounge spot, settle 3s
+  const tp = await exe(sid, `(()=>{const m=window.__me;if(!m||!m.pos)return 'no __me.pos';m.pos.set(-37,0,2);return 'ok'})()`).catch(e => 'ERR ' + e);
+  rec(A, 'audit repro teleport __me.pos.set(-37,0,2)', tp === 'ok', String(tp));
+  if (tp !== 'ok') return;
+  await sleep(3000);
+  // opacity verdict: ceiling + 5 beams + pendants faded to ~0.03 vs walls/shelf/sign at ~0.12
+  const op = await exe(sid, `(()=>{const m=window.__me;if(!m||!m.group||!m.group.parent)return null;const hist={};let faded=0,struct=0;m.group.parent.traverse(o=>{if(!o.isMesh)return;const mats=Array.isArray(o.material)?o.material:[o.material];for(const mt of mats){if(!mt||typeof mt.opacity!=='number'||!mt.transparent)continue;const k=mt.opacity.toFixed(2);hist[k]=(hist[k]||0)+1;if(mt.opacity<=0.05)faded++;else if(mt.opacity>=0.08&&mt.opacity<=0.16)struct++;}});return JSON.stringify({hist,faded,struct})})()`).catch(() => null);
+  if (op) { const O = JSON.parse(op); rec(A, 'beam fix 29e3149: >=6 occluder meshes faded to <=0.05 while structural meshes stay ~0.12', O.faded >= 6 && O.struct >= 1, JSON.stringify(O.hist)); }
+  else rec(A, 'beam fix 29e3149: >=6 occluder meshes faded to <=0.05 while structural meshes stay ~0.12', false, 'scene traverse unavailable');
+  const gmeta = await glDump(sid, 'cw-beam-lounge');
+  rec(A, 'beam repro renders real WebGL pixels (drawing buffer non-dark)', typeof gmeta.nonDark === 'number' && gmeta.nonDark > gmeta.total * 0.05, JSON.stringify(gmeta));
+  await shot(sid, 'desktop-cw-beam-repro');
+}
+
 // ---- gazua-beopdang (가즈아법당 clone: WebGL temple + 25 ambient NPCs) ----
 async function checkGazua(sid) {
   const A = 'gazua-beopdang';
@@ -956,6 +1021,16 @@ async function checkGazua(sid) {
   await sleep(4000);
   const r1 = await exe(sid, `(()=>{const r=document.querySelector('.tag.mine').getBoundingClientRect();return JSON.stringify({x:Math.round(r.x),y:Math.round(r.y)})})()`).catch(()=>null);
   rec(A, 'tap-to-walk: real canvas tap moves the player (nameplate tracks movement)', !!(r0 && r1 && r0 !== r1), String(r0) + ' -> ' + String(r1));
+  // bow-motion proof: live bow states from the read-only __qa hook (gazua 2656e12+); two samples must differ and phases must vary across NPCs
+  const b0 = await exe(sid, `window.__qa && window.__qa.bowStates ? JSON.stringify(window.__qa.bowStates()) : null`).catch(()=>null);
+  await sleep(1600);
+  const b1 = await exe(sid, `window.__qa && window.__qa.bowStates ? JSON.stringify(window.__qa.bowStates()) : null`).catch(()=>null);
+  if (b0 && b1) {
+    const a0 = JSON.parse(b0), a1 = JSON.parse(b1);
+    const changed = a0.some((v, i) => v !== a1[i]);
+    const varied = new Set(a0).size >= 4;
+    rec(A, 'ambient NPCs animate: bow states change over time with varied phases (25-bow cycle live)', changed && varied, 'changed=' + changed + ' distinct=' + new Set(a0).size + '/25');
+  } else rec(A, 'ambient NPCs animate: bow states change over time with varied phases (25-bow cycle live)', false, '__qa hook missing (deploy of gazua 2656e12 pending?) b0=' + String(b0).slice(0,60));
   // pixel-render proof: screenshots composite WebGL black on this runner, so read the drawing buffer directly
   const gmeta = await glDump(sid, 'gazua-temple');
   rec(A, 'canvas renders real WebGL pixels (drawing buffer non-dark)', typeof gmeta.nonDark === 'number' && gmeta.nonDark > gmeta.total * 0.05, JSON.stringify(gmeta));
@@ -969,7 +1044,9 @@ const APPS = [
   ['https://gazua-beopdang.onrender.com/', checkGazua],
   ['https://sweet-factory-escape-3d.onrender.com/', checkSweet],
   ['https://coworking-world-u4pn.onrender.com/', checkCoworking],
+  ['https://coworking-world-u4pn.onrender.com/?auto=Audit&zone=lounge&yaw=.6&pitch=.75&dist=14&lite', checkCoworkingBeam],
   ['https://sajumadang.onrender.com/', checkDalbit],
+  ['https://sajumadang.onrender.com/', checkSajuPin],
   ['https://seongsu-dogam-4qf0.onrender.com/', checkDogam('seongsu-dogam', 27)],
   ['https://kurashi-otaru.onrender.com/', checkDogam('kurashi-otaru', 32)],
 ];
