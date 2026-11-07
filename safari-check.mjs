@@ -933,10 +933,40 @@ async function checkGeungrak(sid) {
   await shot(sid, PLAT + '-geungrak-actions');
 }
 
+
+// ---- gazua-beopdang (가즈아법당 clone: WebGL temple + 25 ambient NPCs) ----
+async function checkGazua(sid) {
+  const A = 'gazua-beopdang';
+  const PLAT = BS_DEVICE ? 'ios' : 'desktop';
+  const boot = await waitFor(sid, `!!(document.querySelector('canvas#gl'))`, 60000);
+  rec(A, 'boot: page loads, WebGL canvas present', !!boot);
+  if (!boot) return;
+  // auto-join: the app spawns the player with a generated name; the own-nameplate tag proves join
+  const joined = await waitFor(sid, `!!document.querySelector('.tag.mine')`, 30000);
+  rec(A, 'entry: auto-join spawns player (own nameplate tag present)', !!joined);
+  if (!joined) return;
+  await sleep(3000); await shot(sid, PLAT + '-gazua-entry');
+  // ambient NPC crowd: 25 templegoer tags exist in the DOM (proximity-gated visibility since 9c9a67d, so count elements not visibility)
+  const npcs = await exe(sid, `document.querySelectorAll('.tag.npc').length`);
+  rec(A, 'ambient NPC crowd present (>=25 templegoer tags in DOM)', typeof npcs === 'number' && npcs >= 25, 'npcs=' + npcs);
+  // tap-to-walk: real canvas tap moves the player; own nameplate tracks the player, so its rect must change
+  const r0 = await exe(sid, `(()=>{const r=document.querySelector('.tag.mine').getBoundingClientRect();return JSON.stringify({x:Math.round(r.x),y:Math.round(r.y)})})()`).catch(()=>null);
+  const cv = await el(sid, 'css selector', 'canvas#gl');
+  if (cv) await tapFraction(sid, cv, 0.5, 0.85);
+  await sleep(4000);
+  const r1 = await exe(sid, `(()=>{const r=document.querySelector('.tag.mine').getBoundingClientRect();return JSON.stringify({x:Math.round(r.x),y:Math.round(r.y)})})()`).catch(()=>null);
+  rec(A, 'tap-to-walk: real canvas tap moves the player (nameplate tracks movement)', !!(r0 && r1 && r0 !== r1), String(r0) + ' -> ' + String(r1));
+  // pixel-render proof: screenshots composite WebGL black on this runner, so read the drawing buffer directly
+  const gmeta = await glDump(sid, 'gazua-temple');
+  rec(A, 'canvas renders real WebGL pixels (drawing buffer non-dark)', typeof gmeta.nonDark === 'number' && gmeta.nonDark > gmeta.total * 0.05, JSON.stringify(gmeta));
+  await shot(sid, PLAT + '-gazua-final');
+}
+
 // ---- main ----
 const APPS = [
   ['https://geungrak-club.onrender.com/', checkGeungrak],
-  ['https://golden-gate-picnic-sf.onrender.com/', checkGGP],
+  ['https://golden-gate-picnic-e9r0.onrender.com/', checkGGP],
+  ['https://gazua-beopdang.onrender.com/', checkGazua],
   ['https://sweet-factory-escape-3d.onrender.com/', checkSweet],
   ['https://coworking-world-u4pn.onrender.com/', checkCoworking],
   ['https://sajumadang.onrender.com/', checkDalbit],
