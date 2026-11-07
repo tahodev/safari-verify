@@ -295,7 +295,7 @@ def main():
         ("https://sweet-factory-escape-3d.onrender.com/", "sweet-factory-escape-3d", flow_sweet),
         ("https://coworking-world.onrender.com/", "coworking-world", flow_coworking),
         ("https://sajumadang.onrender.com/", "sajumadang", flow_dalbit),
-        ("https://seongsu-dogam.onrender.com/", "seongsu-dogam", lambda c, k: flow_seongsu_opt(c, k)),
+        ("https://seongsu-dogam-4qf0.onrender.com/", "seongsu-dogam", lambda c, k: flow_seongsu_opt(c, k)),
         ("https://kurashi-otaru.onrender.com/", "kurashi-otaru", lambda c, k: flow_dogam(c, k, "kurashi-otaru", 32)),
     ]
     import os

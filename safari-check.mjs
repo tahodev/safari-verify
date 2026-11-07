@@ -791,7 +791,7 @@ function checkDogam(appName, expectNodes) {
       }
     if (appName === 'seongsu-dogam' && process.env.LANGCHECK !== '0') {
       try {
-        await exe(sid, `localStorage.clear();return 1`); await nav(sid, 'https://seongsu-dogam.onrender.com/'); await sleep(2500);
+        await exe(sid, `localStorage.clear();return 1`); await nav(sid, 'https://seongsu-dogam-4qf0.onrender.com/'); await sleep(2500);
         const seen = [];
         for (let k = 0; k < 4; k++) {
           let btns = await els(sid, 'css selector', '.language-grid button');
@@ -840,6 +840,18 @@ function checkDogam(appName, expectNodes) {
         const posB = await exe(sid, 'return JSON.stringify(window.__dogam.pos())').catch(()=>null);
         const posA0 = await exe(sid, 'return JSON.stringify(window.__tapPos || null)').catch(()=>null);
         rec(A, 'avatar moves after real canvas tap (position changes)', !!(posA0 && posB && posA0 !== posB), String(posA0) + ' -> ' + String(posB));
+        if (appName === 'seongsu-dogam') {
+          // user-complaint scope (freeze 5d54210): female direction turns + male walking, real Mac Safari captures
+          await tapFraction(sid, cv, 0.25, 0.55).catch(e=>console.log('walktap1 err', String(e).slice(0,100)));
+          await sleep(900); await shot(sid, 'desktop-seongsu-dogam-walk-1');
+          await sleep(900); await shot(sid, 'desktop-seongsu-dogam-walk-2');
+          const pw1 = await exe(sid, 'return JSON.stringify(window.__dogam.pos())').catch(()=>null);
+          await tapFraction(sid, cv, 0.8, 0.55).catch(e=>console.log('walktap2 err', String(e).slice(0,100)));
+          await sleep(900); await shot(sid, 'desktop-seongsu-dogam-walk-3');
+          await sleep(1200); await shot(sid, 'desktop-seongsu-dogam-walk-4');
+          const pw2 = await exe(sid, 'return JSON.stringify(window.__dogam.pos())').catch(()=>null);
+          rec(A, 'sprite movement captures: walks left then right with timed frames (female turns / male walking, inspected on PNGs)', !!(pw1 && pw2), String(pw1) + ' -> ' + String(pw2));
+        }
         if (appName === 'kurashi-otaru') {
           const hit2 = await exe(sid, `(function(){const c=document.querySelector('canvas');const r=c.getBoundingClientRect();const e=document.elementFromPoint(r.x+r.width*0.7,r.y+r.height*0.35);return e?(e.tagName+'.'+e.className+' canvas='+(e===c)):null})()`).catch(()=>null);
           console.log('offcenterhit(info)', hit2);
@@ -928,7 +940,7 @@ const APPS = [
   ['https://sweet-factory-escape-3d.onrender.com/', checkSweet],
   ['https://coworking-world-u4pn.onrender.com/', checkCoworking],
   ['https://sajumadang.onrender.com/', checkDalbit],
-  ['https://seongsu-dogam.onrender.com/', checkDogam('seongsu-dogam', 27)],
+  ['https://seongsu-dogam-4qf0.onrender.com/', checkDogam('seongsu-dogam', 27)],
   ['https://kurashi-otaru.onrender.com/', checkDogam('kurashi-otaru', 32)],
 ];
 
