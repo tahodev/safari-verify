@@ -855,8 +855,72 @@ function checkDogam(appName, expectNodes) {
   };
 }
 
+
+// ---- geungrak-club (극락 동자승 클럽) ----
+async function checkGeungrak(sid) {
+  const A = 'geungrak-club';
+  const PLAT = BS_DEVICE ? 'ios' : 'desktop';
+  const boot = await waitFor(sid, `!!(document.querySelector('canvas'))`, 60000);
+  rec(A, 'boot: page loads, club canvas present', !!boot);
+  if (!boot) return;
+  const qa = await waitFor(sid, `!!(window.__qa && window.__qa.crowd)`, 30000);
+  rec(A, 'boot: module ran, __qa handle live (no fatal JS error)', !!qa);
+  if (!qa) return;
+  const enterBtn = await el(sid, 'xpath', "//button[contains(.,'\uC785\uC7A5')]");
+  rec(A, 'entry overlay: \uC785\uC7A5 button present', !!enterBtn);
+  if (enterBtn) await click(sid, enterBtn);
+  const joined = await waitFor(sid, `!!(window.__qa.crowd.me)`, 30000);
+  rec(A, 'entry: real \uC785\uC7A5 click spawns player (WebSocket join)', !!joined);
+  if (!joined) return;
+  await sleep(3000); await shot(sid, PLAT + '-geungrak-entry');
+  // tap-to-walk via real canvas tap
+  const p0 = await exe(sid, `const m=window.__qa.crowd.map.get(window.__qa.crowd.me); return {x:m.x,z:m.z}`);
+  const cv = await el(sid, 'css selector', 'canvas');
+  if (cv) await tapFraction(sid, cv, 0.5, 0.85);
+  await sleep(5000);
+  const p1 = await exe(sid, `const m=window.__qa.crowd.map.get(window.__qa.crowd.me); return {x:m.x,z:m.z}`);
+  const moved = p0 && p1 && (Math.abs(p1.x - p0.x) + Math.abs(p1.z - p0.z)) > 0.4;
+  rec(A, 'tap-to-walk: real canvas tap moves the player', moved, JSON.stringify({ p0, p1 }));
+  // camera orbit via real drag
+  const yaw0 = await exe(sid, `window.__qa.cam.yaw`);
+  if (cv) {
+    await api('POST', '/actions', { actions: [{ type: 'pointer', id: 'p1', parameters: { pointerType: BS_DEVICE ? 'touch' : 'mouse' }, actions: [
+      { type: 'pointerMove', duration: 0, origin: { [EL]: cv }, x: 0, y: 0 },
+      { type: 'pointerDown', button: 0 },
+      { type: 'pointerMove', duration: 400, origin: { [EL]: cv }, x: 120, y: 0 },
+      { type: 'pointerUp', button: 0 }] }] }, sid);
+    await api('DELETE', '/actions', {}, sid);
+  }
+  await sleep(1200);
+  const yaw1 = await exe(sid, `window.__qa.cam.yaw`);
+  rec(A, 'drag orbits camera (yaw changes)', yaw0 !== null && yaw1 !== null && Math.abs(yaw1 - yaw0) > 0.05, JSON.stringify({ yaw0, yaw1 }));
+  // dance button
+  const danceBtn = await el(sid, 'xpath', "//button[normalize-space()='\uCD98']");
+  if (danceBtn) await click(sid, danceBtn);
+  const dancing = await waitFor(sid, `window.__qa.crowd.map.get(window.__qa.crowd.me).pose==='dance'`, 9000);
+  rec(A, 'dance button sets dance pose', !!dancing);
+  // jump button
+  const jumpBtn = await el(sid, 'xpath', "//button[normalize-space()='\uC810\uD504']");
+  if (jumpBtn) await click(sid, jumpBtn);
+  const jumped = await waitFor(sid, `window.__qa.crowd.map.get(window.__qa.crowd.me).jumping===true`, 6000);
+  rec(A, 'jump button triggers jump physics', !!jumped);
+  // emote
+  const heart = await el(sid, 'xpath', "//button[contains(.,'\u2764')]");
+  if (heart) await click(sid, heart);
+  await sleep(800);
+  // NPC crowd
+  const npcs = await exe(sid, `[...window.__qa.crowd.map.keys()].filter(k=>k.startsWith('npc')).length`);
+  rec(A, 'NPC filler crowd active (>=5)', typeof npcs === 'number' && npcs >= 5, 'npcs=' + npcs);
+  // stage collision regression: nobody inside the platform volume
+  await sleep(4000);
+  const clip = await exe(sid, `[...window.__qa.crowd.map.values()].some(m=>m.z < -3.35)`);
+  rec(A, 'stage collision fix holds: no crowd member inside platform volume', clip === false, 'clip=' + JSON.stringify(clip));
+  await shot(sid, PLAT + '-geungrak-actions');
+}
+
 // ---- main ----
 const APPS = [
+  ['https://geungrak-club.onrender.com/', checkGeungrak],
   ['https://golden-gate-picnic-sf.onrender.com/', checkGGP],
   ['https://sweet-factory-escape-3d.onrender.com/', checkSweet],
   ['https://coworking-world-u4pn.onrender.com/', checkCoworking],
