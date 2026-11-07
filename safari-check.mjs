@@ -751,7 +751,7 @@ function checkDogam(appName, expectNodes) {
         console.log('scenepix', appName, JSON.stringify(scenepix));
       }
     }
-    const DW = process.env.DEEPWALK || (((process.env.ONLY || '').split(',').includes('seongsu-dogam') && appName === 'seongsu-dogam') ? '17,19,21,23,26' : ((process.env.ONLY || '').split(',').includes('kurashi-otaru') && appName === 'kurashi-otaru') ? '27,28,29,30,31' : '');
+    const DW = process.env.DEEPWALK || (((process.env.ONLY || '').split(',').includes('seongsu-dogam') && appName === 'seongsu-dogam') ? '17,19,21,23,26' : ((process.env.ONLY || '').split(',').includes('kurashi-otaru') && appName === 'kurashi-otaru') ? '27,28,29,30,31' : ((process.env.ONLY || '').split(',').includes('ghibli-travel') && appName === 'ghibli-travel') ? '1,2,3,4,5,6,7,8,9,10,11,12,13,14' : '');
     if (DW) {
       const inst = await exe(sid, `return (function(){try{window.__rafProbe=0;window.__evlog=[];const T0=performance.now();const L=(n)=>window.__evlog.push(n+'@'+Math.round(performance.now()-T0));window.addEventListener('blur',()=>L('win-blur'));window.addEventListener('focus',()=>L('win-focus'));document.addEventListener('visibilitychange',()=>L('vis-'+document.visibilityState));document.addEventListener('pointerdown',()=>L('pdown'),true);(function f(){window.__rafProbe++;requestAnimationFrame(f)})();return 'installed'}catch(e){return 'ERR '+e}})()`).catch(e => 'THROW ' + e);
       console.log('deepwalk probe install:', inst);
@@ -1057,6 +1057,7 @@ const APPS = [
   ['https://sajumadang.onrender.com/', checkSajuPin],
   ['https://seongsu-dogam-4qf0.onrender.com/', checkDogam('seongsu-dogam', 27)],
   ['https://kurashi-otaru.onrender.com/', checkDogam('kurashi-otaru', 32)],
+  ['https://ghibli-travel.onrender.com/', checkDogam('ghibli-travel', 15)],
 ];
 
 const ONLY = process.env.ONLY ? process.env.ONLY.split(',') : null;

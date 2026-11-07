@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Wake Render free-tier services
         run: |
-          for u in golden-gate-picnic-e9r0 sweet-factory-escape-3d coworking-world seongsu-dogam-4qf0 dalbit-saju-clone kurashi-otaru gazua-beopdang; do
+          for u in golden-gate-picnic-e9r0 sweet-factory-escape-3d coworking-world seongsu-dogam-4qf0 dalbit-saju-clone kurashi-otaru gazua-beopdang ghibli-travel; do
             curl -s -o /dev/null -w "$u %{http_code}\n" "https://$u.onrender.com/" &
           done
           wait
