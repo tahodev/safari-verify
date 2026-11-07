@@ -1,9 +1,6 @@
 name: geungrak real Mac Safari check
 on:
   push:
-    paths:
-      - '.github/workflows/geungrak-safari.yml'
-      - 'geungrak-check.mjs'
   workflow_dispatch:
 jobs:
   safari:
