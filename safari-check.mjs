@@ -175,7 +175,7 @@ async function checkGGP(sid) {
 
 async function glDump(sid, name) {
   const r = await exe(sid, `(()=>{try{const cs=[...document.querySelectorAll('canvas')];let best=null;for(const c of cs){const gl=c.getContext('webgl2')||c.getContext('webgl');if(gl){best={c,gl};break}}if(!best)return JSON.stringify({error:'no webgl canvas'});const gl=best.gl;const W=gl.drawingBufferWidth,H=gl.drawingBufferHeight;const buf=new Uint8Array(W*H*4);gl.readPixels(0,0,W,H,gl.RGBA,gl.UNSIGNED_BYTE,buf);const S=8,w=Math.floor(W/S),h=Math.floor(H/S);const out=new Uint8Array(w*h*3);let nz=0;for(let y=0;y<h;y++)for(let x=0;x<w;x++){const si=((H-1-y*S)*W+x*S)*4;const o=(y*w+x)*3;out[o]=buf[si];out[o+1]=buf[si+1];out[o+2]=buf[si+2];if(buf[si]+buf[si+1]+buf[si+2]>30)nz++}let b64='';for(let i=0;i<out.length;i+=0x8000)b64+=String.fromCharCode.apply(null,out.subarray(i,i+0x8000));return JSON.stringify({W,H,w,h,nonDark:nz,total:w*h,preserve:gl.getContextAttributes().preserveDrawingBuffer,b64:btoa(b64)})}catch(e){return JSON.stringify({error:String(e)})}})()`).catch(e => JSON.stringify({ error: 'ERR ' + e }));
-  try { const o = JSON.parse(r); const { b64, ...meta } = o; console.log('gldump(' + name + ')', JSON.stringify(meta)); if (b64) fs.writeFileSync(`results/gl-${name}.json`, JSON.stringify(o)); } catch (e) { console.log('gldump(' + name + ') parse fail', String(r).slice(0, 150)); }
+  try { const o = JSON.parse(r); const { b64, ...meta } = o; console.log('gldump(' + name + ')', JSON.stringify(meta)); if (b64) fs.writeFileSync(`results/gl-${name}.json`, JSON.stringify(o)); return meta; } catch (e) { console.log('gldump(' + name + ') parse fail', String(r).slice(0, 150)); return { error: String(e) }; }
 }
 async function checkSweet(sid) {
   const A = 'sweet-factory-escape-3d';
@@ -895,12 +895,12 @@ async function checkGeungrak(sid) {
   const yaw1 = await exe(sid, `window.__qa.cam.yaw`);
   rec(A, 'drag orbits camera (yaw changes)', yaw0 !== null && yaw1 !== null && Math.abs(yaw1 - yaw0) > 0.05, JSON.stringify({ yaw0, yaw1 }));
   // dance button
-  const danceBtn = await el(sid, 'xpath', "//button[normalize-space()='\uCD98']");
+  const danceBtn = await el(sid, 'css selector', '#dance');
   if (danceBtn) await click(sid, danceBtn);
   const dancing = await waitFor(sid, `window.__qa.crowd.map.get(window.__qa.crowd.me).pose==='dance'`, 9000);
   rec(A, 'dance button sets dance pose', !!dancing);
   // jump button
-  const jumpBtn = await el(sid, 'xpath', "//button[normalize-space()='\uC810\uD504']");
+  const jumpBtn = await el(sid, 'css selector', '#jump');
   if (jumpBtn) await click(sid, jumpBtn);
   const jumped = await waitFor(sid, `window.__qa.crowd.map.get(window.__qa.crowd.me).jumping===true`, 6000);
   rec(A, 'jump button triggers jump physics', !!jumped);
@@ -915,6 +915,9 @@ async function checkGeungrak(sid) {
   await sleep(4000);
   const clip = await exe(sid, `[...window.__qa.crowd.map.values()].some(m=>m.z < -3.35)`);
   rec(A, 'stage collision fix holds: no crowd member inside platform volume', clip === false, 'clip=' + JSON.stringify(clip));
+  // pixel-render proof: screenshots composite WebGL black on this runner, so read the drawing buffer directly
+  const gmeta = await glDump(sid, 'geungrak-floor');
+  rec(A, 'canvas renders real WebGL pixels (drawing buffer non-dark)', typeof gmeta.nonDark === 'number' && gmeta.nonDark > gmeta.total * 0.05, JSON.stringify(gmeta));
   await shot(sid, PLAT + '-geungrak-actions');
 }
 
