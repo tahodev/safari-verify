@@ -1018,11 +1018,17 @@ async function checkGazua(sid) {
   rec(A, 'ambient NPC crowd present (>=25 templegoer tags in DOM)', typeof npcs === 'number' && npcs >= 25, 'npcs=' + npcs);
   // tap-to-walk: real canvas tap moves the player; own nameplate tracks the player, so its rect must change
   const r0 = await exe(sid, `(()=>{const r=document.querySelector('.tag.mine').getBoundingClientRect();return JSON.stringify({x:Math.round(r.x),y:Math.round(r.y)})})()`).catch(()=>null);
+  const w0 = await exe(sid, `window.__qa && window.__qa.playerPos ? JSON.stringify(window.__qa.playerPos()) : null`).catch(()=>null);
   const cv = await el(sid, 'css selector', 'canvas#gl');
   if (cv) await tapFraction(sid, cv, 0.5, 0.85);
   await sleep(4000);
   const r1 = await exe(sid, `(()=>{const r=document.querySelector('.tag.mine').getBoundingClientRect();return JSON.stringify({x:Math.round(r.x),y:Math.round(r.y)})})()`).catch(()=>null);
-  rec(A, 'tap-to-walk: real canvas tap moves the player (nameplate tracks movement)', !!(r0 && r1 && r0 !== r1), String(r0) + ' -> ' + String(r1));
+  const w1 = await exe(sid, `window.__qa && window.__qa.playerPos ? JSON.stringify(window.__qa.playerPos()) : null`).catch(()=>null);
+  // ground truth = world-position delta from the read-only __qa hook (gazua 95cce39+); nameplate rect corroborates (DOM projection path)
+  let worldMoved = null;
+  if (w0 && w1) { const a0=JSON.parse(w0), a1=JSON.parse(w1); worldMoved = Math.hypot(a1.x-a0.x, a1.z-a0.z) > 0.05; }
+  const pass = worldMoved === null ? !!(r0 && r1 && r0 !== r1) : worldMoved;
+  rec(A, 'tap-to-walk: real canvas tap moves the player (world-position control + nameplate corroboration)', pass, 'world ' + String(w0) + ' -> ' + String(w1) + ' | plate ' + String(r0) + ' -> ' + String(r1));
   // bow-motion proof: live bow states from the read-only __qa hook (gazua 2656e12+); two samples must differ and phases must vary across NPCs
   const b0 = await exe(sid, `window.__qa && window.__qa.bowStates ? JSON.stringify(window.__qa.bowStates()) : null`).catch(()=>null);
   await sleep(1600);
@@ -1043,7 +1049,7 @@ async function checkGazua(sid) {
 const APPS = [
   ['https://geungrak-club.onrender.com/', checkGeungrak],
   ['https://golden-gate-picnic-e9r0.onrender.com/', checkGGP],
-  ['https://gazua-beopdang.onrender.com/', checkGazua],
+  ['https://gazua-beopdang.onrender.com/?qa=1', checkGazua], // ?qa=1: app enables preserveDrawingBuffer so glDump reads real pixels (gazua 95cce39+)
   ['https://sweet-factory-escape-3d.onrender.com/', checkSweet],
   ['https://coworking-world-u4pn.onrender.com/', checkCoworking],
   ['https://coworking-world-u4pn.onrender.com/?auto=Audit&zone=lounge&yaw=.6&pitch=.75&dist=14&lite', checkCoworkingBeam],
