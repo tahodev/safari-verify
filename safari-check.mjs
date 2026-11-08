@@ -623,7 +623,7 @@ async function checkCoworking(sid) {
 
 async function checkDalbit(sid) {
   const A = 'sajumadang';
-  const boot = await waitFor(sid, `document.title && document.title.indexOf('사주마당') >= 0 && !!document.querySelector('button')`, 60000);
+  const boot = await waitFor(sid, `document.title && /사주마당|sajumadang/i.test(document.title) && !!document.querySelector('button')`, 60000);
   rec(A, 'boot: title + UI renders', !!boot);
   if (!boot) return;
   const fx = await waitFor(sid, `!!document.querySelector('.seasonfx')`, 15000);
@@ -948,7 +948,7 @@ async function checkGeungrak(sid) {
 // ---- sajumadang night-market return / Play-yard pin (post-a78f226 verdict) ----
 async function checkSajuPin(sid) {
   const A = 'saju-playpin';
-  const boot = await waitFor(sid, `document.title && document.title.indexOf('\uC0AC\uC8FC\uB9C8\uB2F9') >= 0 && !!document.querySelector('button')`, 60000);
+  const boot = await waitFor(sid, `document.title && /\uC0AC\uC8FC\uB9C8\uB2F9|sajumadang/i.test(document.title) && !!document.querySelector('button')`, 60000);
   rec(A, 'boot: title + UI renders', !!boot);
   if (!boot) return;
   const guideClose = await el(sid, 'xpath', `//button[contains(.,'\uB2EB\uAE30')]`);
@@ -1046,7 +1046,7 @@ async function checkGazua(sid) {
   // Click snapBtn, then poll the numeral text; capture right after a transition so a numeral is mid-display in the shot.
   if (!BS_DEVICE) {
     try {
-      await exe(sid, `document.getElementById('photoModal').classList.remove('open'); document.getElementById('snapBtn').click(); return true`);
+      await exe(sid, `return (function(){ document.getElementById('photoModal').classList.remove('open'); document.getElementById('snapBtn').click(); return 'clicked'; })()`).then(r => console.log('countdown click(info)', JSON.stringify(r))).catch(e => console.log('countdown click THROW', String(e).slice(0,140)));
       let seen = null;
       for (let i = 0; i < 40; i++) {
         const st = await exe(sid, `(()=>{const cd=document.getElementById('photoCount');return cd && !cd.hidden ? cd.textContent : null})()`).catch(()=>null);
@@ -1059,7 +1059,7 @@ async function checkGazua(sid) {
       const cardOpen = await waitFor(sid, `document.getElementById('photoModal').classList.contains('open')`, 15000);
       rec(A, 'photo card: card modal opens after countdown', !!cardOpen);
       if (cardOpen) await shot(sid, PLAT + '-gazua-photocard');
-      await exe(sid, `document.getElementById('photoModal').classList.remove('open'); return true`).catch(()=>{});
+      await exe(sid, `return (function(){ document.getElementById('photoModal').classList.remove('open'); return true; })()`).catch(()=>{});
     } catch (e) { rec(A, 'photo card countdown capture', false, 'THROW ' + String(e).slice(0,120)); }
   }
   await shot(sid, PLAT + '-gazua-final');
