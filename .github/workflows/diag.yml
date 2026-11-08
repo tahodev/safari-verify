@@ -1,11 +1,11 @@
 name: diag-tap
 # Narrow read-only diagnostics: seongsu-dogam + ghibli-travel tap paths,
 # sajumadang entry + market pin, gazua-beopdang photo-card stack capture.
-# Scoped: safari.yml ignores all diag* paths. diag-tap legs run only when
-# diag-tap.mjs itself changes (or on manual dispatch) to avoid paid-minute reruns.
+# Scoped: safari.yml ignores every path this workflow lives on. diag-tap legs run
+# only when diag-tap.mjs itself changes (or on manual dispatch) to avoid reruns.
 on:
   push:
-    paths: [".github/workflows/diag.yml", "diag-tap.mjs", "diag-saju.mjs", "diag-gazua-photo.mjs"]
+    paths: [".github/workflows/diag.yml", "diag-tap.mjs", "cv-diag-saju.mjs", "cv-diag-photo.mjs"]
   workflow_dispatch: {}
 
 jobs:
@@ -24,18 +24,24 @@ jobs:
         run: sudo safaridriver --enable
       - name: Desktop tap diagnostics
         if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.modified, 'diag-tap.mjs') || contains(github.event.head_commit.added, 'diag-tap.mjs')
+        timeout-minutes: 15
         run: |
           set -o pipefail
           mkdir -p results
           ONLY="seongsu-dogam,ghibli-travel" node diag-tap.mjs 2>&1 | tee results/diag-desktop.log
-      - name: Saju entry + market pin diagnostics (locale-agnostic)
+      - name: Gazua photo-card stack capture (first, independent - cannot be starved)
+        timeout-minutes: 10
         run: |
+          set -o pipefail
           mkdir -p results
-          node diag-saju.mjs 2>&1 | tee results/diag-saju-desktop.log
-      - name: Gazua photo-card stack capture
+          node cv-diag-photo.mjs 2>&1 | tee results/diag-photo-desktop.log
+      - name: Saju entry + market pin diagnostics (locale-agnostic, independent)
+        if: always()
+        timeout-minutes: 10
         run: |
+          set -o pipefail
           mkdir -p results
-          node diag-gazua-photo.mjs 2>&1 | tee results/diag-photo-desktop.log
+          node cv-diag-saju.mjs 2>&1 | tee results/diag-saju-desktop.log
       - name: Upload desktop results
         if: always()
         uses: actions/upload-artifact@v4
