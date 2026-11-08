@@ -58,7 +58,7 @@ if run_to 300 npm i -g appium >/tmp/ap-npm.log 2>&1 && run_to 300 appium driver 
   mkdir -p results; : > results/wda-monitor.log
   ( while true; do { date -u +%T; ps -axo pid,etime,stat,command | grep -iE "xcodebuild|XCTRunner|WebDriverAgent|testmanagerd|xctest" | grep -v grep | cut -c1-200; lsof -nP -iTCP:8100 2>/dev/null | head -3; echo "--"; } >> results/wda-monitor.log; sleep 10; done ) & MON_PID=$!
   xcrun simctl spawn "$DEV" log stream --style compact --predicate 'process CONTAINS "WebDriverAgent" OR process CONTAINS "XCTRunner" OR process == "testmanagerd" OR process == "xctest" OR eventMessage CONTAINS "WebDriverAgent"' > results/sim-wda-log.txt 2>&1 & LOG_PID=$!
-  ( set -o pipefail; cd "$APDIR" && AP=1 ONLY="${ONLY:-seongsu-dogam,sajumadang,kurashi-otaru}" run_to 1200 node "$SRC/safari-check.mjs" 2>&1 | tee "$SRC/results/ios-appium.log" ); AP_RC=${PIPESTATUS[0]}
+  ( set -o pipefail; cd "$APDIR" && AP=1 ONLY="${ONLY:-seongsu-dogam,sajumadang,kurashi-otaru,ghibli-travel}" run_to 1200 node "$SRC/safari-check.mjs" 2>&1 | tee "$SRC/results/ios-appium.log" ); AP_RC=${PIPESTATUS[0]}
   cp -R "$APDIR/results" results/appium-ios 2>/dev/null || true
   kill $MON_PID $LOG_PID 2>/dev/null
   if [ "${AP_RC:-1}" != "0" ]; then

@@ -751,7 +751,7 @@ function checkDogam(appName, expectNodes) {
         console.log('scenepix', appName, JSON.stringify(scenepix));
       }
     }
-    const DW = process.env.DEEPWALK || (((process.env.ONLY || '').split(',').includes('seongsu-dogam') && appName === 'seongsu-dogam') ? '17,19,21,23,26' : ((process.env.ONLY || '').split(',').includes('kurashi-otaru') && appName === 'kurashi-otaru') ? '27,28,29,30,31' : ((process.env.ONLY || '').split(',').includes('ghibli-travel') && appName === 'ghibli-travel') ? '1,2,3,4,5,6,7,8,9,10,11,12,13,14' : '');
+    const DW = process.env.DEEPWALK || (((process.env.ONLY || '').split(',').includes('seongsu-dogam') && appName === 'seongsu-dogam') ? '17,19,21,22,23,26' : ((process.env.ONLY || '').split(',').includes('kurashi-otaru') && appName === 'kurashi-otaru') ? '27,28,29,30,31' : ((process.env.ONLY || '').split(',').includes('ghibli-travel') && appName === 'ghibli-travel') ? '1,2,3,4,5,6,7,8,9,10,11,12,13,14' : '');
     if (DW) {
       const inst = await exe(sid, `return (function(){try{window.__rafProbe=0;window.__evlog=[];const T0=performance.now();const L=(n)=>window.__evlog.push(n+'@'+Math.round(performance.now()-T0));window.addEventListener('blur',()=>L('win-blur'));window.addEventListener('focus',()=>L('win-focus'));document.addEventListener('visibilitychange',()=>L('vis-'+document.visibilityState));document.addEventListener('pointerdown',()=>L('pdown'),true);(function f(){window.__rafProbe++;requestAnimationFrame(f)})();return 'installed'}catch(e){return 'ERR '+e}})()`).catch(e => 'THROW ' + e);
       console.log('deepwalk probe install:', inst);
@@ -1042,6 +1042,26 @@ async function checkGazua(sid) {
   // pixel-render proof: screenshots composite WebGL black on this runner, so read the drawing buffer directly
   const gmeta = await glDump(sid, 'gazua-temple');
   rec(A, 'canvas renders real WebGL pixels (drawing buffer non-dark)', typeof gmeta.nonDark === 'number' && gmeta.nonDark > gmeta.total * 0.05, JSON.stringify(gmeta));
+  // photo-card countdown: DOM overlay (#photoCount) composites in WebDriver captures (WebGL beneath may read black - capture artifact only).
+  // Click snapBtn, then poll the numeral text; capture right after a transition so a numeral is mid-display in the shot.
+  if (!BS_DEVICE) {
+    try {
+      await exe(sid, `document.getElementById('photoModal').classList.remove('open'); document.getElementById('snapBtn').click(); return true`);
+      let seen = null;
+      for (let i = 0; i < 40; i++) {
+        const st = await exe(sid, `(()=>{const cd=document.getElementById('photoCount');return cd && !cd.hidden ? cd.textContent : null})()`).catch(()=>null);
+        if (st && st !== seen) { seen = st; if (st === '2' || st === '1') break; }
+        await sleep(180);
+      }
+      await shot(sid, PLAT + '-gazua-countdown'); // numeral '2' or '1' mid-display (150px gold overlay)
+      const numeralNow = await exe(sid, `(()=>{const cd=document.getElementById('photoCount');return cd && !cd.hidden ? cd.textContent : 'hidden'})()`).catch(()=>null);
+      rec(A, 'photo card: 3-2-1 countdown numerals display on snap (DOM overlay visible, numeral captured mid-countdown)', seen === '2' || seen === '1', 'polled=' + String(seen) + ' atshot=' + String(numeralNow));
+      const cardOpen = await waitFor(sid, `document.getElementById('photoModal').classList.contains('open')`, 15000);
+      rec(A, 'photo card: card modal opens after countdown', !!cardOpen);
+      if (cardOpen) await shot(sid, PLAT + '-gazua-photocard');
+      await exe(sid, `document.getElementById('photoModal').classList.remove('open'); return true`).catch(()=>{});
+    } catch (e) { rec(A, 'photo card countdown capture', false, 'THROW ' + String(e).slice(0,120)); }
+  }
   await shot(sid, PLAT + '-gazua-final');
 }
 
@@ -1062,7 +1082,23 @@ const APPS = [
 
 const ONLY = process.env.ONLY ? process.env.ONLY.split(',') : null;
 const APPS_RUN = ONLY ? APPS.filter(([u]) => ONLY.some(o => u.includes(o))) : APPS;
-const driver = (BS || AP) ? null : spawn('/usr/bin/safaridriver', ['-p', '4444'], { stdio: 'ignore' });
+let driver = (BS || AP) ? null : spawn('/usr/bin/safaridriver', ['-p', '4444'], { stdio: 'ignore' });
+// one app's wedged Safari must not cascade: on session failure, kill Safari + driver, restart driver, retry once
+async function restartDriver() {
+  if (BS || AP) return;
+  try { driver && driver.kill(); } catch {}
+  await new Promise(r => { const p = spawn('pkill', ['-x', 'Safari'], { stdio: 'ignore' }); p.on('exit', r); setTimeout(r, 5000); });
+  await new Promise(r => { const p = spawn('pkill', ['-x', 'safaridriver'], { stdio: 'ignore' }); p.on('exit', r); setTimeout(r, 5000); });
+  await sleep(2000);
+  driver = spawn('/usr/bin/safaridriver', ['-p', '4444'], { stdio: 'ignore' });
+  await sleep(3000);
+}
+async function newSessionResilient() {
+  try { return await newSession(); }
+  catch (e) { console.log('session attempt 1 failed:', String(e).slice(0, 140), '- restarting Safari/safaridriver'); }
+  await restartDriver();
+  return newSession();
+}
 await sleep(BS ? 500 : 2500);
 try {
   for (const [url, fn] of APPS_RUN) {
@@ -1075,7 +1111,7 @@ try {
         rec(app, 'resume: reattached to live BS session', !!alive, String(alive));
         if (alive) await fn(sid);
       } else {
-      sid = await newSession();
+      sid = await newSessionResilient();
       const navResp = await nav(sid, url);
       console.log('nav', app, JSON.stringify(navResp).slice(0, 200));
       await sleep(4000);
