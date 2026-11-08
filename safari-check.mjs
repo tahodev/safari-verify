@@ -381,7 +381,7 @@ async function sweetPlay(sid, A) {
       const raw = await exe(sid, `localStorage.getItem('sweet-factory-save-v1')`).catch(() => null);
       let sv0 = null; try { sv0 = JSON.parse(raw); } catch (e) {}
       rec(A, 'save: progress stored in localStorage after solving rooms 1-2', !!(sv0 && sv0.solved && sv0.solved[0] && sv0.solved[1] && !sv0.solved[2]), String(raw));
-      await api('POST', '/url', { url: 'https://sweet-factory-escape-3d.onrender.com/' }, sid).catch(() => {});
+      await api('POST', '/url', { url: 'https://sweet-factory-escape-3d-77zp.onrender.com/' }, sid).catch(() => {});
       const back = await waitFor(sid, `!!document.getElementById('startBtn')`, 40000);
       await waitFor(sid, `[...document.querySelectorAll('button')].some(x=>/이어하기/.test(x.textContent))?true:null`, 6000);
       const cbs = await exe(sid, `(()=>{const b=[...document.querySelectorAll('button')].find(x=>/이어하기/.test(x.textContent));return b?b.textContent:null})()`).catch(() => null);
@@ -1070,13 +1070,13 @@ const APPS = [
   ['https://geungrak-club.onrender.com/', checkGeungrak],
   ['https://golden-gate-picnic-e9r0.onrender.com/', checkGGP],
   ['https://gazua-beopdang.onrender.com/?qa=1', checkGazua], // ?qa=1: app enables preserveDrawingBuffer so glDump reads real pixels (gazua 95cce39+)
-  ['https://sweet-factory-escape-3d.onrender.com/', checkSweet],
+  ['https://sweet-factory-escape-3d-77zp.onrender.com/', checkSweet],
   ['https://coworking-world-u4pn.onrender.com/', checkCoworking],
   ['https://coworking-world-u4pn.onrender.com/?auto=Audit&zone=lounge&yaw=.6&pitch=.75&dist=14&lite', checkCoworkingBeam],
   ['https://sajumadang.onrender.com/', checkDalbit],
   ['https://sajumadang.onrender.com/', checkSajuPin],
   ['https://seongsu-dogam-4qf0.onrender.com/', checkDogam('seongsu-dogam', 27)],
-  ['https://kurashi-otaru.onrender.com/', checkDogam('kurashi-otaru', 32)],
+  ['https://kurashi-otaru-uapm.onrender.com/', checkDogam('kurashi-otaru', 32)],
   ['https://ghibli-travel.onrender.com/', checkDogam('ghibli-travel', 15)],
 ];
 

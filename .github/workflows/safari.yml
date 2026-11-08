@@ -1,7 +1,7 @@
 name: safari-verify
 on:
   push:
-    paths-ignore: ["nd-*","cv*",".github/workflows/nd-npc.yml",".github/workflows/cv.yml",".github/workflows/ghibli.yml"]
+    paths-ignore: ["nd-*","cv*",".github/workflows/nd-npc.yml",".github/workflows/cv.yml",".github/workflows/ghibli.yml",".github/workflows/diag.yml","diag-tap.mjs"]
   workflow_dispatch:
     inputs:
       only:
@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Wake Render free-tier services
         run: |
-          for u in golden-gate-picnic-e9r0 sweet-factory-escape-3d coworking-world seongsu-dogam-4qf0 dalbit-saju-clone kurashi-otaru gazua-beopdang ghibli-travel; do
+          for u in golden-gate-picnic-e9r0 sweet-factory-escape-3d-77zp coworking-world seongsu-dogam-4qf0 dalbit-saju-clone kurashi-otaru-uapm gazua-beopdang ghibli-travel; do
             curl -s -o /dev/null -w "$u %{http_code}\n" "https://$u.onrender.com/" &
           done
           wait
