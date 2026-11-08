@@ -1,0 +1,53 @@
+name: diag-tap
+# Narrow read-only tap diagnostics for seongsu-dogam + ghibli-travel.
+# Fires only when this file or diag-tap.mjs changes; safari.yml ignores both.
+on:
+  push:
+    paths: [".github/workflows/diag.yml", "diag-tap.mjs"]
+  workflow_dispatch: {}
+
+jobs:
+  desktop:
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wake Render services
+        run: |
+          curl -s -o /dev/null -w "seongsu %{http_code}\n" "https://seongsu-dogam-4qf0.onrender.com/"
+          curl -s -o /dev/null -w "ghibli %{http_code}\n" "https://ghibli-travel.onrender.com/"
+      - name: Enable safaridriver
+        run: sudo safaridriver --enable
+      - name: Desktop tap diagnostics
+        run: |
+          set -o pipefail
+          mkdir -p results
+          ONLY="seongsu-dogam,ghibli-travel" node diag-tap.mjs 2>&1 | tee results/diag-desktop.log
+      - name: Upload desktop results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diag-desktop
+          path: results/
+          retention-days: 7
+  ios:
+    runs-on: macos-15
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wake Render services
+        run: |
+          curl -s -o /dev/null -w "seongsu %{http_code}\n" "https://seongsu-dogam-4qf0.onrender.com/"
+          curl -s -o /dev/null -w "ghibli %{http_code}\n" "https://ghibli-travel.onrender.com/"
+      - name: iOS Simulator tap diagnostics (positive control)
+        run: |
+          set -o pipefail
+          mkdir -p results
+          ONLY="seongsu-dogam,ghibli-travel" bash cv-diag-ios.sh 2>&1 | tee results/ios.log
+      - name: Upload iOS results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diag-ios
+          path: results/
+          retention-days: 7
