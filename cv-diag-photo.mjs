@@ -96,6 +96,7 @@ async function main() {
       if (!snap) { out.fatal = 'snapBtn-missing'; return false; }
       const cr = await click(sid, snap).catch(e => 'THROW ' + String(e && e.message || e).slice(0, 160));
       out.snapClick = typeof cr === 'string' ? cr : 'ok';
+      const tSnap = Date.now();
       // poll countdown numerals
       const seen = [];
       for (let i = 0; i < 14; i++) {
@@ -113,6 +114,19 @@ async function main() {
       out.shot = await exe(sid, `window.__photoDiag && window.__photoDiag.shot || null`).catch(() => null);
       out.resErr = await exe(sid, `window.__resErr || []`).catch(() => null);
       out.canvasPost = await exe(sid, `(()=>{const c=document.querySelector('canvas#gl');if(!c)return null;let lost=null;try{const g=c.getContext('webgl2')||c.getContext('webgl');lost=g?g.isContextLost():null}catch(e){lost='ERR '+String(e&&e.message||e).slice(0,80)}return JSON.stringify({w:c.width,h:c.height,lost})})()`).catch(() => null);
+      // Read-only GL probe (feeds the later repair review; measurements only, no cause
+      // attribution): ?qa=1 sets preserveDrawingBuffer:true so the last presented frame
+      // normally persists. Records drawing-buffer size, the ACTUAL context attributes,
+      // context-lost state, whether a synchronous same-task render was possible (the
+      // app loads client.js as type=module, so its renderer is normally unreachable
+      // from page scope), dense RGB + alpha counts (center 64x64; a bounded 8x8 tile
+      // grid across the frame only when the center is all-zero), gl.getError after each
+      // readPixels, and - only when pixel content exists - the readPixels -> row-flip ->
+      // opaque-2D-composite -> toDataURL fallback exercised in-page. When neither a
+      // same-task render nor buffer preservation is available the readback is reported
+      // as 'unavailable', never as a cause.
+      out.glProbeDelayMs = Date.now() - tSnap;
+      out.glProbe = await exe(sid, `(()=>{const c=document.getElementById('gl');if(!c)return 'no-canvas';const gl=c.getContext('webgl2')||c.getContext('webgl');if(!gl)return 'no-context';const t0=performance.now();const a=gl.getContextAttributes()||{};const r={preserve:!!a.preserveDrawingBuffer,lost:gl.isContextLost()};let sync=false;try{if(typeof renderer!=='undefined'&&renderer.render&&typeof scene!=='undefined'&&typeof camera!=='undefined'){renderer.render(scene,camera);sync=true;}}catch(e){r.syncRenderErr=String(e&&e.message||e).slice(0,120);}r.syncRender=sync?'same-task':'unavailable-module-scope';const w=gl.drawingBufferWidth,h=gl.drawingBufferHeight;r.dbw=w;r.dbh=h;if(!w||!h)return JSON.stringify(r);if(!sync&&!r.preserve){r.readback='unavailable: no same-task render and preserve=false - post-flow buffer not retained';r.probeMs=Math.round(performance.now()-t0);return JSON.stringify(r);}const S=64,cx=Math.max(0,(w>>1)-(S>>1)),cy=Math.max(0,(h>>1)-(S>>1));const px=new Uint8Array(S*S*4);gl.readPixels(cx,cy,S,S,gl.RGBA,gl.UNSIGNED_BYTE,px);r.errAfterCenter=gl.getError();let crgb=0,cal=0,casum=0;for(let i=0;i<px.length;i+=4){if(px[i]||px[i+1]||px[i+2])crgb++;if(px[i+3]){cal++;casum+=px[i+3];}}r.center={rgbPos:crgb,alphaPos:cal,alphaSum:casum,total:S*S};if(crgb===0&&cal===0){const T=32,G=8,tile=new Uint8Array(T*T*4);let trgb=0,tal=0,tasum=0;for(let gy=0;gy<G;gy++)for(let gx=0;gx<G;gx++){const tx=Math.round(gx*(w-T)/(G-1)),ty=Math.round(gy*(h-T)/(G-1));gl.readPixels(tx,ty,T,T,gl.RGBA,gl.UNSIGNED_BYTE,tile);for(let i=0;i<tile.length;i+=4){if(tile[i]||tile[i+1]||tile[i+2])trgb++;if(tile[i+3]){tal++;tasum+=tile[i+3];}}}r.errAfterGrid=gl.getError();r.grid={tiles:G*G,tileSize:T,rgbPos:trgb,alphaPos:tal,alphaSum:tasum,total:G*G*T*T};}const anyContent=crgb>0||cal>0||(r.grid&&(r.grid.rgbPos>0||r.grid.alphaPos>0));if(anyContent){const row=w*4,buf=new Uint8Array(w*h*4);gl.readPixels(0,0,w,h,gl.RGBA,gl.UNSIGNED_BYTE,buf);r.errAfterFull=gl.getError();const tmp=new Uint8Array(row);for(let t=0,b=h-1;t<b;t++,b--){tmp.set(buf.subarray(t*row,t*row+row));buf.copyWithin(t*row,b*row,b*row+row);buf.set(tmp,b*row);}const tc=document.createElement('canvas');tc.width=w;tc.height=h;const tx2=tc.getContext('2d');const im=tx2.createImageData(w,h);im.data.set(buf);tx2.putImageData(im,0,0);const oc=document.createElement('canvas');oc.width=w;oc.height=h;const ox=oc.getContext('2d');ox.fillStyle='#000';ox.fillRect(0,0,w,h);ox.drawImage(tc,0,0);const d=oc.toDataURL('image/png');r.fallbackLen=d.length;r.fallbackPrefix=d.slice(0,22);}r.probeMs=Math.round(performance.now()-t0);return JSON.stringify(r)})()`).catch(e => 'THROW ' + String(e && e.message || e).slice(0, 160));
     } finally {
       console.log('DIAG-SUMMARY', JSON.stringify(out));
       fs.writeFileSync('results/diag-gazua-photo.json', JSON.stringify(out, null, 2));

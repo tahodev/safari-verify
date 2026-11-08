@@ -76,20 +76,39 @@ async function main() {
       out.boot = !!boot;
       console.log('diag boot:', !!boot);
       if (!boot) { out.fatal = 'boot-timeout'; return false; }
-      // first-visit entry: name flow FIRST (its opener lives inside the guide sheet), else close guide
+      // first-visit entry: name flow FIRST (its opener lives inside the guide sheet),
+      // else close the guide. Every stage is recorded so a name-flow failure is
+      // diagnosable (run 42440895025: named=false with the veil still open and no
+      // reason captured). Navigation verdicts are gated on named=true below: a click
+      // that lands on the open veil is a no-op, so pin/maru results before naming
+      // say nothing about the features under test.
       const nameGo = await visEl(sid, XP_NAME_GO);
       out.entryPath = nameGo ? 'nameflow' : 'close-or-returning';
+      const nf = { veilOpenerFound: !!nameGo };
       if (nameGo) {
         console.log('diag entry: name flow'); await click(sid, nameGo); await sleep(800);
         const nickIn = await el(sid, 'css selector', '#fNick');
+        nf.nickFieldFound = !!nickIn;
         if (nickIn) { await click(sid, nickIn); await type(sid, nickIn, 'QA마당'); }
         const nickGo = await visEl(sid, XP_NICK_GO);
-        if (nickGo) { await click(sid, nickGo); await sleep(2000); }
-        out.named = !!(await exe(sid, `!!document.getElementById('sayInput')`).catch(() => null));
+        nf.nickGoFound = !!nickGo;
+        if (nickGo) {
+          await click(sid, nickGo);
+          out.named = !!(await waitFor(sid, `!!document.getElementById('sayInput')`, 15000));
+        } else out.named = false;
       } else {
         const gc = await visEl(sid, XP_CLOSE);
+        nf.guideClosed = !!gc;
         if (gc) { await click(sid, gc); await sleep(800); }
+        out.named = !!(await exe(sid, `!!document.getElementById('sayInput')`).catch(() => null));
       }
+      nf.namedConfirmed = !!out.named;
+      if (!out.named) {
+        nf.veilStillOpen = !!(await exe(sid, `(()=>{const v=document.querySelector('DIV.veil');return !!(v&&v.offsetHeight>0)})()`).catch(() => null));
+        nf.connNote = await exe(sid, `(()=>{const m=document.body.innerText.match(/[^\\n]*config\\.js[^\\n]*/);return m?m[0].trim().slice(0,120):''})()`).catch(() => null);
+        await shot(sid, 'diag-saju-namefail');
+      }
+      out.nameFlow = nf;
       // In-scene market door chip: READ-ONLY evidence only (cross-engine app defect:
       // it can lay out off-viewport - Safari (-92,378), Chrome (-71,378) at 1280x848,
       // position varies run to run). Do NOT click it for the verdict.
@@ -97,6 +116,16 @@ async function main() {
       out.doorPresent = !!door;
       if (door) {
         out.doorHitPre = await exe(sid, `(()=>{const c=document.querySelector('button.pldoor.pd-market');const r=c.getBoundingClientRect();const t=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return JSON.stringify({rect:[Math.round(r.x),Math.round(r.y),Math.round(r.width),Math.round(r.height)],self:t===c,top:t?t.tagName+'.'+String(t.className||'').slice(0,40):null})})()`).catch(() => null);
+      }
+      // Name gate: do not judge navigation before the name flow completes. The door
+      // read-only measurement above still ran (it clicks nothing), but shortcut/pin/maru
+      // require a closed veil and a named session.
+      if (!out.named) {
+        out.fatal = 'nameflow-incomplete';
+        out.navigationSkipped = 'name-gate';
+        out.pinFixA78f226 = null; // UNVERIFIABLE this run, not a FAIL of a78f226
+        await shot(sid, 'diag-saju-playpin');
+        return false;
       }
       // Night market via the legitimate bottom-bar shortcut (button.rbchip) - validated
       // in local Chrome at the same 1280x848 viewport: rbchip click -> market -> pin
