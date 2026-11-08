@@ -1,0 +1,29 @@
+name: ghibli-verify
+# Scoped ghibli-travel desktop Safari run (15-scene deepwalk). Fires when this
+# workflow file or the ghibli data changes; the main safari.yml ignores ghibli.yml.
+on:
+  push:
+    paths: [".github/workflows/ghibli.yml"]
+  workflow_dispatch: {}
+
+jobs:
+  verify:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wake Render service
+        run: curl -s -o /dev/null -w "ghibli %{http_code}\n" "https://ghibli-travel.onrender.com/"
+      - name: Enable safaridriver
+        run: sudo safaridriver --enable
+      - name: Desktop Safari verification (ghibli only, deepwalk all 15)
+        run: |
+          set -o pipefail
+          mkdir -p results
+          ONLY="ghibli-travel" node safari-check.mjs 2>&1 | tee results/desktop-ghibli.log
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ghibli-results
+          path: results/
