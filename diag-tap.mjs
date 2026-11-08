@@ -6,6 +6,7 @@
 // Real input only: W3C pointer tap at canvas center + W3C key actions (w key).
 // iOS leg (AP=1) is the positive control: iOS sim Safari paints 2D fine.
 import fs from 'node:fs';
+import { spawn } from 'node:child_process';
 
 const AP = process.env.AP === '1';
 const BASE = AP ? 'http://127.0.0.1:4723' : 'http://127.0.0.1:4444';
@@ -106,14 +107,24 @@ async function diagApp(sid, app, url) {
   if (!boot) return;
   await sleep(3000); // let the entry screen settle; do NOT enter — engine loop runs behind start
   console.log('diag install:', await exe(sid, INSTALL).catch(e => 'ERR ' + e));
-  // enter the game if a start gate is up (real button click), else proceed
-  const gate = await el(sid, 'css selector', '#go, .gate-links button, #startBtn, button');
-  const st0 = JSON.parse(await exe(sid, SAMPLE).catch(() => '{}') || '{}');
-  console.log('diag pre-enter stage:', st0.stage, 'scene:', st0.scene);
-  if (st0.stage && st0.stage !== 'game' && gate) {
-    await api('POST', `/element/${gate}/click`, {}, sid).catch(() => {});
-    await sleep(2500);
+  // real entry flow (same as safari-check checkDogam): language -> begin -> city -> game
+  const lang = await el(sid, 'xpath', `//div[contains(@class,'language-grid')]//button[contains(.,'English')]`);
+  if (lang) await api('POST', `/element/${lang}/click`, {}, sid).catch(() => {});
+  await sleep(1800);
+  const begin = await el(sid, 'xpath', `//*[@id='start-actions']//button[1]`);
+  if (begin) await api('POST', `/element/${begin}/click`, {}, sid).catch(() => {});
+  await sleep(1500);
+  const atCity = await waitFor(sid, `window.__dogam && window.__dogam.stage()==='city' ? 'city' : null`, 20000);
+  if (atCity) {
+    const begin2 = await el(sid, 'xpath', `//*[@id='city-action']//button[1]`);
+    if (begin2) await api('POST', `/element/${begin2}/click`, {}, sid).catch(() => {});
   }
+  const entered = await waitFor(sid, `window.__dogam && window.__dogam.stage()==='game' ? 'game' : null`, 30000);
+  console.log('diag entry stage:', entered || 'NOT-ENTERED');
+  if (!entered) { console.log('diag: aborting app, not in game'); return; }
+  // dismiss the walking-tips modal if present (blocks canvas taps)
+  await exe(sid, `(()=>{const m=document.querySelector('.modal:not(.hidden)');if(m){const b=m.querySelector('button');if(b)b.click();return 'dismissed'}return 'none'})()`).catch(() => {});
+  await sleep(800);
   const sBase = JSON.parse(await exe(sid, SAMPLE).catch(() => '{}') || '{}');
   console.log('diag baseline:', JSON.stringify(sBase));
   await sleep(2000);
@@ -148,6 +159,13 @@ async function diagApp(sid, app, url) {
   console.log('DIAG-SUMMARY', JSON.stringify({ app, mode: AP ? 'ios-sim' : 'desktop', baseline: sBase, final: fin, elementFromPoint: hit ? JSON.parse(hit) : null }));
 }
 
+// desktop needs safaridriver running; iOS(AP) gets its server from the workflow
+let driver = null;
+if (!AP) {
+  await new Promise(r => { const p = spawn('pkill', ['-x', 'safaridriver'], { stdio: 'ignore' }); p.on('exit', r); setTimeout(r, 4000); });
+  driver = spawn('/usr/bin/safaridriver', ['-p', '4444'], { stdio: 'ignore' });
+  await sleep(3000);
+}
 const sid = await newSession();
 try {
   for (const app of ONLY) if (APPS[app]) await diagApp(sid, app, APPS[app]);
