@@ -90,15 +90,26 @@ async function main() {
         const gc = await visEl(sid, XP_CLOSE);
         if (gc) { await click(sid, gc); await sleep(800); }
       }
-      // yard -> night market via the market door chip FIRST: pd-market only paints in
-      // the post-entry gate/yard scene (zero rect inside maru - run 42436810482)
+      // In-scene market door chip: READ-ONLY evidence only (cross-engine app defect:
+      // it can lay out off-viewport - Safari (-92,378), Chrome (-71,378) at 1280x848,
+      // position varies run to run). Do NOT click it for the verdict.
       const door = await el(sid, 'css selector', 'button.pldoor.pd-market');
       out.doorPresent = !!door;
       if (door) {
         out.doorHitPre = await exe(sid, `(()=>{const c=document.querySelector('button.pldoor.pd-market');const r=c.getBoundingClientRect();const t=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return JSON.stringify({rect:[Math.round(r.x),Math.round(r.y),Math.round(r.width),Math.round(r.height)],self:t===c,top:t?t.tagName+'.'+String(t.className||'').slice(0,40):null})})()`).catch(() => null);
-        const cr = await click(sid, door).catch(e => 'THROW ' + String(e && e.message || e).slice(0, 160));
-        out.doorClick = typeof cr === 'string' ? cr : 'ok';
-        await sleep(3000);
+      }
+      // Night market via the legitimate bottom-bar shortcut (button.rbchip) - validated
+      // in local Chrome at the same 1280x848 viewport: rbchip click -> market -> pin
+      // probe pass (hit=true, z 3>2, 12px). Real WebDriver click; driver scrolls into view.
+      {
+        const XP_SC = `//button[contains(@class,'rbchip') and (contains(.,'Night market') or contains(.,'야시장'))]`;
+        const sc = await visEl(sid, XP_SC);
+        out.shortcutPresent = !!sc;
+        if (sc) {
+          const cr = await click(sid, sc).catch(e => 'THROW ' + String(e && e.message || e).slice(0, 160));
+          out.shortcutClick = typeof cr === 'string' ? cr : 'ok';
+          await sleep(3000);
+        }
         const pin = await exe(sid, `(()=>{const p=document.querySelector('button.plpin'),h=document.querySelector('.plhere');if(!p||!h)return JSON.stringify({pin:!!p,here:!!h});const pr=p.getBoundingClientRect(),hr=h.getBoundingClientRect();const overlap=!(pr.right<hr.left||pr.left>hr.right||pr.bottom<hr.top||pr.top>hr.bottom);const zp=getComputedStyle(p).zIndex,zh=getComputedStyle(h).zIndex;const fs=+getComputedStyle(p).fontSize.replace('px','');const el=document.elementFromPoint(pr.left+pr.width/2,pr.top+pr.height/2);const hit=el===p||p.contains(el);return JSON.stringify({pin:true,here:true,overlap,zp,zh,hit,pinText:p.textContent.trim().slice(0,30),pinVisible:p.offsetHeight>0&&p.offsetWidth>0,fs})})()`).catch(() => null);
         out.pin = pin ? JSON.parse(pin) : null;
         out.pinFixA78f226 = !!(out.pin && out.pin.pin && out.pin.here && out.pin.hit === true && +out.pin.zp > +out.pin.zh && out.pin.pinVisible && out.pin.pinText.length > 0 && out.pin.fs >= 10);

@@ -57,13 +57,16 @@ const HOOKS = `(()=>{
   if (window.__photoDiag) return 'already';
   window.__errs = []; window.__stacks = [];
   addEventListener('error', e => { __errs.push({ msg: String(e.message||'').slice(0,200), stack: String(e.error && e.error.stack || '').slice(0,600) }); });
-  addEventListener('unhandledrejection', e => { __errs.push({ msg: 'rej:' + String(e.reason && (e.reason.message || e.reason)).slice(0,200), stack: String(e.reason && e.reason.stack || '').slice(0,600) }); });
+  addEventListener('unhandledrejection', e => { const r = e.reason; __errs.push({ msg: 'rej:' + String(r && (r.message || r)).slice(0,200), stack: String(r && r.stack || '').slice(0,600), evt: r && r.type ? { type: r.type, targetTag: r.target && r.target.tagName, targetSrc: String(r.target && r.target.src || '').slice(0, 60), srcLen: r.target && r.target.src ? r.target.src.length : null } : null }); });
   const wrapM = (proto, ms) => { ms.forEach(m => { const og = proto[m]; if (typeof og !== 'function') return; proto[m] = function(){ try { return og.apply(this, arguments); } catch (err) { if (__stacks.length < 6) __stacks.push(m + ': ' + String(err.stack || err).slice(0,600)); throw err; } }; }); };
   wrapM(CanvasRenderingContext2D.prototype, ['drawImage','fillRect','fillText','getImageData','putImageData','strokeRect']);
   const ogc = HTMLCanvasElement.prototype.getContext;
   HTMLCanvasElement.prototype.getContext = function(t, o){ try { return ogc.call(this, t, o); } catch (err) { if (__stacks.length < 6) __stacks.push('getContext(' + t + '): ' + String(err.stack || err).slice(0,600)); throw err; } };
   const otd = HTMLCanvasElement.prototype.toDataURL;
-  HTMLCanvasElement.prototype.toDataURL = function(){ try { return otd.apply(this, arguments); } catch (err) { if (__stacks.length < 6) __stacks.push('toDataURL: ' + String(err.stack || err).slice(0,600)); throw err; } };
+  HTMLCanvasElement.prototype.toDataURL = function(){ try { const r = otd.apply(this, arguments); if (this.id === 'gl') window.__photoDiag.shot = { len: r.length, prefix: r.slice(0, 40) }; return r; } catch (err) { if (__stacks.length < 6) __stacks.push('toDataURL: ' + String(err.stack || err).slice(0,600)); throw err; } };
+  // capture-phase resource error evidence (img/script/link load failures; error events capture but do not bubble)
+  window.__resErr = [];
+  addEventListener('error', e => { if (e && e.target && e.target !== window && __resErr.length < 10) __resErr.push({ tag: e.target.tagName, src: String(e.target.src || e.target.href || '').slice(0, 140) }); }, true);
   let c2d = 'ok';
   try { const c = document.createElement('canvas'); c.getContext('2d').fillRect(0,0,1,1); } catch (e) { c2d = 'THROW ' + String(e && e.message || e).slice(0,120); }
   window.__photoDiag = { c2d };
@@ -87,6 +90,7 @@ async function main() {
       out.hooks = await exe(sid, HOOKS).catch(e => 'ERR ' + e);
       console.log('diag hooks:', out.hooks);
       await sleep(2000);
+      out.canvasPre = await exe(sid, `(()=>{const c=document.querySelector('canvas#gl');if(!c)return null;let lost=null;try{const g=c.getContext('webgl2')||c.getContext('webgl');lost=g?g.isContextLost():null}catch(e){lost='ERR '+String(e&&e.message||e).slice(0,80)}return JSON.stringify({w:c.width,h:c.height,lost})})()`).catch(() => null);
       const snap = await el(sid, 'css selector', '#snapBtn');
       out.snapPresent = !!snap;
       if (!snap) { out.fatal = 'snapBtn-missing'; return false; }
@@ -106,6 +110,9 @@ async function main() {
       out.errs = await exe(sid, `window.__errs || []`).catch(() => null);
       out.stacks = await exe(sid, `window.__stacks || []`).catch(() => null);
       out.c2d = await exe(sid, `window.__photoDiag && window.__photoDiag.c2d`).catch(() => null);
+      out.shot = await exe(sid, `window.__photoDiag && window.__photoDiag.shot || null`).catch(() => null);
+      out.resErr = await exe(sid, `window.__resErr || []`).catch(() => null);
+      out.canvasPost = await exe(sid, `(()=>{const c=document.querySelector('canvas#gl');if(!c)return null;let lost=null;try{const g=c.getContext('webgl2')||c.getContext('webgl');lost=g?g.isContextLost():null}catch(e){lost='ERR '+String(e&&e.message||e).slice(0,80)}return JSON.stringify({w:c.width,h:c.height,lost})})()`).catch(() => null);
     } finally {
       console.log('DIAG-SUMMARY', JSON.stringify(out));
       fs.writeFileSync('results/diag-gazua-photo.json', JSON.stringify(out, null, 2));
