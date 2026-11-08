@@ -1,28 +1,41 @@
 name: diag-tap
-# Narrow read-only tap diagnostics for seongsu-dogam + ghibli-travel.
-# Fires only when this file or diag-tap.mjs changes; safari.yml ignores both.
+# Narrow read-only diagnostics: seongsu-dogam + ghibli-travel tap paths,
+# sajumadang entry + market pin, gazua-beopdang photo-card stack capture.
+# Scoped: safari.yml ignores all diag* paths. diag-tap legs run only when
+# diag-tap.mjs itself changes (or on manual dispatch) to avoid paid-minute reruns.
 on:
   push:
-    paths: [".github/workflows/diag.yml", "diag-tap.mjs"]
+    paths: [".github/workflows/diag.yml", "diag-tap.mjs", "diag-saju.mjs", "diag-gazua-photo.mjs"]
   workflow_dispatch: {}
 
 jobs:
   desktop:
     runs-on: macos-15
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - name: Wake Render services
         run: |
           curl -s -o /dev/null -w "seongsu %{http_code}\n" "https://seongsu-dogam-4qf0.onrender.com/"
           curl -s -o /dev/null -w "ghibli %{http_code}\n" "https://ghibli-travel.onrender.com/"
+          curl -s -o /dev/null -w "saju %{http_code}\n" "https://sajumadang.onrender.com/"
+          curl -s -o /dev/null -w "gazua %{http_code}\n" "https://gazua-beopdang.onrender.com/"
       - name: Enable safaridriver
         run: sudo safaridriver --enable
       - name: Desktop tap diagnostics
+        if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.modified, 'diag-tap.mjs') || contains(github.event.head_commit.added, 'diag-tap.mjs')
         run: |
           set -o pipefail
           mkdir -p results
           ONLY="seongsu-dogam,ghibli-travel" node diag-tap.mjs 2>&1 | tee results/diag-desktop.log
+      - name: Saju entry + market pin diagnostics (locale-agnostic)
+        run: |
+          mkdir -p results
+          node diag-saju.mjs 2>&1 | tee results/diag-saju-desktop.log
+      - name: Gazua photo-card stack capture
+        run: |
+          mkdir -p results
+          node diag-gazua-photo.mjs 2>&1 | tee results/diag-photo-desktop.log
       - name: Upload desktop results
         if: always()
         uses: actions/upload-artifact@v4
@@ -33,6 +46,7 @@ jobs:
   ios:
     runs-on: macos-15
     timeout-minutes: 35
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.modified, 'diag-tap.mjs') || contains(github.event.head_commit.added, 'diag-tap.mjs')
     steps:
       - uses: actions/checkout@v4
       - name: Wake Render services
