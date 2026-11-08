@@ -7,6 +7,7 @@
 // Probe validated in desktop Chrome 2026-11-08: hooks installed, snap ->
 // countdown -> #photoModal.open with zero captured errors (no-flow-disturbance).
 import fs from 'node:fs';
+import { spawn } from 'node:child_process';
 
 const BASE = 'http://127.0.0.1:4444';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -59,6 +60,10 @@ const HOOKS = `(()=>{
 
 async function main() {
   const out = { app: 'gazua-beopdang', mode: 'desktop', check: 'photo-card full flow + actual stack capture' };
+  // desktop runner: spawn safaridriver ourselves (workflow only enables it)
+  await new Promise(r => { const p = spawn('pkill', ['-x', 'safaridriver'], { stdio: 'ignore' }); p.on('exit', r); setTimeout(r, 4000); });
+  spawn('/usr/bin/safaridriver', ['-p', '4444'], { stdio: 'ignore' });
+  await sleep(3000);
   const sid = await newSession();
   try {
     await nav(sid, URL1);

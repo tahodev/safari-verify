@@ -5,6 +5,7 @@
 // This script is locale-agnostic (bilingual xpaths) and visibility-gates matches.
 // Desktop-only: iOS sim evidence for this flow is collected separately.
 import fs from 'node:fs';
+import { spawn } from 'node:child_process';
 
 const BASE = 'http://127.0.0.1:4444';
 const EL = 'element-6066-11e4-a52e-4f735466cecf';
@@ -52,6 +53,10 @@ const XP_CLOSE = `//button[contains(.,'닫기') or contains(.,'Close')]`;
 
 async function main() {
   const out = { app: 'sajumadang', mode: 'desktop' };
+  // desktop runner: spawn safaridriver ourselves (workflow only enables it)
+  await new Promise(r => { const p = spawn('pkill', ['-x', 'safaridriver'], { stdio: 'ignore' }); p.on('exit', r); setTimeout(r, 4000); });
+  spawn('/usr/bin/safaridriver', ['-p', '4444'], { stdio: 'ignore' });
+  await sleep(3000);
   const sid = await newSession();
   try {
     await nav(sid, URL1);
