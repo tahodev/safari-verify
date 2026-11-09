@@ -13,7 +13,7 @@ jobs:
           rm -rf results
           mkdir -p results
           set -o pipefail
-          node cv-current-maps.mjs 2>&1 | tee results/current-mac.log
+          node cv-cpu-diagnostic.mjs 2>&1 | tee results/current-mac.log
       - uses: actions/upload-artifact@v4
         if: always()
         with:
