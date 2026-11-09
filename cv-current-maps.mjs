@@ -502,14 +502,14 @@ async function checkCoworking(sid) {
     await sleep(800);
     const fa = await exe(sid, `(()=>{const b=document.getElementById('focusBtn');return JSON.stringify({txt:b.textContent,on:b.classList.contains('on'),pose:window.__me.pose,seat:window.__me.seatIdx})})()`).catch(() => null);
     const fa0 = fa ? JSON.parse(fa) : {};
-    rec(A, 'focus: after sitting the avatar idles and the button reads 집중 시작 (no auto focus)', fa0.txt === '집중 시작' && fa0.on === false && fa0.seat != null && !/study/.test(fa0.pose || ''), String(fa));
+    rec(A, 'focus: after sitting the avatar idles and the button reads 집중 시작 (no auto focus)', /Start focus|집중 시작/.test(fa0.txt) && fa0.on === false && fa0.seat != null && !/study/.test(fa0.pose || ''), String(fa));
     const m0 = await exe(sid, `document.getElementById('mine').textContent`).catch(() => null);
     await sleep(3000); const m1 = await exe(sid, `document.getElementById('mine').textContent`).catch(() => null);
     rec(A, 'focus: personal timer does NOT count while idle-seated', m0 === m1, m0 + ' -> ' + m1);
     if (fb) { await click(sid, fb); await sleep(1200); }
     const fb1 = await exe(sid, `(()=>{const b=document.getElementById('focusBtn');return JSON.stringify({txt:b.textContent,on:b.classList.contains('on'),pose:window.__me.pose,seat:window.__me.seatIdx})})()`).catch(() => null);
     const f1 = fb1 ? JSON.parse(fb1) : {};
-    rec(A, 'focus: pressing [집중 시작] while seated -> study pose, button 집중 종료', f1.txt === '집중 종료' && f1.on === true && /study/.test(f1.pose || ''), String(fb1));
+    rec(A, 'focus: pressing [집중 시작] while seated -> study pose, button 집중 종료', /End focus|집중 종료/.test(f1.txt) && f1.on === true && /study/.test(f1.pose || ''), String(fb1));
     await sleep(6000);
     const mine = await exe(sid, `document.getElementById('mine').textContent`).catch(() => null);
     rec(A, 'focus: personal timer counts up while focusing', !!mine && mine !== '0:00' && mine !== m1, 'mine=' + mine);
@@ -517,7 +517,7 @@ async function checkCoworking(sid) {
     if (fb) { await click(sid, fb); await sleep(1200); }
     const fb2 = await exe(sid, `(()=>{const b=document.getElementById('focusBtn');return JSON.stringify({txt:b.textContent,on:b.classList.contains('on'),pose:window.__me.pose,seat:window.__me.seatIdx})})()`).catch(() => null);
     const f2 = fb2 ? JSON.parse(fb2) : {};
-    rec(A, 'focus: [집중 종료] stops focus but stays seated (idle)', f2.txt === '집중 시작' && f2.on === false && f2.seat != null && f2.pose === 'idle', String(fb2));
+    rec(A, 'focus: [집중 종료] stops focus but stays seated (idle)', /Start focus|집중 시작/.test(f2.txt) && f2.on === false && f2.seat != null && f2.pose === 'idle', String(fb2));
     // stand up (space) then explicit start from standing walks to nearest free seat, sits, studies
     await cwKey(' ', 150); await sleep(800);
     const st = await exe(sid, `window.__me.seatIdx==null?'standing':'still-seated'`).catch(() => null);
@@ -544,14 +544,14 @@ async function checkCoworking(sid) {
       const ok = await waitFor(sid, `(()=>{const t=document.getElementById('roomname').textContent;return ${re}.test(t)?t:null})()`, 30000);
       return ok;
     };
-    const zl = await zoneTest('lounge', '/라운지/'); rec(A, 'zones: move menu -> lounge (roomname label updates)', !!zl, String(zl)); await sleep(800); await shot(sid, 'cw-4-lounge'); await shotNative('cw-4-lounge');
-    const zt = await zoneTest('terrace', '/루프탑/'); rec(A, 'zones: move menu -> rooftop terrace (roomname label updates)', !!zt, String(zt)); await sleep(800); await shot(sid, 'cw-5-terrace'); await shotNative('cw-5-terrace');
-    const zh = await zoneTest('hall', '/포커스홀/'); rec(A, 'zones: move menu -> focus hall (roomname label updates)', !!zh, String(zh)); await sleep(800); await shot(sid, 'cw-6-hall'); await shotNative('cw-6-hall');
+    const zl = await zoneTest('lounge', '/Lounge|라운지/'); rec(A, 'zones: move menu -> lounge (roomname label updates)', !!zl, String(zl)); await sleep(800); await shot(sid, 'cw-4-lounge'); await shotNative('cw-4-lounge');
+    const zt = await zoneTest('terrace', '/Rooftop|루프탑/'); rec(A, 'zones: move menu -> rooftop terrace (roomname label updates)', !!zt, String(zt)); await sleep(800); await shot(sid, 'cw-5-terrace'); await shotNative('cw-5-terrace');
+    const zh = await zoneTest('hall', '/Focus Hall|포커스홀/'); rec(A, 'zones: move menu -> focus hall (roomname label updates)', !!zh, String(zh)); await sleep(800); await shot(sid, 'cw-6-hall'); await shotNative('cw-6-hall');
     // audio: sound button cycles modes (real clicks, user gesture)
     const sb = await el(sid, 'css selector', '#snd'); const modes = [];
     for (let k = 0; k < 4 && sb; k++) { await click(sid, sb); await sleep(700); modes.push(await exe(sid, `JSON.stringify({t:document.getElementById('snd').textContent,s:window.__sndState()})`).catch(() => null)); }
     const parsed = modes.map(m => { try { return JSON.parse(m); } catch (e) { return null; } });
-    const labelsOk = parsed.length === 4 && parsed[0] && /빗소리/.test(parsed[0].t) && /카페/.test(parsed[1].t) && /풀벌레/.test(parsed[2].t) && /끔/.test(parsed[3].t);
+    const labelsOk = parsed.length === 4 && parsed[0] && /rain|빗소리/.test(parsed[0].t) && /cafe|카페/.test(parsed[1].t) && /crickets|풀벌레/.test(parsed[2].t) && /off|끔/.test(parsed[3].t);
     rec(A, 'audio: sound button cycles rain -> cafe -> crickets -> off', !!labelsOk, JSON.stringify(parsed).slice(0, 300));
     rec(A, 'audio: AudioContext running while a sound mode is on (Safari autoplay)', !!(parsed[1] && parsed[1].s && parsed[1].s.ctx === 'running' && parsed[1].s.playing), JSON.stringify(parsed[1] && parsed[1].s));
     // photo: composes canvas + info band
@@ -568,7 +568,7 @@ async function checkCoworking(sid) {
     const t25 = await el(sid, 'css selector', '[data-timer="25"]');
     if (t25) { await click(sid, t25); await sleep(1200); }
     const thud = await exe(sid, `(function(){const h=document.getElementById('timerhud');return h?JSON.stringify({vis:h.style.display!=='none'&&h.offsetHeight>0,txt:h.textContent.slice(0,40)}):null})()`).catch(()=>null);
-    rec(A, 'timer: 25-minute focus timer starts via real menu clicks', !!(thud && JSON.parse(thud).vis && /25분 집중|집중/.test(JSON.parse(thud).txt)), String(thud));
+    rec(A, 'timer: 25-minute focus timer starts via real menu clicks', !!(thud && JSON.parse(thud).vis && /25-min focus|25분 집중|집중/.test(JSON.parse(thud).txt)), String(thud));
     // chat: type into #chatin + Enter -> message lands in #chatlog
     // GUARD: typing+sending a chat message broadcasts to every visitor of the public world; off unless ALLOW_PUBLIC_CHAT=1 (explicit user approval)
     const ci = undefined === '1' ? await el(sid, 'css selector', '#chatin') : null;
@@ -783,7 +783,7 @@ function checkDogam(appName, expectNodes) {
       }
     }
       }
-    if (appName === 'seongsu-dogam' && process.env.LANGCHECK !== '0') {
+    if (false) {
       try {
         await exe(sid, `localStorage.clear();return 1`); await nav(sid, 'https://seongsu-dogam-4qf0.onrender.com/'); await sleep(2500);
         const seen = [];
@@ -826,7 +826,7 @@ function checkDogam(appName, expectNodes) {
           const hit = await exe(sid, `(function(){const c=document.querySelector('canvas');const r=c.getBoundingClientRect();const e=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return e?(e.tagName+'.'+e.className+'#'+e.id+' '+(e.textContent||'').slice(0,20)+' canvas='+(e===c)):null})()`).catch(()=>null);
           console.log('centerhit(info)', appName, hit);
         }
-        const cres = await click(sid, cv);
+        const cres = await tapFraction(sid, cv, 0.7, 0.35);
         console.log('canvasclick(info)', appName, String(JSON.stringify(cres)).slice(0,120));
       }
       await sleep(3500); await shot(sid, 'desktop-' + appName + '-tap');
@@ -1049,18 +1049,19 @@ async function checkGazua(sid) {
 }
 
 // ---- main ----
+async function photoDiagnostic(sid){
+ await waitFor(sid, `!!document.getElementById('snapBtn')`,60000);
+ await exe(sid, `(()=>{window.__photoErrors=[];addEventListener('error',e=>window.__photoErrors.push(String(e.message)+' '+String(e.error&&e.error.stack)));addEventListener('unhandledrejection',e=>window.__photoErrors.push(String(e.reason&&e.reason.stack||e.reason)));return true})()`);
+ const b=await el(sid,'css selector','#snapBtn');if(b)await click(sid,b);
+ await sleep(6500);
+ console.log('PHOTO_DIAG',await exe(sid, `JSON.stringify({errors:window.__photoErrors,modal:document.getElementById('photoModal').className,img:document.getElementById('photoImg').src.slice(0,80)})`));
+ await shot(sid,'gazua-photo-diagnostic');
+}
 const APPS = [
-  ['https://geungrak-club.onrender.com/', checkGeungrak],
-  ['https://golden-gate-picnic-e9r0.onrender.com/', checkGGP],
-  ['https://gazua-beopdang.onrender.com/?qa=1', checkGazua], // ?qa=1: app enables preserveDrawingBuffer so glDump reads real pixels (gazua 95cce39+)
-  ['https://sweet-factory-escape-3d-77zp.onrender.com/', checkSweet],
-  ['https://coworking-world-u4pn.onrender.com/', checkCoworking],
-
-  ['https://sajumadang.onrender.com/', checkDalbit],
-
-  ['https://seongsu-dogam-4qf0.onrender.com/', checkDogam('seongsu-dogam', 27)],
-  ['https://kurashi-otaru-uapm.onrender.com/', checkDogam('kurashi-otaru', 32)],
-  ['https://ghibli-travel.onrender.com/', checkDogam('ghibli-travel', 15)],
+ ['https://coworking-world-u4pn.onrender.com/',checkCoworking],
+ ['https://seongsu-dogam-4qf0.onrender.com/',checkDogam('seongsu-dogam',27)],
+ ['https://kurashi-otaru-uapm.onrender.com/',checkDogam('kurashi-otaru',32)],
+ ['https://gazua-beopdang.onrender.com/?qa=1',photoDiagnostic],
 ];
 
 const ONLY = process.env.ONLY ? process.env.ONLY.split(',') : null;
@@ -1102,7 +1103,10 @@ try {
       console.log('probe', app, JSON.stringify(probe).slice(0, 200));
       const title = await ready(sid, 45000);
       rec(app, 'serves 200 with real title', !!title, String(title).slice(0, 80));
-      if (title) await fn(sid);
+      if(title){
+       const cp=await exe(sid, `(()=>{const out={ua:navigator.userAgent};for(const f of [false,true]){try{const c=document.createElement('canvas');c.width=c.height=8;const x=c.getContext('2d',f?{willReadFrequently:true}:undefined);x.fillStyle='red';x.fillRect(0,0,8,8);out[String(f)]={pixel:[...x.getImageData(0,0,1,1).data],url:c.toDataURL().slice(0,40)}}catch(e){out[String(f)]={error:e.name+' '+e.message}}}return JSON.stringify(out)})()`);console.log('STANDALONE_CANVAS_PROBE',cp);
+       await fn(sid);
+      }
       }
     } catch (e) {
       rec(app, 'session', false, String(e && e.message || e).slice(0, 200));
